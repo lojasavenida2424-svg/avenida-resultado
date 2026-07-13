@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AV Resultados Operadores V39 — Menu Alinhado</title>
+  <title>AV Resultados Operadores V46 — Configuração Mensal de PF</title>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <style>
     :root{
@@ -3782,7 +3782,7 @@
           <form id="headerForm" class="card section-card">
             <div>
               <h3>Metas e indicadores gerais da loja</h3>
-              <small>Venda, Ativados do Dia, Meta Total Mensal e Total de Ativados representam os resultados gerais da loja.</small>
+              <small>Configure os resultados gerais da loja, incluindo o PF realizado no mês e a meta mensal de Produtos Financeiros.</small>
             </div>
             <div class="form-grid">
               <div class="field"><label>Venda atual</label><input id="cfgVendaAtual" class="control currency-input" type="text" inputmode="decimal" autocomplete="off" placeholder="R$ 0,00" required /></div>
@@ -3799,6 +3799,16 @@
               </div>
               <div class="field"><label>Ativados do dia</label><input id="cfgAtivadosDia" class="control" type="number" min="0" step="1" required /></div>
               <div class="field"><label>Total de Ativados</label><input id="cfgAtivadosTotal" class="control" type="number" min="0" step="1" required /></div>
+              <div class="field">
+                <label>PF realizado no mês</label>
+                <input id="cfgPfRealizado" class="control" type="number" min="0" step="1" required />
+                <small>Quantidade acumulada de Produtos Financeiros já realizada no mês.</small>
+              </div>
+              <div class="field">
+                <label>Meta mensal de PF</label>
+                <input id="cfgPfMetaMensal" class="control" type="number" min="0" step="1" required />
+                <small>Quantidade total de PF que a loja deve alcançar até o final do mês.</small>
+              </div>
             </div>
             <div style="margin-top:18px"><button class="btn btn-primary" type="submit">Salvar cabeçalho</button></div>
           </form>
@@ -4420,6 +4430,8 @@
         tudoAvAcc: SIGA_SNAPSHOT.total.tudoAvAcc,
         ativadosDia: 0,
         ativadosTotal: 0,
+        pfRealizado: 0,
+        pfMetaMensal: 0,
         vendaAcumulada: 0,
         metaTotal: 0
       },
@@ -4430,6 +4442,9 @@
         [SIGA_SNAPSHOT_DATE]: buildOfficialCalendarSnapshot()
       },
       monthlyStoreGoals: {
+        [monthPrefix(today())]: 0
+      },
+      monthlyPfGoals: {
         [monthPrefix(today())]: 0
       },
       employeeAccounts: JSON.parse(JSON.stringify(DEFAULT_EMPLOYEE_ACCOUNTS)),
@@ -4531,6 +4546,56 @@
         typeof normalized.calendarSnapshots === "object"
           ? normalized.calendarSnapshots
           : {};
+
+      const currentPfMonth = monthPrefix(today());
+      const currentPfSnapshots = Object.entries(normalized.calendarSnapshots)
+        .filter(([date]) => String(date).startsWith(`${currentPfMonth}-`))
+        .sort(([dateA],[dateB]) => dateA.localeCompare(dateB));
+      const latestPfSnapshot = currentPfSnapshots.length
+        ? currentPfSnapshots[currentPfSnapshots.length - 1][1]
+        : null;
+
+      const pfRealizadoFallback =
+        latestPfSnapshot?.store?.pfAcc ??
+        latestPfSnapshot?.pf?.total?.pfAcc ??
+        normalized.pcjSnapshots?.total?.pfAcc ??
+        0;
+
+      normalized.header.pfRealizado = Math.max(
+        Number(normalized.header.pfRealizado ?? pfRealizadoFallback ?? 0),
+        0
+      );
+
+      const hadMonthlyPfGoals =
+        normalized.monthlyPfGoals &&
+        typeof normalized.monthlyPfGoals === "object" &&
+        !Array.isArray(normalized.monthlyPfGoals);
+
+      const pfTargetFallback =
+        latestPfSnapshot?.store?.pfMetaAcc ??
+        latestPfSnapshot?.store?.pfMetaMensal ??
+        normalized.header.pfMetaMensal ??
+        0;
+
+      normalized.monthlyPfGoals = hadMonthlyPfGoals
+        ? normalized.monthlyPfGoals
+        : { [currentPfMonth]:Math.max(Number(pfTargetFallback || 0),0) };
+
+      if(normalized.monthlyPfGoals[currentPfMonth] === undefined){
+        normalized.monthlyPfGoals[currentPfMonth] = Math.max(
+          Number(pfTargetFallback || 0),
+          0
+        );
+      }
+
+      Object.keys(normalized.monthlyPfGoals).forEach(month => {
+        normalized.monthlyPfGoals[month] = Math.max(
+          Number(normalized.monthlyPfGoals[month] || 0),
+          0
+        );
+      });
+
+      normalized.header.pfMetaMensal = normalized.monthlyPfGoals[currentPfMonth];
 
       if(!normalized.calendarSnapshots[SIGA_SNAPSHOT_DATE]){
         normalized.calendarSnapshots[SIGA_SNAPSHOT_DATE] =
@@ -4924,11 +4989,15 @@
           tudoAvDia:Number(patch.store.tudoAv || 0),
           tudoAvAcc:Number(patch.store.tudoAvAcc || 0),
           ativadosDia:Number(patch.store.ativadosHoje || 0),
-          ativadosTotal:Number(patch.store.ativadosAcc || 0)
+          ativadosTotal:Number(patch.store.ativadosAcc || 0),
+          pfRealizado:Number(patch.store.pfAcc ?? patch.pf?.total?.pfAcc ?? 0),
+          pfMetaMensal:Number(patch.store.pfMetaAcc || 0)
         };
 
         normalized.monthlyStoreGoals = normalized.monthlyStoreGoals || {};
         normalized.monthlyStoreGoals[patchMonth] = Number(patch.store.metaTotal || 0);
+        normalized.monthlyPfGoals = normalized.monthlyPfGoals || {};
+        normalized.monthlyPfGoals[patchMonth] = Number(patch.store.pfMetaAcc || 0);
 
         /* Operadores sem caixa aberto no relatório oficial não podem manter
            lançamentos de teste ou resultados manuais na mesma data. */
@@ -5237,6 +5306,8 @@
       }, 0);
       const nonZeroStoreGoals = Object.values(database?.monthlyStoreGoals || {})
         .filter(value => Number(value || 0) > 0).length;
+      const nonZeroPfGoals = Object.values(database?.monthlyPfGoals || {})
+        .filter(value => Number(value || 0) > 0).length;
       const headerValues = Object.values(database?.header || {})
         .filter(value => typeof value === "number" && Number(value) !== 0).length;
 
@@ -5247,11 +5318,13 @@
         audit,
         nonZeroGoals,
         nonZeroStoreGoals,
+        nonZeroPfGoals,
         headerValues,
         score:
           manualRecords * 10000 +
           nonZeroGoals * 800 +
           nonZeroStoreGoals * 600 +
+          nonZeroPfGoals * 600 +
           Math.max(systemUsers - 2, 0) * 250 +
           Math.max(employeeAccounts - STORE_ROSTER.length, 0) * 150 +
           Math.min(audit, 100) * 4 +
@@ -6330,6 +6403,10 @@
       return Math.max(Number(db.monthlyStoreGoals?.[month] || 0), 0);
     }
 
+    function getStoreMonthlyPfGoal(month = storeGoalMonthKey()){
+      return Math.max(Number(db.monthlyPfGoals?.[month] || 0), 0);
+    }
+
     function canEditStoreMonthlyGoal(){
       return isDev() || Number(today().slice(8,10)) === 1;
     }
@@ -6362,6 +6439,8 @@
         tudoAv:Number(db.header.tudoAvDia || 0),
         ativadosHoje:Number(db.header.ativadosDia || 0),
         ativadosMeta:null,
+        pfAcc:Number(db.header.pfRealizado || 0),
+        pfMetaAcc:getStoreMonthlyPfGoal(monthPrefix(date)),
         metaTotal:getStoreMonthlyGoal(monthPrefix(date))
       };
       snapshot.source = "AV RESULTADOS";
@@ -6399,7 +6478,9 @@
             pcj:Number(db.header.pcjDia || 0),
             tudoAv:Number(db.header.tudoAvDia || 0),
             ativadosHoje:Number(db.header.ativadosDia || 0),
-            ativadosMeta:null
+            ativadosMeta:null,
+            pfAcc:Number(db.header.pfRealizado || 0),
+            pfMetaAcc:getStoreMonthlyPfGoal(monthPrefix(date))
           },
           operators:{},
           source:"AV RESULTADOS"
@@ -6923,6 +7004,14 @@
     }
 
     function calendarGoalPfActual(month, key, entries){
+      if(
+        key === "pf" &&
+        month === monthPrefix(today()) &&
+        Number.isFinite(Number(db.header?.pfRealizado))
+      ){
+        return Math.max(Number(db.header.pfRealizado || 0),0);
+      }
+
       const accKey = key === "pf" ? "pfAcc" : `${key}Acc`;
       const paths = [
         ["pf","total",accKey],
@@ -7014,7 +7103,12 @@
       ]);
 
       const ativadosTarget = goals.ativados > 0 ? goals.ativados : Math.max(Number(latestAtivadosTarget || 0),0);
-      const pfTarget = goals.pf > 0 ? goals.pf : Math.max(Number(latestPfTarget || 0),0);
+      const configuredPfTarget = getStoreMonthlyPfGoal(month);
+      const pfTarget = configuredPfTarget > 0
+        ? configuredPfTarget
+        : goals.pf > 0
+          ? goals.pf
+          : Math.max(Number(latestPfTarget || 0),0);
       const pcjTarget = goals.pcj > 0 ? goals.pcj : 35;
 
       return [
@@ -7033,7 +7127,9 @@
         ),
         calendarGoalMetric(
           "PF Total",
-          "Soma dos cinco produtos financeiros",
+          configuredPfTarget > 0
+            ? "Meta mensal configurada da loja"
+            : "Soma dos cinco produtos financeiros",
           calendarGoalPfActual(month,"pf",entries),
           pfTarget
         ),
@@ -8484,6 +8580,8 @@
 
       $("#cfgAtivadosDia").value = h.ativadosDia || 0;
       $("#cfgAtivadosTotal").value = h.ativadosTotal || 0;
+      $("#cfgPfRealizado").value = Math.max(Number(h.pfRealizado || 0),0);
+      $("#cfgPfMetaMensal").value = getStoreMonthlyPfGoal();
     }
 
 
@@ -8566,9 +8664,17 @@
         db.monthlyStoreGoals[currentMonth] = requestedGoal;
       }
 
+      db.monthlyPfGoals = db.monthlyPfGoals || {};
+      db.monthlyPfGoals[currentMonth] = Math.max(
+        Number($("#cfgPfMetaMensal").value || 0),
+        0
+      );
+
       const activeMonthlyGoal = getStoreMonthlyGoal(currentMonth);
+      const activeMonthlyPfGoal = getStoreMonthlyPfGoal(currentMonth);
 
       db.header = {
+        ...db.header,
         vendaAtual:parseBRLCurrency($("#cfgVendaAtual").value),
         compromissoDia:parseBRLCurrency($("#cfgCompromissoDia").value),
         cartaoAv:Number($("#cfgCartaoAv").value||0),
@@ -8580,7 +8686,9 @@
         vendaAcumulada:parseBRLCurrency($("#cfgVendaAcumulada").value),
         metaTotal:activeMonthlyGoal,
         ativadosDia:Number($("#cfgAtivadosDia").value||0),
-        ativadosTotal:Number($("#cfgAtivadosTotal").value||0)
+        ativadosTotal:Number($("#cfgAtivadosTotal").value||0),
+        pfRealizado:Math.max(Number($("#cfgPfRealizado").value||0),0),
+        pfMetaMensal:activeMonthlyPfGoal
       };
 
       captureHeaderCalendarSnapshot(today());
@@ -8588,16 +8696,16 @@
       addAudit(
         "ATUALIZAÇÃO DE CABEÇALHO",
         canEditStoreMonthlyGoal()
-          ? "Indicadores gerais e Meta Total Mensal da loja foram atualizados."
-          : "Indicadores gerais atualizados; a Meta Total Mensal permaneceu congelada."
+          ? "Indicadores gerais, PF realizado, Meta Mensal de PF e Meta Total Mensal da loja foram atualizados."
+          : "Indicadores gerais, PF realizado e Meta Mensal de PF atualizados; a Meta Total Mensal permaneceu congelada."
       );
 
       saveDB();
       renderAll();
       alert(
         canEditStoreMonthlyGoal()
-          ? "Indicadores e Meta Total Mensal atualizados."
-          : "Indicadores atualizados. A Meta Total Mensal permanece congelada até o próximo dia 1."
+          ? "Indicadores, PF realizado, Meta Mensal de PF e Meta Total Mensal atualizados."
+          : "Indicadores, PF realizado e Meta Mensal de PF atualizados. A Meta Total Mensal permanece congelada até o próximo dia 1."
       );
     });
 
