@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AV Resultados Operadores V57 — Painel Principal Atualizado</title>
+  <title>AV Resultados Operadores V58 — Importação Exclusiva do Desenvolvedor</title>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <style>
     :root{
@@ -1936,6 +1936,246 @@
     }
     tr.selected-row:hover{
       background:rgba(var(--brand-rgb),.11);
+    }
+
+    .developer-import-trigger{
+      border-color:rgba(var(--brand-rgb),.38);
+      background:var(--brand-soft);
+      color:var(--brand-2);
+    }
+    .developer-import-trigger:hover{
+      border-color:var(--brand);
+      background:var(--brand);
+      color:#fff;
+    }
+    .developer-import-modal{
+      width:min(1220px,100%);
+      max-height:94vh;
+      padding:22px;
+    }
+    .developer-import-security{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      margin:16px 0;
+      padding:14px;
+      border:1px solid rgba(var(--brand-rgb),.35);
+      border-radius:14px;
+      background:var(--brand-soft);
+    }
+    .developer-import-security-icon{
+      width:34px;
+      height:34px;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      border-radius:11px;
+      background:var(--brand);
+      color:#fff;
+      font-weight:1000;
+    }
+    .developer-import-security strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:12px;
+    }
+    .developer-import-security p{
+      margin:0;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.5;
+    }
+    .developer-import-controls{
+      display:grid;
+      grid-template-columns:minmax(240px,1.4fr) minmax(170px,.7fr) minmax(220px,1fr);
+      gap:13px;
+      margin-bottom:14px;
+    }
+    .developer-import-file-box{
+      position:relative;
+      min-height:92px;
+      display:grid;
+      align-content:center;
+      gap:5px;
+      padding:14px;
+      border:1px dashed var(--brand);
+      border-radius:14px;
+      background:rgba(var(--brand-rgb),.06);
+      cursor:pointer;
+    }
+    .developer-import-file-box input{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      opacity:0;
+      cursor:pointer;
+    }
+    .developer-import-file-box strong{
+      font-size:13px;
+    }
+    .developer-import-file-box span{
+      color:var(--muted);
+      font-size:10px;
+      line-height:1.4;
+    }
+    .developer-import-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+    .developer-import-status{
+      margin:0 0 14px;
+      padding:13px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface-2);
+    }
+    .developer-import-status-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:8px;
+    }
+    .developer-import-status-head strong{
+      font-size:12px;
+    }
+    .developer-import-status-head span{
+      color:var(--muted);
+      font-size:10px;
+    }
+    .developer-import-progress{
+      height:9px;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:var(--surface);
+    }
+    .developer-import-progress i{
+      display:block;
+      width:0;
+      height:100%;
+      border-radius:inherit;
+      background:var(--brand);
+      transition:width .22s ease;
+    }
+    .developer-import-raw{
+      margin-bottom:16px;
+    }
+    .developer-import-raw textarea{
+      min-height:150px;
+      resize:vertical;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      font-size:11px;
+      line-height:1.5;
+    }
+    .developer-import-preview-header{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:14px;
+      margin:18px 0 10px;
+    }
+    .developer-import-preview-header h4{
+      margin:0 0 4px;
+      font-size:16px;
+    }
+    .developer-import-preview-header p{
+      margin:0;
+      color:var(--muted);
+      font-size:11px;
+    }
+    .developer-import-preview-table{
+      min-width:1740px;
+    }
+    .developer-import-preview-table th{
+      white-space:nowrap;
+    }
+    .developer-import-preview-table .control{
+      min-width:80px;
+      height:36px;
+      padding:7px 9px;
+      font-size:11px;
+    }
+    .developer-import-preview-table select.control{
+      min-width:175px;
+    }
+    .developer-import-preview-table .import-number{
+      width:82px;
+      min-width:82px;
+      text-align:right;
+    }
+    .developer-import-preview-table .import-percent{
+      width:94px;
+      min-width:94px;
+      text-align:right;
+    }
+    .developer-import-confidence{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:72px;
+      padding:6px 8px;
+      border-radius:999px;
+      font-size:9px;
+      font-weight:1000;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+    .developer-import-confidence.high{
+      background:var(--ok-soft);
+      color:var(--ok);
+    }
+    .developer-import-confidence.medium{
+      background:var(--brand-soft);
+      color:var(--brand-2);
+    }
+    .developer-import-confidence.low{
+      background:var(--bad-soft);
+      color:var(--bad);
+    }
+    .developer-import-footer{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-top:18px;
+      padding-top:16px;
+      border-top:1px solid var(--line);
+    }
+    .developer-import-footer-options{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:800;
+    }
+    .developer-import-footer-actions{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:9px;
+      flex-wrap:wrap;
+    }
+    @media(max-width:900px){
+      .developer-import-controls{
+        grid-template-columns:1fr;
+      }
+      .developer-import-footer{
+        align-items:stretch;
+        flex-direction:column;
+      }
+      .developer-import-footer-actions{
+        justify-content:stretch;
+      }
+      .developer-import-footer-actions .btn{
+        flex:1;
+      }
     }
 
     .game-full-ranking{
@@ -4222,6 +4462,7 @@
                   <th>Ativados</th>
                   <th>Bolsa Protegida</th>
                   <th>Compra da Sorte</th>
+                  <th>Proteção da Sorte</th>
                   <th>Sabadão</th>
                   <th>SMS</th>
                   <th>Vida+</th>
@@ -7824,6 +8065,1458 @@
       return db.records.find(record => String(record.id) === String(id));
     }
 
+    const DEVELOPER_IMPORT_PDFJS_SRC =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    const DEVELOPER_IMPORT_PDFJS_WORKER =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    const DEVELOPER_IMPORT_TESSERACT_SRC =
+      "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+
+    const developerImportLibraryPromises = {};
+    let developerImportState = {
+      rows:[],
+      text:"",
+      fileName:"",
+      profile:"auto"
+    };
+
+    function developerImportGuard(){
+      if(isDev()) return true;
+      alert("Esta função é exclusiva do perfil Desenvolvedor.");
+      return false;
+    }
+
+    function ensureDeveloperImportTrigger(){
+      const existingButton = $("#developerImportResultsBtn");
+      const existingModal = $("#developerImportModal");
+
+      if(!isDev()){
+        existingButton?.remove();
+        existingModal?.remove();
+        return;
+      }
+
+      if(existingButton) return;
+
+      const newRecordButton = $("#newRecordBtn2");
+      if(!newRecordButton) return;
+
+      const button = document.createElement("button");
+      button.id = "developerImportResultsBtn";
+      button.type = "button";
+      button.className = "btn developer-import-trigger";
+      button.innerHTML = "▣ Importar foto/PDF";
+      button.title = "Função exclusiva do Desenvolvedor";
+      button.addEventListener("click", openDeveloperImportModal);
+
+      newRecordButton.before(button);
+    }
+
+    function developerImportModalMarkup(){
+      return `
+        <div class="card modal developer-import-modal">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+            <div>
+              <div class="eyebrow">Ferramenta exclusiva</div>
+              <h3 style="margin:4px 0 0">Importar resultados por foto ou PDF</h3>
+              <p style="margin:7px 0 0;color:var(--muted);font-size:11px">
+                Leitura automática, conferência editável e lançamento em lote.
+              </p>
+            </div>
+            <button id="developerImportCloseBtn" class="btn btn-secondary" type="button">✕</button>
+          </div>
+
+          <div class="developer-import-security">
+            <div class="developer-import-security-icon">DEV</div>
+            <div>
+              <strong>Área criada somente para o Desenvolvedor</strong>
+              <p>
+                O modal é criado apenas depois da validação do perfil Desenvolvedor.
+                Imagens e PDFs são processados localmente no navegador. Nenhuma chave privada
+                é armazenada neste arquivo HTML.
+              </p>
+            </div>
+          </div>
+
+          <div class="developer-import-controls">
+            <label class="developer-import-file-box">
+              <input
+                id="developerImportFile"
+                type="file"
+                accept=".pdf,.png,.jpg,.jpeg,.webp,image/*,application/pdf"
+              />
+              <strong>Selecionar foto ou PDF</strong>
+              <span id="developerImportFileName">
+                PNG, JPG, WEBP ou PDF. Para testes, também é possível usar o exemplo interno.
+              </span>
+            </label>
+
+            <div class="field">
+              <label>Data dos resultados</label>
+              <input
+                id="developerImportDate"
+                class="control"
+                type="date"
+                max="${today()}"
+                value="${today()}"
+                required
+              />
+              <small>Todos os registros da importação usarão esta data.</small>
+            </div>
+
+            <div class="field">
+              <label>Modelo do relatório</label>
+              <select id="developerImportProfile" class="control">
+                <option value="auto">Detectar automaticamente</option>
+                <option value="launch">Tabela completa de lançamentos</option>
+                <option value="pf">Relatório de Produtos Financeiros</option>
+                <option value="performance">Relatório de PCJ e Tudo AV</option>
+              </select>
+              <small>Use a detecção automática primeiro.</small>
+            </div>
+          </div>
+
+          <div class="developer-import-actions">
+            <button id="developerImportReadBtn" class="btn btn-primary" type="button">
+              Ler arquivo
+            </button>
+            <button id="developerImportInterpretBtn" class="btn btn-secondary" type="button">
+              Interpretar texto
+            </button>
+            <button id="developerImportSampleBtn" class="btn btn-secondary" type="button">
+              Carregar exemplo
+            </button>
+            <button id="developerImportClearBtn" class="btn btn-danger" type="button">
+              Limpar
+            </button>
+          </div>
+
+          <div class="developer-import-status">
+            <div class="developer-import-status-head">
+              <strong id="developerImportStatus">Aguardando arquivo</strong>
+              <span id="developerImportStatusDetail">0%</span>
+            </div>
+            <div class="developer-import-progress">
+              <i id="developerImportProgressBar"></i>
+            </div>
+          </div>
+
+          <div class="field developer-import-raw">
+            <label>Texto reconhecido</label>
+            <textarea
+              id="developerImportText"
+              class="control"
+              placeholder="O conteúdo extraído da imagem ou do PDF aparecerá aqui. Também é possível colar um texto manualmente para testar."
+            ></textarea>
+            <small>
+              Este campo pode ser corrigido antes de clicar em “Interpretar texto”.
+            </small>
+          </div>
+
+          <div class="developer-import-preview-header">
+            <div>
+              <h4>Conferência antes de salvar</h4>
+              <p>
+                Revise operador e indicadores. Nenhum lançamento é salvo sem confirmação.
+              </p>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span id="developerImportPreviewCount" class="tag brand-soft">0 linhas</span>
+              <button id="developerImportAddRowBtn" class="btn btn-secondary" type="button">
+                ＋ Adicionar linha
+              </button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="developer-import-preview-table">
+              <thead>
+                <tr>
+                  <th style="width:52px;text-align:center">Usar</th>
+                  <th>Operador</th>
+                  <th>Funcionário</th>
+                  <th>Ativados</th>
+                  <th>Bolsa</th>
+                  <th>Compra</th>
+                  <th>Proteção</th>
+                  <th>Sabadão</th>
+                  <th>SMS</th>
+                  <th>Vida+</th>
+                  <th>PF Total</th>
+                  <th>PCJ %</th>
+                  <th>Tudo AV %</th>
+                  <th>Leitura</th>
+                  <th>Ação</th>
+                </tr>
+              </thead>
+              <tbody id="developerImportPreviewBody">
+                <tr>
+                  <td colspan="15">
+                    <div class="empty">Selecione um arquivo ou carregue o exemplo de teste.</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="developer-import-footer">
+            <div class="developer-import-footer-options">
+              <label style="display:flex;align-items:center;gap:8px">
+                <input id="developerImportReplaceExisting" type="checkbox" />
+                Substituir importações anteriores do mesmo operador e data
+              </label>
+              <span>Registros exatamente iguais são ignorados automaticamente.</span>
+            </div>
+
+            <div class="developer-import-footer-actions">
+              <button id="developerImportCancelBtn" class="btn btn-secondary" type="button">
+                Cancelar
+              </button>
+              <button id="developerImportConfirmBtn" class="btn btn-success" type="button" disabled>
+                Confirmar importação
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function ensureDeveloperImportModal(){
+      if(!developerImportGuard()) return null;
+
+      let modal = $("#developerImportModal");
+      if(modal) return modal;
+
+      modal = document.createElement("div");
+      modal.id = "developerImportModal";
+      modal.className = "modal-backdrop hidden";
+      modal.innerHTML = developerImportModalMarkup();
+      document.body.appendChild(modal);
+
+      $("#developerImportCloseBtn").addEventListener(
+        "click",
+        closeDeveloperImportModal
+      );
+      $("#developerImportCancelBtn").addEventListener(
+        "click",
+        closeDeveloperImportModal
+      );
+      modal.addEventListener("click", event => {
+        if(event.target.id === "developerImportModal"){
+          closeDeveloperImportModal();
+        }
+      });
+
+      $("#developerImportFile").addEventListener("change", event => {
+        const file = event.target.files?.[0] || null;
+        developerImportState.fileName = file?.name || "";
+        $("#developerImportFileName").textContent = file
+          ? `${file.name} • ${(file.size / 1024).toLocaleString("pt-BR",{
+              maximumFractionDigits:1
+            })} KB`
+          : "PNG, JPG, WEBP ou PDF.";
+      });
+
+      $("#developerImportReadBtn").addEventListener(
+        "click",
+        readDeveloperImportFile
+      );
+      $("#developerImportInterpretBtn").addEventListener(
+        "click",
+        interpretDeveloperImportText
+      );
+      $("#developerImportSampleBtn").addEventListener(
+        "click",
+        loadDeveloperImportSample
+      );
+      $("#developerImportClearBtn").addEventListener(
+        "click",
+        resetDeveloperImport
+      );
+      $("#developerImportAddRowBtn").addEventListener(
+        "click",
+        addDeveloperImportBlankRow
+      );
+      $("#developerImportConfirmBtn").addEventListener(
+        "click",
+        confirmDeveloperImport
+      );
+
+      $("#developerImportProfile").addEventListener("change", event => {
+        developerImportState.profile = event.target.value || "auto";
+      });
+
+      const previewBody = $("#developerImportPreviewBody");
+      previewBody.addEventListener("input", handleDeveloperImportPreviewInput);
+      previewBody.addEventListener("change", handleDeveloperImportPreviewInput);
+      previewBody.addEventListener("click", event => {
+        const removeButton = event.target.closest("[data-import-remove]");
+        if(!removeButton) return;
+
+        const index = Number(removeButton.dataset.importRemove);
+        if(!Number.isInteger(index)) return;
+
+        developerImportState.rows.splice(index,1);
+        renderDeveloperImportPreview();
+      });
+
+      return modal;
+    }
+
+    function openDeveloperImportModal(){
+      if(!developerImportGuard()) return;
+
+      const modal = ensureDeveloperImportModal();
+      if(!modal) return;
+
+      resetDeveloperImport();
+      $("#developerImportDate").value = today();
+      $("#developerImportDate").max = today();
+      modal.classList.remove("hidden");
+      setTimeout(() => $("#developerImportFile")?.focus(),50);
+    }
+
+    function closeDeveloperImportModal(){
+      $("#developerImportModal")?.classList.add("hidden");
+    }
+
+    function setDeveloperImportStatus(message, progress = 0, detail = ""){
+      const safeProgress = Math.min(Math.max(Number(progress || 0),0),100);
+      const status = $("#developerImportStatus");
+      const detailField = $("#developerImportStatusDetail");
+      const bar = $("#developerImportProgressBar");
+
+      if(status) status.textContent = message;
+      if(detailField){
+        detailField.textContent = detail || `${Math.round(safeProgress)}%`;
+      }
+      if(bar) bar.style.width = `${safeProgress}%`;
+    }
+
+    function resetDeveloperImport(){
+      if(!isDev()) return;
+
+      developerImportState = {
+        rows:[],
+        text:"",
+        fileName:"",
+        profile:"auto"
+      };
+
+      const fileInput = $("#developerImportFile");
+      if(fileInput) fileInput.value = "";
+
+      if($("#developerImportText")) $("#developerImportText").value = "";
+      if($("#developerImportProfile")) $("#developerImportProfile").value = "auto";
+      if($("#developerImportReplaceExisting")){
+        $("#developerImportReplaceExisting").checked = false;
+      }
+      if($("#developerImportFileName")){
+        $("#developerImportFileName").textContent =
+          "PNG, JPG, WEBP ou PDF. Para testes, também é possível usar o exemplo interno.";
+      }
+
+      setDeveloperImportStatus("Aguardando arquivo",0);
+      renderDeveloperImportPreview();
+    }
+
+    function developerImportLoadScript(src, readyCheck){
+      if(readyCheck()) return Promise.resolve();
+      if(developerImportLibraryPromises[src]){
+        return developerImportLibraryPromises[src];
+      }
+
+      developerImportLibraryPromises[src] = new Promise((resolve,reject) => {
+        const existing = document.querySelector(`script[src="${src}"]`);
+        if(existing){
+          existing.addEventListener("load",resolve,{once:true});
+          existing.addEventListener(
+            "error",
+            () => reject(new Error(`Não foi possível carregar ${src}`)),
+            {once:true}
+          );
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.src = src;
+        script.async = true;
+        script.crossOrigin = "anonymous";
+        script.onload = () => resolve();
+        script.onerror = () => reject(
+          new Error("Biblioteca de leitura indisponível.")
+        );
+        document.head.appendChild(script);
+      });
+
+      return developerImportLibraryPromises[src];
+    }
+
+    async function ensureDeveloperImportPdfLibrary(){
+      await developerImportLoadScript(
+        DEVELOPER_IMPORT_PDFJS_SRC,
+        () => Boolean(window.pdfjsLib)
+      );
+
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        DEVELOPER_IMPORT_PDFJS_WORKER;
+    }
+
+    async function ensureDeveloperImportOcrLibrary(){
+      await developerImportLoadScript(
+        DEVELOPER_IMPORT_TESSERACT_SRC,
+        () => Boolean(window.Tesseract)
+      );
+    }
+
+    function developerImportOcrStatus(message){
+      const statusMap = {
+        "loading tesseract core":"Carregando leitor de imagem",
+        "initializing tesseract":"Inicializando leitura",
+        "loading language traineddata":"Carregando idioma",
+        "initializing api":"Preparando reconhecimento",
+        "recognizing text":"Reconhecendo texto"
+      };
+      return statusMap[message] || "Processando imagem";
+    }
+
+    async function developerImportImageToCanvas(file){
+      const bitmap = await createImageBitmap(file);
+      const maxWidth = 2600;
+      const scale = Math.min(1,maxWidth / Math.max(bitmap.width,1));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1,Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1,Math.round(bitmap.height * scale));
+
+      const context = canvas.getContext("2d",{willReadFrequently:true});
+      context.drawImage(bitmap,0,0,canvas.width,canvas.height);
+
+      const imageData = context.getImageData(0,0,canvas.width,canvas.height);
+      const pixels = imageData.data;
+
+      for(let index = 0; index < pixels.length; index += 4){
+        const gray = Math.round(
+          pixels[index] * .299 +
+          pixels[index + 1] * .587 +
+          pixels[index + 2] * .114
+        );
+        const contrasted = Math.max(
+          0,
+          Math.min(255,(gray - 128) * 1.22 + 128)
+        );
+        pixels[index] = contrasted;
+        pixels[index + 1] = contrasted;
+        pixels[index + 2] = contrasted;
+      }
+
+      context.putImageData(imageData,0,0);
+      bitmap.close?.();
+      return canvas;
+    }
+
+    async function developerImportOcrCanvas(canvas, pageLabel = ""){
+      await ensureDeveloperImportOcrLibrary();
+
+      const recognize = async language => {
+        const result = await window.Tesseract.recognize(
+          canvas,
+          language,
+          {
+            logger: message => {
+              if(message.status){
+                const progress = Number(message.progress || 0) * 100;
+                setDeveloperImportStatus(
+                  `${developerImportOcrStatus(message.status)}${pageLabel ? ` • ${pageLabel}` : ""}`,
+                  Math.max(progress,8)
+                );
+              }
+            }
+          }
+        );
+        return String(result?.data?.text || "");
+      };
+
+      try{
+        return await recognize("por");
+      }catch(error){
+        console.warn("OCR em português falhou; tentando idioma alternativo.",error);
+        return recognize("eng");
+      }
+    }
+
+    function developerImportPdfContentToText(content){
+      const rows = [];
+
+      (content?.items || []).forEach(item => {
+        const text = String(item?.str || "").trim();
+        if(!text) return;
+
+        const x = Number(item?.transform?.[4] || 0);
+        const y = Number(item?.transform?.[5] || 0);
+        let row = rows.find(entry => Math.abs(entry.y - y) <= 2.8);
+
+        if(!row){
+          row = {y,items:[]};
+          rows.push(row);
+        }
+
+        row.items.push({x,text});
+      });
+
+      return rows
+        .sort((a,b) => b.y - a.y)
+        .map(row =>
+          row.items
+            .sort((a,b) => a.x - b.x)
+            .map(item => item.text)
+            .join("\t")
+        )
+        .join("\n");
+    }
+
+    function developerImportTextContainsEmployee(text){
+      const value = String(text || "");
+      return employees.some(employee =>
+        new RegExp(`(^|\\D)${developerImportEscapeRegex(employee.operator)}(?=\\D|$)`)
+          .test(value)
+      );
+    }
+
+    async function extractDeveloperImportPdf(file){
+      await ensureDeveloperImportPdfLibrary();
+      const data = await file.arrayBuffer();
+      const pdf = await window.pdfjsLib
+        .getDocument({data:new Uint8Array(data)})
+        .promise;
+      const pages = [];
+
+      for(let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++){
+        setDeveloperImportStatus(
+          `Lendo página ${pageNumber} de ${pdf.numPages}`,
+          ((pageNumber - 1) / pdf.numPages) * 90 + 5
+        );
+
+        const page = await pdf.getPage(pageNumber);
+        const content = await page.getTextContent();
+        let pageText = developerImportPdfContentToText(content);
+
+        if(
+          pageText.replace(/\s/g,"").length < 35 ||
+          !developerImportTextContainsEmployee(pageText)
+        ){
+          const viewport = page.getViewport({scale:2});
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.ceil(viewport.width);
+          canvas.height = Math.ceil(viewport.height);
+          const context = canvas.getContext("2d");
+
+          await page.render({
+            canvasContext:context,
+            viewport
+          }).promise;
+
+          pageText = await developerImportOcrCanvas(
+            canvas,
+            `página ${pageNumber}/${pdf.numPages}`
+          );
+        }
+
+        pages.push(`PÁGINA ${pageNumber}\n${pageText}`);
+      }
+
+      return pages.join("\n\n");
+    }
+
+    async function extractDeveloperImportText(file){
+      const extension = String(file?.name || "")
+        .split(".")
+        .pop()
+        .toLowerCase();
+      const isPdf =
+        file?.type === "application/pdf" ||
+        extension === "pdf";
+
+      if(isPdf){
+        return extractDeveloperImportPdf(file);
+      }
+
+      const canvas = await developerImportImageToCanvas(file);
+      return developerImportOcrCanvas(canvas);
+    }
+
+    function developerImportNormalizeSearch(value){
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g,"")
+        .toUpperCase()
+        .replace(/[|¦]/g," ")
+        .replace(/\s+/g," ")
+        .trim();
+    }
+
+    function developerImportEscapeRegex(value){
+      return String(value || "").replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+    }
+
+    function developerImportParseNumber(value){
+      let raw = String(value || "")
+        .trim()
+        .replace(/%/g,"")
+        .replace(/\s/g,"");
+
+      if(!raw) return 0;
+
+      if(raw.includes(".") && raw.includes(",")){
+        raw = raw.replace(/\./g,"").replace(",",".");
+      }else if(raw.includes(",")){
+        raw = raw.replace(",",".");
+      }else if(raw.includes(".")){
+        const pieces = raw.split(".");
+        const last = pieces[pieces.length - 1];
+
+        if(last.length === 3 && pieces.length >= 2){
+          raw = pieces.join("");
+        }else if(pieces.length > 2){
+          raw = `${pieces.slice(0,-1).join("")}.${last}`;
+        }
+      }
+
+      raw = raw.replace(/[^\d.-]/g,"");
+      const number = Number(raw);
+      return Number.isFinite(number) ? number : 0;
+    }
+
+    function developerImportNumericTokens(value){
+      const matches = String(value || "").match(
+        /-?\d{1,3}(?:\.\d{3})+(?:,\d+)?%?|-?\d+(?:[.,]\d+)?%?/g
+      ) || [];
+
+      return matches.map(raw => ({
+        raw,
+        value:developerImportParseNumber(raw),
+        percent:raw.includes("%")
+      }));
+    }
+
+    function developerImportFindEmployee(line){
+      const rawLine = String(line || "");
+
+      const sorted = employees
+        .slice()
+        .sort((a,b) => String(b.operator).length - String(a.operator).length);
+
+      for(const employee of sorted){
+        const expression = new RegExp(
+          `(^|\\D)${developerImportEscapeRegex(employee.operator)}(?=\\D|$)`
+        );
+        const match = expression.exec(rawLine);
+
+        if(match && match.index <= 48){
+          const prefixLength = match[1]?.length || 0;
+          const operatorIndex = match.index + prefixLength;
+
+          return {
+            employee,
+            operatorIndex,
+            dataIndex:operatorIndex + String(employee.operator).length
+          };
+        }
+      }
+
+      const normalizedLine = developerImportNormalizeSearch(rawLine);
+
+      for(const employee of sorted){
+        const firstName = developerImportNormalizeSearch(
+          employee.shortName || employee.name
+        ).split(" ")[0];
+
+        if(firstName.length >= 4){
+          const nameIndex = normalizedLine.indexOf(firstName);
+          if(nameIndex >= 0 && nameIndex <= 48){
+            return {
+              employee,
+              operatorIndex:nameIndex,
+              dataIndex:nameIndex + firstName.length
+            };
+          }
+        }
+      }
+
+      return null;
+    }
+
+    function developerImportDetectedProducts(normalizedText){
+      const definitions = [
+        ["bolsa",/\bBOLSA\b/],
+        ["compra",/\bCOMPRA\b/],
+        ["protecao",/\bPROTECAO\b/],
+        ["sabadao",/\bSABADAO\b/],
+        ["sms",/\bSMS\b/],
+        ["vida",/\bVIDA\b/]
+      ];
+
+      const detected = definitions
+        .filter(([,pattern]) => pattern.test(normalizedText))
+        .map(([key]) => key);
+
+      return detected.length
+        ? detected
+        : ["bolsa","compra","protecao","sabadao","sms","vida"];
+    }
+
+    function developerImportDetectProfile(text, requested = "auto"){
+      if(["launch","pf","performance"].includes(requested)){
+        return requested;
+      }
+
+      const normalized = developerImportNormalizeSearch(text);
+      const hasActivated = /\bATIVAD/.test(normalized);
+      const hasPf = /\bBOLSA\b|\bCOMPRA\b|\bSABADAO\b|\bPROTECAO\b/.test(normalized);
+      const hasPerformance =
+        /\bPCJ\b/.test(normalized) &&
+        (/\bCARTAO\b/.test(normalized) || /\bTUDO AV\b/.test(normalized));
+
+      if(hasActivated) return "launch";
+      if(hasPf && !hasPerformance) return "pf";
+      if(hasPerformance && !hasPf) return "performance";
+      if(hasPf && hasPerformance) return "launch";
+      return "launch";
+    }
+
+    function developerImportDefaultRow(employee = null){
+      return {
+        id:uuid(),
+        selected:true,
+        operator:employee?.operator || "",
+        name:employee?.shortName || employee?.name || "",
+        ativados:0,
+        bolsa:0,
+        compra:0,
+        protecao:0,
+        sabadao:0,
+        sms:0,
+        vida:0,
+        pcj:0,
+        tudoAv:0,
+        confidence:"low",
+        profile:"manual",
+        warning:"Revise os valores antes de salvar."
+      };
+    }
+
+    function developerImportLaunchFields(normalizedText){
+      const fields = [];
+
+      if(/\bATIVAD/.test(normalizedText)) fields.push("ativados");
+      if(/\bBOLSA\b/.test(normalizedText)) fields.push("bolsa");
+      if(/\bCOMPRA\b/.test(normalizedText)) fields.push("compra");
+      if(/\bPROTECAO\b/.test(normalizedText)) fields.push("protecao");
+      if(/\bSABADAO\b/.test(normalizedText)) fields.push("sabadao");
+      if(/\bSMS\b/.test(normalizedText)) fields.push("sms");
+      if(/\bVIDA\b/.test(normalizedText)) fields.push("vida");
+      if(/\bPF TOTAL\b|\bTOTAL PF\b/.test(normalizedText)) fields.push("_pfTotal");
+      if(/\bPCJ\b/.test(normalizedText)) fields.push("pcj");
+      if(/\bTUDO AV\b|\bTUDOAV\b/.test(normalizedText)) fields.push("tudoAv");
+
+      return fields.length
+        ? fields
+        : [
+            "ativados",
+            "bolsa",
+            "compra",
+            "protecao",
+            "sabadao",
+            "sms",
+            "vida",
+            "pcj",
+            "tudoAv"
+          ];
+    }
+
+    function developerImportParseLine(line, fullText, profile){
+      const employeeMatch = developerImportFindEmployee(line);
+      if(!employeeMatch) return null;
+
+      const dataText = String(line).slice(employeeMatch.dataIndex);
+      const tokens = developerImportNumericTokens(dataText);
+      if(!tokens.length) return null;
+
+      const row = developerImportDefaultRow(employeeMatch.employee);
+      row.profile = profile;
+      row.warning = "";
+
+      const normalizedText = developerImportNormalizeSearch(fullText);
+      const values = tokens.map(token => token.value);
+      let expected = 0;
+
+      if(profile === "pf"){
+        const products = developerImportDetectedProducts(normalizedText);
+        const paired =
+          /\bHOJE\b/.test(normalizedText) &&
+          (/\bACC\b/.test(normalizedText) || /\bACUMUL/.test(normalizedText));
+
+        expected = products.length * (paired ? 2 : 1);
+
+        products.forEach((key,index) => {
+          const tokenIndex = paired ? index * 2 : index;
+          row[key] = Math.max(
+            Math.round(Number(values[tokenIndex] || 0)),
+            0
+          );
+        });
+      }else if(profile === "performance"){
+        const paired =
+          /\bHOJE\b/.test(normalizedText) &&
+          (/\bACC\b/.test(normalizedText) || /\bACUMUL/.test(normalizedText));
+
+        if(paired && values.length >= 9){
+          row.pcj = Math.min(Math.max(Number(values[4] || 0),0),100);
+          row.tudoAv = Math.min(Math.max(Number(values[8] || 0),0),100);
+          expected = 10;
+        }else{
+          const percentageValues = tokens
+            .filter(token =>
+              token.percent ||
+              (token.value >= 0 && token.value <= 100)
+            )
+            .map(token => token.value);
+
+          row.pcj = Math.min(
+            Math.max(Number(percentageValues.at(-2) || values.at(-2) || 0),0),
+            100
+          );
+          row.tudoAv = Math.min(
+            Math.max(Number(percentageValues.at(-1) || values.at(-1) || 0),0),
+            100
+          );
+          expected = 2;
+        }
+      }else{
+        const fields = developerImportLaunchFields(normalizedText);
+        expected = fields.length;
+
+        fields.forEach((field,index) => {
+          if(field === "_pfTotal") return;
+
+          const value = Number(values[index] || 0);
+
+          if(field === "pcj" || field === "tudoAv"){
+            row[field] = Math.min(Math.max(value,0),100);
+          }else{
+            row[field] = Math.max(Math.round(value),0);
+          }
+        });
+      }
+
+      const nonZero = [
+        row.ativados,
+        row.bolsa,
+        row.compra,
+        row.protecao,
+        row.sabadao,
+        row.sms,
+        row.vida,
+        row.pcj,
+        row.tudoAv
+      ].filter(value => Number(value) !== 0).length;
+
+      let score = .38;
+      if(profile !== "launch" || /\bATIVAD|\bPCJ|\bBOLSA/.test(normalizedText)){
+        score += .18;
+      }
+      if(tokens.length >= Math.max(2,Math.floor(expected * .65))){
+        score += .25;
+      }
+      if(nonZero > 0) score += .12;
+
+      row.confidence = score >= .78
+        ? "high"
+        : score >= .58
+          ? "medium"
+          : "low";
+
+      if(row.confidence === "low"){
+        row.warning = "Poucos campos reconhecidos. Revise a linha.";
+      }else if(row.confidence === "medium"){
+        row.warning = "Leitura parcial. Confirme os valores.";
+      }else{
+        row.warning = "Operador e indicadores reconhecidos.";
+      }
+
+      return row;
+    }
+
+    function developerImportMergeRows(rows){
+      const merged = new Map();
+
+      rows.forEach(row => {
+        const operator = normalizeOperator(row.operator);
+        if(!operator) return;
+
+        if(!merged.has(operator)){
+          merged.set(operator,{...row,operator});
+          return;
+        }
+
+        const current = merged.get(operator);
+        [
+          "ativados",
+          "bolsa",
+          "compra",
+          "protecao",
+          "sabadao",
+          "sms",
+          "vida",
+          "pcj",
+          "tudoAv"
+        ].forEach(key => {
+          if(Number(row[key] || 0) !== 0 || Number(current[key] || 0) === 0){
+            current[key] = Number(row[key] || 0);
+          }
+        });
+
+        const rank = {low:1,medium:2,high:3};
+        if(rank[row.confidence] > rank[current.confidence]){
+          current.confidence = row.confidence;
+          current.warning = row.warning;
+        }
+      });
+
+      return [...merged.values()].sort(
+        (a,b) => Number(a.operator) - Number(b.operator)
+      );
+    }
+
+    function parseDeveloperImportText(text, requestedProfile = "auto"){
+      const normalizedText = String(text || "")
+        .replace(/\r/g,"\n")
+        .replace(/[|¦]/g," ")
+        .replace(/\n{3,}/g,"\n\n");
+      const profile = developerImportDetectProfile(
+        normalizedText,
+        requestedProfile
+      );
+      const lines = normalizedText
+        .split("\n")
+        .map(line => line.trim())
+        .filter(Boolean);
+
+      const parsed = lines
+        .map(line =>
+          developerImportParseLine(
+            line,
+            normalizedText,
+            profile
+          )
+        )
+        .filter(Boolean);
+
+      return {
+        profile,
+        rows:developerImportMergeRows(parsed)
+      };
+    }
+
+    function developerImportProfileLabel(profile){
+      const labels = {
+        auto:"Detecção automática",
+        launch:"Tabela completa",
+        pf:"Produtos Financeiros",
+        performance:"PCJ e Tudo AV",
+        manual:"Manual"
+      };
+      return labels[profile] || profile;
+    }
+
+    function developerImportConfidenceLabel(confidence){
+      if(confidence === "high") return "Alta";
+      if(confidence === "medium") return "Média";
+      return "Revisar";
+    }
+
+    function developerImportEmployeeOptions(selectedOperator = ""){
+      return employees
+        .slice()
+        .sort((a,b) => Number(a.operator) - Number(b.operator))
+        .map(employee => `
+          <option
+            value="${escapeHtml(employee.operator)}"
+            ${normalizeOperator(employee.operator) === normalizeOperator(selectedOperator) ? "selected" : ""}
+          >
+            ${escapeHtml(employee.operator)} — ${escapeHtml(employee.shortName)}
+          </option>
+        `)
+        .join("");
+    }
+
+    function developerImportPfTotal(row){
+      return [
+        "bolsa",
+        "compra",
+        "protecao",
+        "sabadao",
+        "sms",
+        "vida"
+      ].reduce(
+        (total,key) => total + Number(row?.[key] || 0),
+        0
+      );
+    }
+
+    function renderDeveloperImportPreview(){
+      const body = $("#developerImportPreviewBody");
+      if(!body) return;
+
+      const rows = developerImportState.rows || [];
+
+      if(!rows.length){
+        body.innerHTML = `
+          <tr>
+            <td colspan="15">
+              <div class="empty">
+                Selecione um arquivo, cole um texto ou carregue o exemplo de teste.
+              </div>
+            </td>
+          </tr>
+        `;
+        refreshDeveloperImportPreviewCount();
+        return;
+      }
+
+      body.innerHTML = rows.map((row,index) => {
+        const employee = getEmployee(row.operator);
+        const displayName =
+          employee?.shortName ||
+          row.name ||
+          "Operador não identificado";
+
+        return `
+          <tr data-import-row="${index}">
+            <td style="text-align:center">
+              <input
+                class="row-check"
+                type="checkbox"
+                data-import-field="selected"
+                data-import-index="${index}"
+                ${row.selected !== false ? "checked" : ""}
+              />
+            </td>
+            <td>
+              <select
+                class="control"
+                data-import-field="operator"
+                data-import-index="${index}"
+              >
+                <option value="">Selecionar...</option>
+                ${developerImportEmployeeOptions(row.operator)}
+              </select>
+            </td>
+            <td>
+              <strong data-import-name="${index}">
+                ${escapeHtml(displayName)}
+              </strong>
+            </td>
+            ${[
+              "ativados",
+              "bolsa",
+              "compra",
+              "protecao",
+              "sabadao",
+              "sms",
+              "vida"
+            ].map(field => `
+              <td>
+                <input
+                  class="control import-number"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value="${Number(row[field] || 0)}"
+                  data-import-field="${field}"
+                  data-import-index="${index}"
+                />
+              </td>
+            `).join("")}
+            <td>
+              <strong data-import-pf-total="${index}">
+                ${developerImportPfTotal(row).toLocaleString("pt-BR")}
+              </strong>
+            </td>
+            <td>
+              <input
+                class="control import-percent"
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                value="${Number(row.pcj || 0)}"
+                data-import-field="pcj"
+                data-import-index="${index}"
+              />
+            </td>
+            <td>
+              <input
+                class="control import-percent"
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                value="${Number(row.tudoAv || 0)}"
+                data-import-field="tudoAv"
+                data-import-index="${index}"
+              />
+            </td>
+            <td>
+              <span
+                class="developer-import-confidence ${escapeHtml(row.confidence || "low")}"
+                title="${escapeHtml(row.warning || "")}"
+              >
+                ${escapeHtml(developerImportConfidenceLabel(row.confidence))}
+              </span>
+            </td>
+            <td>
+              <button
+                class="btn btn-danger"
+                type="button"
+                data-import-remove="${index}"
+                title="Remover linha"
+              >
+                ✕
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      refreshDeveloperImportPreviewCount();
+    }
+
+    function refreshDeveloperImportPreviewCount(){
+      const rows = developerImportState.rows || [];
+      const selected = rows.filter(row => row.selected !== false);
+      const valid = selected.filter(row => Boolean(getEmployee(row.operator)));
+
+      if($("#developerImportPreviewCount")){
+        $("#developerImportPreviewCount").textContent =
+          `${valid.length} de ${rows.length} linha${rows.length === 1 ? "" : "s"} pronta${valid.length === 1 ? "" : "s"}`;
+      }
+
+      if($("#developerImportConfirmBtn")){
+        $("#developerImportConfirmBtn").disabled =
+          !isDev() || valid.length === 0;
+      }
+    }
+
+    function handleDeveloperImportPreviewInput(event){
+      const field = event.target.dataset.importField;
+      const index = Number(event.target.dataset.importIndex);
+
+      if(!field || !Number.isInteger(index)) return;
+
+      const row = developerImportState.rows[index];
+      if(!row) return;
+
+      if(field === "selected"){
+        row.selected = event.target.checked;
+      }else if(field === "operator"){
+        row.operator = normalizeOperator(event.target.value);
+        const employee = getEmployee(row.operator);
+        row.name = employee?.shortName || employee?.name || "";
+
+        const nameField = document.querySelector(
+          `[data-import-name="${index}"]`
+        );
+        if(nameField){
+          nameField.textContent =
+            employee?.shortName || "Operador não identificado";
+        }
+      }else if(field === "pcj" || field === "tudoAv"){
+        row[field] = Math.min(
+          Math.max(Number(event.target.value || 0),0),
+          100
+        );
+      }else{
+        row[field] = Math.max(
+          Math.round(Number(event.target.value || 0)),
+          0
+        );
+      }
+
+      if([
+        "bolsa",
+        "compra",
+        "protecao",
+        "sabadao",
+        "sms",
+        "vida"
+      ].includes(field)){
+        const totalField = document.querySelector(
+          `[data-import-pf-total="${index}"]`
+        );
+        if(totalField){
+          totalField.textContent =
+            developerImportPfTotal(row).toLocaleString("pt-BR");
+        }
+      }
+
+      refreshDeveloperImportPreviewCount();
+    }
+
+    function addDeveloperImportBlankRow(){
+      if(!developerImportGuard()) return;
+
+      const employee =
+        getEmployee(currentUser?.operator) ||
+        employees[0] ||
+        null;
+
+      developerImportState.rows.push(
+        developerImportDefaultRow(employee)
+      );
+      renderDeveloperImportPreview();
+    }
+
+    function interpretDeveloperImportText(){
+      if(!developerImportGuard()) return;
+
+      const text = String($("#developerImportText")?.value || "").trim();
+      if(!text){
+        alert("Não há texto para interpretar.");
+        return;
+      }
+
+      const requestedProfile =
+        $("#developerImportProfile")?.value || "auto";
+      const parsed = parseDeveloperImportText(
+        text,
+        requestedProfile
+      );
+
+      developerImportState.text = text;
+      developerImportState.profile = parsed.profile;
+      developerImportState.rows = parsed.rows;
+
+      renderDeveloperImportPreview();
+
+      if(parsed.rows.length){
+        setDeveloperImportStatus(
+          `${parsed.rows.length} operador${parsed.rows.length === 1 ? "" : "es"} reconhecido${parsed.rows.length === 1 ? "" : "s"}`,
+          100,
+          developerImportProfileLabel(parsed.profile)
+        );
+      }else{
+        setDeveloperImportStatus(
+          "Nenhum operador reconhecido",
+          100,
+          "Revise o texto ou adicione linhas manualmente"
+        );
+      }
+    }
+
+    function loadDeveloperImportSample(){
+      if(!developerImportGuard()) return;
+
+      const sample = `RELATÓRIO DE RESULTADOS — HOJE
+OPERADOR NOME ATIVADOS BOLSA COMPRA PROTEÇÃO SABADÃO SMS VIDA+ PCJ TUDO AV
+36 LUIZA 2 1 3 0 4 1 0 55,28% 78,62%
+145 CELIO 1 0 2 1 5 0 1 46,78% 81,40%
+31 DEBORA 3 0 1 0 2 1 0 47,24% 81,25%`;
+
+      developerImportState.fileName = "EXEMPLO_INTERNO.txt";
+      $("#developerImportText").value = sample;
+      $("#developerImportProfile").value = "launch";
+      $("#developerImportFileName").textContent =
+        "Exemplo interno carregado para teste.";
+      interpretDeveloperImportText();
+    }
+
+    async function readDeveloperImportFile(){
+      if(!developerImportGuard()) return;
+
+      const file = $("#developerImportFile")?.files?.[0];
+      if(!file){
+        alert("Selecione uma foto ou PDF.");
+        return;
+      }
+
+      const readButton = $("#developerImportReadBtn");
+      const confirmButton = $("#developerImportConfirmBtn");
+      readButton.disabled = true;
+      confirmButton.disabled = true;
+      developerImportState.fileName = file.name;
+
+      try{
+        setDeveloperImportStatus("Preparando leitura",4);
+        const text = await extractDeveloperImportText(file);
+
+        developerImportState.text = text;
+        $("#developerImportText").value = text;
+
+        setDeveloperImportStatus("Texto extraído",94);
+        interpretDeveloperImportText();
+      }catch(error){
+        console.error("Falha na importação por arquivo:",error);
+        setDeveloperImportStatus(
+          "Não foi possível concluir a leitura automática",
+          100,
+          "Cole o texto manualmente ou tente outra imagem"
+        );
+        alert(
+          "A leitura automática não foi concluída. O arquivo pode estar desfocado ou a biblioteca externa pode estar indisponível. Você ainda pode colar o texto no campo e usar “Interpretar texto”."
+        );
+      }finally{
+        readButton.disabled = false;
+        refreshDeveloperImportPreviewCount();
+      }
+    }
+
+    function developerImportRecordValues(row){
+      return {
+        ativados:Math.max(Math.round(Number(row.ativados || 0)),0),
+        bolsa:Math.max(Math.round(Number(row.bolsa || 0)),0),
+        compra:Math.max(Math.round(Number(row.compra || 0)),0),
+        protecao:Math.max(Math.round(Number(row.protecao || 0)),0),
+        sabadao:Math.max(Math.round(Number(row.sabadao || 0)),0),
+        sms:Math.max(Math.round(Number(row.sms || 0)),0),
+        vida:Math.max(Math.round(Number(row.vida || 0)),0),
+        pcj:Math.min(Math.max(Number(row.pcj || 0),0),100),
+        tudoAv:Math.min(Math.max(Number(row.tudoAv || 0),0),100)
+      };
+    }
+
+    function developerImportIsExactDuplicate(operator, date, values){
+      const fields = [
+        "ativados",
+        "bolsa",
+        "compra",
+        "protecao",
+        "sabadao",
+        "sms",
+        "vida",
+        "pcj",
+        "tudoAv"
+      ];
+
+      return db.records.some(record =>
+        normalizeOperator(record.operator) === normalizeOperator(operator) &&
+        String(record.date) === String(date) &&
+        fields.every(field =>
+          Number(record[field] || 0) === Number(values[field] || 0)
+        )
+      );
+    }
+
+    function confirmDeveloperImport(){
+      if(!developerImportGuard()) return;
+
+      const date = $("#developerImportDate")?.value || today();
+      const replaceExisting =
+        $("#developerImportReplaceExisting")?.checked === true;
+      const selectedRows = (developerImportState.rows || [])
+        .filter(row => row.selected !== false)
+        .filter(row => Boolean(getEmployee(row.operator)));
+
+      if(!selectedRows.length){
+        alert("Nenhuma linha válida foi selecionada.");
+        return;
+      }
+
+      const batchId = uuid();
+      const importedAt = new Date().toISOString();
+      const sourceName =
+        developerImportState.fileName ||
+        "TEXTO COLADO";
+
+      if(replaceExisting){
+        const selectedKeys = new Set(
+          selectedRows.map(row =>
+            `${date}|${normalizeOperator(row.operator)}`
+          )
+        );
+
+        db.records = db.records.filter(record => {
+          const key =
+            `${record.date}|${normalizeOperator(record.operator)}`;
+          const importedSource = String(record.source || "")
+            .toUpperCase()
+            .startsWith("IMPORTAÇÃO");
+
+          return !(selectedKeys.has(key) && importedSource);
+        });
+      }
+
+      let created = 0;
+      let duplicated = 0;
+
+      selectedRows.forEach(row => {
+        const operator = normalizeOperator(row.operator);
+        const values = developerImportRecordValues(row);
+
+        if(developerImportIsExactDuplicate(operator,date,values)){
+          duplicated += 1;
+          return;
+        }
+
+        db.records.push({
+          id:uuid(),
+          operator,
+          date,
+          createdAt:importedAt,
+          createdBy:currentUser.operator,
+          source:"IMPORTAÇÃO FOTO/PDF",
+          importBatchId:batchId,
+          importFileName:sourceName,
+          importProfile:developerImportState.profile,
+          importConfidence:row.confidence || "manual",
+          ...values
+        });
+
+        created += 1;
+      });
+
+      if(!created){
+        alert(
+          duplicated
+            ? "Todas as linhas selecionadas já existiam e foram ignoradas."
+            : "Nenhum lançamento foi criado."
+        );
+        return;
+      }
+
+      db.resultImports = Array.isArray(db.resultImports)
+        ? db.resultImports
+        : [];
+      db.resultImports.unshift({
+        id:batchId,
+        fileName:sourceName,
+        date,
+        profile:developerImportState.profile,
+        importedAt,
+        importedBy:currentUser.operator,
+        created,
+        duplicated
+      });
+      db.resultImports = db.resultImports.slice(0,100);
+
+      addAudit(
+        "IMPORTAÇÃO DE RESULTADOS",
+        `${created} lançamento${created === 1 ? "" : "s"} importado${created === 1 ? "" : "s"} por foto/PDF • arquivo ${sourceName} • data ${brDate(date)}${duplicated ? ` • ${duplicated} duplicado${duplicated === 1 ? "" : "s"} ignorado${duplicated === 1 ? "" : "s"}` : ""}.`
+      );
+
+      saveDB();
+
+      if($("#calendarDate")) $("#calendarDate").value = date;
+      if($("#calendarGoalsDate")) $("#calendarGoalsDate").value = date;
+
+      closeDeveloperImportModal();
+      selectedLaunchIds.clear();
+      renderAll();
+
+      alert(
+        `${created} lançamento${created === 1 ? "" : "s"} importado${created === 1 ? "" : "s"} com sucesso.${duplicated ? ` ${duplicated} registro${duplicated === 1 ? "" : "s"} duplicado${duplicated === 1 ? "" : "s"} foi${duplicated === 1 ? "" : "ram"} ignorado${duplicated === 1 ? "" : "s"}.` : ""}`
+      );
+    }
+
     $("#loginForm").addEventListener("submit", async e => {
       e.preventDefault();
       const submitButton = e.currentTarget.querySelector('button[type="submit"]');
@@ -7894,6 +9587,7 @@
       $("#userRoleMini").textContent = currentCargo();
       $$("[data-admin]").forEach(el => el.classList.toggle("hidden", !isAdmin()));
       $$("[data-dev]").forEach(el => el.classList.toggle("hidden", !isDev()));
+      ensureDeveloperImportTrigger();
       applyNavigationPermissions();
       $("#referenceDate").value = today();
       $("#calendarDate").value = today();
@@ -10812,7 +12506,7 @@
       }
 
       if(!rows.length){
-        body.innerHTML = `<tr><td colspan="13"><div class="empty">Nenhum lançamento encontrado.</div></td></tr>`;
+        body.innerHTML = `<tr><td colspan="14"><div class="empty">Nenhum lançamento encontrado.</div></td></tr>`;
         selectedLaunchIds.clear();
         updateLaunchSelectionControls();
         return;
@@ -10839,6 +12533,7 @@
             <td>${Number(record.ativados || 0)}</td>
             <td>${Number(record.bolsa || 0)}</td>
             <td>${Number(record.compra || 0)}</td>
+            <td>${Number(record.protecao || 0)}</td>
             <td>${Number(record.sabadao || 0)}</td>
             <td>${Number(record.sms || 0)}</td>
             <td>${Number(record.vida || 0)}</td>
