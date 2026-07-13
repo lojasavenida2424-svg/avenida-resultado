@@ -1517,6 +1517,104 @@
     .chart-box{height:280px; position:relative}
     canvas{width:100%; height:100%}
 
+    .dashboard-evolution-card{
+      margin-bottom:18px;
+    }
+    .dashboard-evolution-card .chart-box{
+      height:340px;
+      margin-top:8px;
+    }
+    .dashboard-section-header{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .quick-ranking-card{
+      margin-bottom:18px;
+    }
+    .quick-ranking-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      margin-top:18px;
+    }
+    .quick-ranking-column{
+      min-width:0;
+      padding:16px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--surface-2);
+    }
+    .quick-ranking-column .eyebrow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin:0 0 12px;
+    }
+    .quick-ranking-column .eyebrow::after{
+      content:"TOP 5";
+      flex:0 0 auto;
+      padding:4px 7px;
+      border-radius:999px;
+      background:var(--brand-soft);
+      color:var(--brand);
+      font-size:8px;
+      letter-spacing:.06em;
+    }
+    .quick-ranking-column .rank-list{
+      gap:8px;
+    }
+    .quick-ranking-column .rank-item{
+      grid-template-columns:30px minmax(0,1fr) auto;
+      gap:9px;
+      padding:10px;
+      background:var(--surface);
+    }
+    .quick-ranking-column .rank{
+      width:30px;
+      height:30px;
+      border-radius:9px;
+      font-size:12px;
+    }
+    .quick-ranking-column .rank-item strong{
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .quick-ranking-column .rank-item span{
+      display:block;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      font-size:10px;
+    }
+    .quick-ranking-empty{
+      padding:15px 10px;
+      text-align:center;
+      color:var(--muted);
+      font-size:12px;
+      border:1px dashed var(--line);
+      border-radius:12px;
+      background:var(--surface);
+    }
+    @media(max-width:1080px){
+      .quick-ranking-grid{grid-template-columns:1fr;}
+      .dashboard-evolution-card .chart-box{height:310px;}
+    }
+    @media(max-width:620px){
+      .dashboard-evolution-card .chart-box{height:280px;}
+      .quick-ranking-column{padding:13px;}
+      .quick-ranking-column .rank-item{grid-template-columns:30px minmax(0,1fr);}
+      .quick-ranking-column .rank-item > div:last-child{
+        grid-column:2;
+        text-align:left!important;
+        font-size:12px;
+      }
+    }
+
     .game-hero{
       padding:24px;
       margin-bottom:18px;
@@ -2620,41 +2718,38 @@
           </div>
         </div>
 
-        <div class="split">
-          <div class="card section-card">
-            <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
-              <div>
-                <h3>Evolução de ativados e PF</h3>
-                <small>Comparativo diário do mês</small>
-              </div>
-              <span class="tag brand-soft">Mensal</span>
+        <div class="card section-card dashboard-evolution-card">
+          <div class="dashboard-section-header">
+            <div>
+              <h3>Evolução de ativados e PF</h3>
+              <small>Comparativo diário do mês em largura total</small>
             </div>
-            <div class="chart-box"><canvas id="monthChart"></canvas></div>
+            <span class="tag brand-soft">Mensal</span>
           </div>
-          <div class="card section-card">
-            <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
-              <div>
-                <h3>Ranking rápido</h3>
-                <small>Baseado no acumulado do mês</small>
-              </div>
+          <div class="chart-box"><canvas id="monthChart"></canvas></div>
+        </div>
+
+        <div class="card section-card quick-ranking-card">
+          <div class="dashboard-section-header">
+            <div>
+              <h3>Ranking rápido</h3>
+              <small>Os cinco melhores resultados acumulados do mês em cada categoria</small>
             </div>
-            <div class="grid" style="grid-template-columns:1fr">
-              <div>
-                <div class="eyebrow" style="margin:6px 0 10px">Mais ativados</div>
-                <div id="rankAtivados" class="rank-list"></div>
-              </div>
-              <div>
-                <div class="eyebrow" style="margin:10px 0 10px">Mais PF</div>
-                <div id="rankPf" class="rank-list"></div>
-              </div>
-              <div>
-                <div class="eyebrow" style="margin:10px 0 10px">Melhor PCJ%</div>
-                <div id="rankPcj" class="rank-list"></div>
-              </div>
-              <div>
-                <div class="eyebrow" style="margin:10px 0 10px">Melhor Tudo AV%</div>
-                <div id="rankTudoAv" class="rank-list"></div>
-              </div>
+            <span class="tag brand-soft">TOP 5</span>
+          </div>
+
+          <div class="quick-ranking-grid">
+            <div class="quick-ranking-column">
+              <div class="eyebrow">Ativados</div>
+              <div id="rankAtivados" class="rank-list"></div>
+            </div>
+            <div class="quick-ranking-column">
+              <div class="eyebrow">Produtos Financeiros — PF</div>
+              <div id="rankPf" class="rank-list"></div>
+            </div>
+            <div class="quick-ranking-column">
+              <div class="eyebrow">Compra com Juros — PCJ</div>
+              <div id="rankPcj" class="rank-list"></div>
             </div>
           </div>
         </div>
@@ -5621,7 +5716,7 @@
         floatingOperator.textContent = `${currentUser.shortName} • operador ${currentUser.operator}`;
       }
       if(floatingPeriod){
-        floatingPeriod.textContent = `Hoje: ${formatDateBR(today())} • Acumulado de ${goalMonthLabel(currentMonth)}`;
+        floatingPeriod.textContent = `Hoje: ${brDate(today())} • Acumulado de ${goalMonthLabel(currentMonth)}`;
       }
 
       const distribution = ensureGoalDistribution(currentUser.operator, currentMonth);
@@ -5707,7 +5802,7 @@
 
       const hasAnyGoal = Object.values(distribution).some(value => Number(value || 0) > 0);
       $("#userGoalMeta").textContent = hasAnyGoal
-        ? `Hoje ${formatDateBR(today())} • Mês ${goalMonthLabel(currentMonth)} • Meta mensal`
+        ? `Hoje ${brDate(today())} • Mês ${goalMonthLabel(currentMonth)} • Meta mensal`
         : `Hoje e acumulado disponíveis • Meta do operador ${currentUser.operator} ainda não definida`;
 
     }
@@ -7485,15 +7580,37 @@
         return { user:u, ...s };
       });
 
-      const byAtivados = [...base].sort((a,b) => b.ativadosAcc - a.ativadosAcc);
-      const byPf = [...base].sort((a,b) => b.pfAcc - a.pfAcc);
-      const byPcj = [...base].sort((a,b) => b.pcjAcc - a.pcjAcc);
-      const byTudoAv = [...base].sort((a,b) => b.tudoAvAcc - a.tudoAvAcc);
+      const rankingSort = key => (a,b) =>
+        Number(b[key] || 0) - Number(a[key] || 0) ||
+        Number(a.user.operator || 0) - Number(b.user.operator || 0) ||
+        String(a.user.name || "").localeCompare(String(b.user.name || ""), "pt-BR");
 
-      $("#rankAtivados").innerHTML = byAtivados.map((r,i) => rankingItem(r.user.shortName, `Operador ${r.user.operator}`, `${r.ativadosAcc} ativados`, i)).join("");
-      $("#rankPf").innerHTML = byPf.map((r,i) => rankingItem(r.user.shortName, `Operador ${r.user.operator}`, `${r.pfAcc} PF`, i)).join("");
-      $("#rankPcj").innerHTML = byPcj.map((r,i) => rankingItem(r.user.shortName, `Operador ${r.user.operator}`, pct(r.pcjAcc), i)).join("");
-      $("#rankTudoAv").innerHTML = byTudoAv.map((r,i) => rankingItem(r.user.shortName, `Operador ${r.user.operator}`, pct(r.tudoAvAcc), i)).join("");
+      const topFive = (key) => [...base].sort(rankingSort(key)).slice(0,5);
+      const emptyRanking = `<div class="quick-ranking-empty">Nenhum operador disponível.</div>`;
+
+      const byAtivados = topFive("ativadosAcc");
+      const byPf = topFive("pfAcc");
+      const byPcj = topFive("pcjAcc");
+
+      const rankAtivados = $("#rankAtivados");
+      const rankPf = $("#rankPf");
+      const rankPcj = $("#rankPcj");
+
+      if(rankAtivados){
+        rankAtivados.innerHTML = byAtivados.length
+          ? byAtivados.map((r,i) => rankingItem(r.user.shortName, `Operador ${r.user.operator}`, `${r.ativadosAcc} ativados`, i)).join("")
+          : emptyRanking;
+      }
+      if(rankPf){
+        rankPf.innerHTML = byPf.length
+          ? byPf.map((r,i) => rankingItem(r.user.shortName, `Operador ${r.user.operator}`, `${r.pfAcc} PF`, i)).join("")
+          : emptyRanking;
+      }
+      if(rankPcj){
+        rankPcj.innerHTML = byPcj.length
+          ? byPcj.map((r,i) => rankingItem(r.user.shortName, `Operador ${r.user.operator}`, pct(r.pcjAcc), i)).join("")
+          : emptyRanking;
+      }
     }
 
     function renderConfig(){
@@ -8223,6 +8340,7 @@
     }
 
     $("#goalFloatingToggle").addEventListener("click", () => {
+      renderUserGoalPanel();
       setGoalFloatingOpen(!$("#goalFloatingPanel").classList.contains("open"));
     });
 
