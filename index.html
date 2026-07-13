@@ -2485,6 +2485,249 @@
       .premia-game-head{flex-direction:column;align-items:flex-start}
     }
 
+  
+
+    /* CALENDÁRIO DE VENDAS — SUBABAS E PROGRESSO DAS METAS */
+    .calendar-subtabs{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin:20px 0 18px;
+      padding:6px;
+      border:1px solid var(--line);
+      border-radius:15px;
+      background:var(--surface-2);
+      overflow-x:auto;
+      scrollbar-width:none;
+    }
+    .calendar-subtabs::-webkit-scrollbar{display:none}
+    .calendar-subtab-button{
+      flex:0 0 auto;
+      min-height:42px;
+      padding:10px 17px;
+      border:1px solid transparent;
+      border-radius:11px;
+      background:transparent;
+      color:var(--muted);
+      font-weight:900;
+      cursor:pointer;
+      white-space:nowrap;
+      transition:background .2s ease,color .2s ease,border-color .2s ease,box-shadow .2s ease;
+    }
+    .calendar-subtab-button:hover{
+      color:var(--text);
+      background:var(--surface);
+    }
+    .calendar-subtab-button.active{
+      color:#fff;
+      background:var(--brand);
+      border-color:var(--brand);
+      box-shadow:0 7px 18px rgba(var(--brand-rgb),.22);
+    }
+    .calendar-subview{display:none}
+    .calendar-subview.active{display:block}
+
+    .calendar-goals-toolbar{
+      display:grid;
+      grid-template-columns:minmax(220px,1fr) auto;
+      gap:16px;
+      align-items:end;
+      margin:0 0 18px;
+      padding:16px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:
+        radial-gradient(circle at 0 0,rgba(var(--brand-rgb),.10),transparent 42%),
+        var(--surface-2);
+    }
+    .calendar-goals-period h4{
+      margin:4px 0 4px;
+      font-size:20px;
+      text-transform:capitalize;
+    }
+    .calendar-goals-period p{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+    }
+    .calendar-goals-month-controls{
+      display:flex;
+      align-items:flex-end;
+      justify-content:flex-end;
+      gap:9px;
+      flex-wrap:wrap;
+    }
+    .calendar-goals-month-field{
+      display:grid;
+      gap:5px;
+      min-width:190px;
+    }
+    .calendar-goals-month-field label{
+      color:var(--muted);
+      font-size:9px;
+      font-weight:1000;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    #calendarGoalsMonth{height:42px}
+
+    .calendar-goals-summary-grid{
+      grid-template-columns:repeat(4,minmax(150px,1fr));
+      margin-bottom:18px;
+    }
+    .calendar-goals-summary-card{
+      min-height:128px;
+      padding:17px;
+      display:grid;
+      align-content:start;
+      gap:8px;
+    }
+    .calendar-goals-summary-card strong{
+      font-size:28px;
+      line-height:1;
+      font-weight:1000;
+      font-variant-numeric:tabular-nums;
+    }
+    .calendar-goals-summary-card small{
+      color:var(--muted);
+      line-height:1.35;
+    }
+
+    .calendar-goals-chart-card{
+      padding:20px;
+      margin-bottom:18px;
+    }
+    .calendar-goals-section-header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+    .calendar-goals-section-header h4{
+      margin:4px 0 4px;
+      font-size:19px;
+    }
+    .calendar-goals-section-header p{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .calendar-goals-chart-box{
+      position:relative;
+      width:100%;
+      min-height:360px;
+      border:1px solid var(--line);
+      border-radius:15px;
+      background:var(--surface-2);
+      overflow:hidden;
+    }
+    #calendarGoalsChart{
+      display:block;
+      width:100%;
+      height:100%;
+      min-height:360px;
+    }
+
+    .calendar-goals-progress-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+    .calendar-goal-card{
+      padding:17px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--surface);
+      box-shadow:0 8px 22px rgba(0,0,0,.06);
+    }
+    .calendar-goal-card-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:13px;
+    }
+    .calendar-goal-card-head h5{
+      margin:0 0 4px;
+      font-size:14px;
+    }
+    .calendar-goal-card-head small{
+      color:var(--muted);
+      line-height:1.35;
+    }
+    .calendar-goal-percent{
+      flex:0 0 auto;
+      font-size:19px;
+      font-weight:1000;
+      color:var(--brand);
+      font-variant-numeric:tabular-nums;
+    }
+    .calendar-goal-track{
+      height:11px;
+      border-radius:999px;
+      overflow:hidden;
+      background:var(--surface-2);
+      border:1px solid var(--line);
+    }
+    .calendar-goal-fill{
+      display:block;
+      width:0;
+      height:100%;
+      border-radius:999px;
+      background:var(--bad);
+      transition:width .42s ease;
+    }
+    .calendar-goal-fill.halfway{background:var(--warn)}
+    .calendar-goal-fill.reached{background:var(--ok)}
+    .calendar-goal-fill.undefined{background:#8d97a2}
+    .calendar-goal-values{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:10px;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:800;
+    }
+    .calendar-goal-values strong{color:var(--text)}
+    .calendar-goal-card.goal-complete{
+      border-color:rgba(29,123,79,.30);
+      background:linear-gradient(135deg,rgba(29,123,79,.08),transparent 46%),var(--surface);
+    }
+    .calendar-goal-card.goal-undefined{opacity:.78}
+    .calendar-goals-note{
+      margin-top:16px;
+      padding:12px 14px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:var(--surface-2);
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.5;
+    }
+
+    @media(max-width:1050px){
+      .calendar-goals-summary-grid{grid-template-columns:repeat(2,minmax(140px,1fr))}
+    }
+    @media(max-width:760px){
+      .calendar-goals-toolbar{grid-template-columns:1fr;align-items:stretch}
+      .calendar-goals-month-controls{justify-content:flex-start}
+      .calendar-goals-progress-grid{grid-template-columns:1fr}
+      .calendar-goals-chart-box{overflow-x:auto}
+      #calendarGoalsChart{min-width:650px}
+    }
+    @media(max-width:520px){
+      .calendar-subtab-button{flex:1 0 auto}
+      .calendar-goals-summary-grid{grid-template-columns:1fr}
+      .calendar-goals-month-controls{display:grid;grid-template-columns:1fr}
+      .calendar-goals-month-field{min-width:0}
+      #calendarGoalsCurrentMonthBtn{width:100%}
+    }
+
   </style>
 </head>
 <body>
@@ -2767,6 +3010,33 @@
             <span class="tag brand-soft">CONSULTA POR DATA</span>
           </div>
 
+          <div class="calendar-subtabs" role="tablist" aria-label="Visualizações do Calendário de Vendas">
+            <button
+              id="calendarDailyTabBtn"
+              class="calendar-subtab-button active"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              aria-controls="calendarDailySubview"
+              data-calendar-tab="daily"
+            >
+              Resultados por dia
+            </button>
+            <button
+              id="calendarGoalsTabBtn"
+              class="calendar-subtab-button"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="calendarGoalsSubview"
+              data-calendar-tab="goals"
+            >
+              Progresso das metas
+            </button>
+          </div>
+
+          <div id="calendarDailySubview" class="calendar-subview active" role="tabpanel" aria-labelledby="calendarDailyTabBtn">
+
           <div class="calendar-toolbar">
             <div class="calendar-selected-date">
               <div class="header-label">Data selecionada</div>
@@ -2933,6 +3203,74 @@
               </thead>
               <tbody id="calendarSalesTableBody"></tbody>
             </table>
+          </div>
+          </div>
+
+          <div id="calendarGoalsSubview" class="calendar-subview" role="tabpanel" aria-labelledby="calendarGoalsTabBtn">
+            <div class="calendar-goals-toolbar">
+              <div class="calendar-goals-period">
+                <div class="header-label">Acompanhamento mensal</div>
+                <h4 id="calendarGoalsPeriodLabel">—</h4>
+                <p>Compare o acumulado da loja com todas as metas configuradas para o período.</p>
+              </div>
+              <div class="calendar-goals-month-controls">
+                <div class="calendar-goals-month-field">
+                  <label for="calendarGoalsMonth">Selecionar mês</label>
+                  <input id="calendarGoalsMonth" class="control" type="month" aria-label="Selecionar mês das metas" />
+                </div>
+                <button id="calendarGoalsCurrentMonthBtn" class="btn btn-primary" type="button">Mês atual</button>
+              </div>
+            </div>
+
+            <div class="grid calendar-goals-summary-grid">
+              <div class="card calendar-goals-summary-card">
+                <div class="header-label">Metas configuradas</div>
+                <strong id="calendarGoalsConfigured">0</strong>
+                <small>Indicadores com objetivo definido</small>
+              </div>
+              <div class="card calendar-goals-summary-card">
+                <div class="header-label">Metas atingidas</div>
+                <strong id="calendarGoalsReached">0</strong>
+                <small id="calendarGoalsReachedSub">Nenhuma meta concluída</small>
+              </div>
+              <div class="card calendar-goals-summary-card">
+                <div class="header-label">Progresso médio</div>
+                <strong id="calendarGoalsAverage">0,00%</strong>
+                <small>Média das metas configuradas</small>
+              </div>
+              <div class="card calendar-goals-summary-card">
+                <div class="header-label">Metas pendentes</div>
+                <strong id="calendarGoalsPending">0</strong>
+                <small>Ainda abaixo de 100%</small>
+              </div>
+            </div>
+
+            <div class="card calendar-goals-chart-card">
+              <div class="calendar-goals-section-header">
+                <div>
+                  <div class="eyebrow">Visão comparativa</div>
+                  <h4>Percentual atingido por meta</h4>
+                  <p>A linha completa representa 100% do objetivo de cada indicador.</p>
+                </div>
+                <span class="tag brand-soft">ACUMULADO DO MÊS</span>
+              </div>
+              <div class="calendar-goals-chart-box">
+                <canvas id="calendarGoalsChart" aria-label="Gráfico do progresso de todas as metas"></canvas>
+              </div>
+            </div>
+
+            <div class="calendar-goals-section-header">
+              <div>
+                <div class="eyebrow">Detalhamento</div>
+                <h4>Barras de progresso</h4>
+                <p>Realizado, meta, saldo restante e percentual de cada indicador.</p>
+              </div>
+            </div>
+            <div id="calendarGoalsProgressList" class="calendar-goals-progress-grid"></div>
+
+            <div id="calendarGoalsDataNote" class="calendar-goals-note">
+              As metas mensais são obtidas da Meta Total da loja e da Distribuição de Meta por operador. Cartão AV, PCJ e Tudo AV utilizam os parâmetros operacionais do sistema.
+            </div>
           </div>
         </div>
       </section>
@@ -3963,6 +4301,9 @@
     const CALENDAR_HISTORY_VERSION = "2026-07-01_ate_2026-07-10_v1";
     const PF_HISTORY_VERSION = "2026-07-01_ate_2026-07-10_pf_v1";
 
+    const DAILY_RESULTS_PATCH_VERSION = "2026-07-12_resultados_loja_operadores_v1";
+    const DAILY_RESULTS_PATCH = {"date":"2026-07-12","store":{"vendaAtual":21907,"compromissoDia":26518,"vendaAcumulada":196975,"metaTotal":520980,"atingimentoHoje":82.61,"atingimentoAcc":37.81,"cartaoAv":36.61,"cartaoAvAcc":40.99,"cartaoGap":-1400,"cartaoGapAcc":-3963,"pcj":55.28,"pcjAcc":55.38,"pcjGap":1626,"pcjGapAcc":16455,"taxaAtivacaoHoje":14.29,"taxaAtivacaoAcc":12.07,"ativadosHoje":4,"ativadosAcc":35,"ativadosMeta":4,"ativadosMetaAcc":85,"baseAtivacaoHoje":28,"baseAtivacaoAcc":290,"pfHoje":49,"pfAcc":450,"pfMetaHoje":35,"pfMetaAcc":685,"tudoAv":78.62,"tudoAvAcc":79.02},"operators":{"total":{"cartaoHoje":36.61,"cartaoAcc":40.99,"cartaoGapHoje":-1400,"cartaoGapAcc":-3963,"pcjHoje":55.28,"pcjAcc":55.38,"pcjGapHoje":1626,"pcjGapAcc":16455,"tudoAvHoje":78.62,"tudoAvAcc":79.02},"36":{"cartaoHoje":24.58,"cartaoAcc":39.83,"cartaoGapHoje":-1393,"cartaoGapAcc":-1296,"pcjHoje":86.56,"pcjAcc":61.99,"pcjGapHoje":959,"pcjGapAcc":4393,"tudoAvHoje":73.17,"tudoAvAcc":75.99},"145":{"cartaoHoje":46.09,"cartaoAcc":39.27,"cartaoGapHoje":195,"cartaoGapAcc":-931,"pcjHoje":46.78,"pcjAcc":58.94,"pcjGapHoje":342,"pcjGapAcc":2347,"tudoAvHoje":81.4,"tudoAvAcc":79.89},"31":{"cartaoHoje":36.48,"cartaoAcc":38.34,"cartaoGapHoje":-268,"cartaoGapAcc":-1111,"pcjHoje":47.24,"pcjAcc":57.06,"pcjGapHoje":184,"pcjGapAcc":2016,"tudoAvHoje":81.25,"tudoAvAcc":84.12},"29":{"cartaoHoje":50.15,"cartaoAcc":48.03,"cartaoGapHoje":226,"cartaoGapAcc":1038,"pcjHoje":47.72,"pcjAcc":62.49,"pcjGapHoje":201,"pcjGapAcc":2721,"tudoAvHoje":77.27,"tudoAvAcc":77.54},"37":{"cartaoHoje":22.27,"cartaoAcc":33.07,"cartaoGapHoje":-159,"cartaoGapAcc":-1800,"pcjHoje":0.0,"pcjAcc":58.4,"pcjGapHoje":-60,"pcjGapAcc":1402,"tudoAvHoje":85.71,"tudoAvAcc":83.72},"144":{"cartaoHoje":0.0,"cartaoAcc":35.44,"cartaoGapHoje":0,"cartaoGapAcc":-2020,"pcjHoje":0.0,"pcjAcc":32.98,"pcjGapHoje":0,"pcjGapAcc":-191,"tudoAvHoje":0.0,"tudoAvAcc":69.23},"35":{"cartaoHoje":0.0,"cartaoAcc":50.75,"cartaoGapHoje":0,"cartaoGapAcc":2231,"pcjHoje":0.0,"pcjAcc":64.98,"pcjGapHoje":0,"pcjGapAcc":4381,"tudoAvHoje":0.0,"tudoAvAcc":85.34},"133":{"cartaoHoje":0.0,"cartaoAcc":43.5,"cartaoGapHoje":0,"cartaoGapAcc":14,"pcjHoje":0.0,"pcjAcc":0.0,"pcjGapHoje":0,"pcjGapAcc":-419,"tudoAvHoje":0.0,"tudoAvAcc":79.17},"124":{"cartaoHoje":0.0,"cartaoAcc":41.82,"cartaoGapHoje":0,"cartaoGapAcc":-75,"pcjHoje":0.0,"pcjAcc":13.28,"pcjGapHoje":0,"pcjGapAcc":-575,"tudoAvHoje":0.0,"tudoAvAcc":75.93},"143":{"cartaoHoje":0.0,"cartaoAcc":42.7,"cartaoGapHoje":0,"cartaoGapAcc":-12,"pcjHoje":0.0,"pcjAcc":57.55,"pcjGapHoje":0,"pcjGapAcc":381,"tudoAvHoje":0.0,"tudoAvAcc":84.62}},"pf":{"total":{"pfHoje":49,"pfAcc":450},"operators":{},"source":"SISTEMA OFICIAL DA LOJA","capturedAt":"2026-07-12T23:59:59"},"closedOperators":["144","35","133","124","143"],"source":"SISTEMA OFICIAL DA LOJA","capturedAt":"2026-07-12T23:59:59"};
+
     const SIGA_SNAPSHOT = {"total":{"cartaoHoje":49.44,"cartaoAcc":41.51,"cartaoGapHoje":1156,"cartaoGapAcc":-2256,"pcjHoje":65.93,"pcjAcc":56.5,"pcjGapHoje":2746,"pcjGapAcc":13476,"tudoAvHoje":76.87,"tudoAvAcc":79.83,"bolsaHoje":0,"bolsaAcc":1,"compraHoje":0,"compraAcc":79,"protecaoHoje":0,"protecaoAcc":1,"sabadaoHoje":2,"sabadaoAcc":227,"smsHoje":0,"smsAcc":0,"vidaHoje":0,"vidaAcc":0,"pfHoje":2,"pfAcc":308},"35":{"cartaoHoje":60.02,"cartaoAcc":51.38,"cartaoGapHoje":820,"cartaoGapAcc":2046,"pcjHoje":70.9,"pcjAcc":69.3,"pcjGapHoje":1039,"pcjGapAcc":4301,"tudoAvHoje":88.89,"tudoAvAcc":83.54,"bolsaHoje":0,"bolsaAcc":0,"compraHoje":0,"compraAcc":33,"protecaoHoje":0,"protecaoAcc":0,"sabadaoHoje":0,"sabadaoAcc":9,"smsHoje":0,"smsAcc":0,"vidaHoje":0,"vidaAcc":0,"pfHoje":0,"pfAcc":42},"36":{"cartaoHoje":56.06,"cartaoAcc":41.96,"cartaoGapHoje":549,"cartaoGapAcc":-287,"pcjHoje":62.19,"pcjAcc":60.11,"pcjGapHoje":640,"pcjGapAcc":2904,"tudoAvHoje":64.52,"tudoAvAcc":79.37,"bolsaHoje":0,"bolsaAcc":0,"compraHoje":0,"compraAcc":3,"protecaoHoje":0,"protecaoAcc":0,"sabadaoHoje":0,"sabadaoAcc":18,"smsHoje":0,"smsAcc":0,"vidaHoje":0,"vidaAcc":0,"pfHoje":0,"pfAcc":21},"29":{"cartaoHoje":45.48,"cartaoAcc":47.65,"cartaoGapHoje":63,"cartaoGapAcc":812,"pcjHoje":100.0,"pcjAcc":65.3,"pcjGapHoje":754,"pcjGapAcc":2520,"tudoAvHoje":72.73,"tudoAvAcc":77.59,"bolsaHoje":0,"bolsaAcc":0,"compraHoje":0,"compraAcc":3,"protecaoHoje":0,"protecaoAcc":0,"sabadaoHoje":0,"sabadaoAcc":40,"smsHoje":0,"smsAcc":0,"vidaHoje":0,"vidaAcc":0,"pfHoje":0,"pfAcc":43},"31":{"cartaoHoje":58.14,"cartaoAcc":40.15,"cartaoGapHoje":367,"cartaoGapAcc":-507,"pcjHoje":63.74,"pcjAcc":60.67,"pcjGapHoje":405,"pcjGapAcc":1834,"tudoAvHoje":80.95,"tudoAvAcc":88.7,"bolsaHoje":0,"bolsaAcc":0,"compraHoje":0,"compraAcc":3,"protecaoHoje":0,"protecaoAcc":0,"sabadaoHoje":0,"sabadaoAcc":51,"smsHoje":0,"smsAcc":0,"vidaHoje":0,"vidaAcc":0,"pfHoje":0,"pfAcc":54},"144":{"cartaoHoje":46.08,"cartaoAcc":33.09,"cartaoGapHoje":50,"cartaoGapAcc":-2166,"pcjHoje":37.22,"pcjAcc":25.32,"pcjGapHoje":17,"pcjGapAcc":-701,"tudoAvHoje":84.62,"tudoAvAcc":69.03,"bolsaHoje":0,"bolsaAcc":0,"compraHoje":0,"compraAcc":1,"protecaoHoje":0,"protecaoAcc":0,"sabadaoHoje":2,"sabadaoAcc":41,"smsHoje":0,"smsAcc":0,"vidaHoje":0,"vidaAcc":0,"pfHoje":2,"pfAcc":42},"145":{"cartaoHoje":26.24,"cartaoAcc":36.57,"cartaoGapHoje":-166,"cartaoGapAcc":-943,"pcjHoje":0.0,"pcjAcc":62.5,"pcjGapHoje":-91,"pcjGapAcc":1475,"tudoAvHoje":72.73,"tudoAvAcc":80.34,"bolsaHoje":0,"bolsaAcc":0,"compraHoje":0,"compraAcc":9,"protecaoHoje":0,"protecaoAcc":0,"sabadaoHoje":0,"sabadaoAcc":26,"smsHoje":0,"smsAcc":0,"vidaHoje":0,"vidaAcc":0,"pfHoje":0,"pfAcc":35},"37":{"cartaoHoje":0.0,"cartaoAcc":34.81,"cartaoGapHoje":-402,"cartaoGapAcc":-1364,"pcjHoje":0.0,"pcjAcc":60.37,"pcjGapHoje":0,"pcjGapAcc":1470,"tudoAvHoje":100.0,"tudoAvAcc":84.21,"bolsaHoje":0,"bolsaAcc":0,"compraHoje":0,"compraAcc":15,"protecaoHoje":0,"protecaoAcc":0,"sabadaoHoje":0,"sabadaoAcc":0,"smsHoje":0,"smsAcc":0,"vidaHoje":0,"vidaAcc":0,"pfHoje":0,"pfAcc":15},"124":{"cartaoHoje":12.31,"cartaoAcc":39.18,"cartaoGapHoje":-125,"cartaoGapAcc":-178,"pcjHoje":0.0,"pcjAcc":19.2,"pcjGapHoje":-17,"pcjGapAcc":-289,"tudoAvHoje":50.0,"tudoAvAcc":70.73,"bolsaHoje":0,"bolsaAcc":0,"compraHoje":0,"compraAcc":9,"protecaoHoje":0,"protecaoAcc":0,"sabadaoHoje":0,"sabadaoAcc":17,"smsHoje":0,"smsAcc":0,"vidaHoje":0,"vidaAcc":0,"pfHoje":0,"pfAcc":26},"133":{"cartaoHoje":0.0,"cartaoAcc":43.5,"cartaoGapHoje":0,"cartaoGapAcc":14,"pcjHoje":0.0,"pcjAcc":0.0,"pcjGapHoje":0,"pcjGapAcc":-419,"tudoAvHoje":0.0,"tudoAvAcc":79.17,"bolsaHoje":0,"bolsaAcc":1,"compraHoje":0,"compraAcc":3,"protecaoHoje":0,"protecaoAcc":1,"sabadaoHoje":0,"sabadaoAcc":8,"smsHoje":0,"smsAcc":0,"vidaHoje":0,"vidaAcc":0,"pfHoje":0,"pfAcc":13},"143":{"cartaoHoje":0.0,"cartaoAcc":52.95,"cartaoGapHoje":0,"cartaoGapAcc":317,"pcjHoje":0.0,"pcjAcc":57.55,"pcjGapHoje":0,"pcjGapAcc":381,"tudoAvHoje":0.0,"tudoAvAcc":94.12,"bolsaHoje":0,"bolsaAcc":0,"compraHoje":0,"compraAcc":0,"protecaoHoje":0,"protecaoAcc":0,"sabadaoHoje":0,"sabadaoAcc":17,"smsHoje":0,"smsAcc":0,"vidaHoje":0,"vidaAcc":0,"pfHoje":0,"pfAcc":17}};
 
     const DAILY_SALES_HISTORY = {"2026-07-01":{"store":{"vendaAtual":7440,"compromissoDia":11722,"ativadosHoje":0,"ativadosMeta":2,"cartaoAv":38.43,"cartaoAvAcc":38.43,"cartaoGap":-340,"cartaoGapAcc":-340,"pcj":61.15,"pcjAcc":61.15,"pcjGap":748,"pcjGapAcc":748,"tudoAv":79.63,"tudoAvAcc":79.63},"operators":{"total":{"cartaoHoje":38.43,"cartaoAcc":38.43,"cartaoGapHoje":-340,"cartaoGapAcc":-340,"pcjHoje":61.15,"pcjAcc":61.15,"pcjGapHoje":748,"pcjGapAcc":748,"tudoAvHoje":79.63,"tudoAvAcc":79.63},"144":{"cartaoHoje":24.98,"cartaoAcc":24.98,"cartaoGapHoje":-477,"cartaoGapAcc":-477,"pcjHoje":25.07,"pcjAcc":25.07,"pcjGapHoje":-66,"pcjGapAcc":-66,"tudoAvHoje":73.33,"tudoAvAcc":73.33},"37":{"cartaoHoje":27.36,"cartaoAcc":27.36,"cartaoGapHoje":-210,"cartaoGapAcc":-210,"pcjHoje":99.98,"pcjAcc":99.98,"pcjGapHoje":239,"pcjGapAcc":239,"tudoAvHoje":66.67,"tudoAvAcc":66.67},"36":{"cartaoHoje":57.83,"cartaoAcc":57.83,"cartaoGapHoje":183,"cartaoGapAcc":183,"pcjHoje":71.07,"pcjAcc":71.07,"pcjGapHoje":258,"pcjGapAcc":258,"tudoAvHoje":100.0,"tudoAvAcc":100.0},"31":{"cartaoHoje":47.14,"cartaoAcc":47.14,"cartaoGapHoje":46,"cartaoGapAcc":46,"pcjHoje":100.0,"pcjAcc":100.0,"pcjGapHoje":342,"pcjGapAcc":342,"tudoAvHoje":100.0,"tudoAvAcc":100.0},"124":{"cartaoHoje":48.11,"cartaoAcc":48.11,"cartaoGapHoje":30,"cartaoGapAcc":30,"pcjHoje":0.0,"pcjAcc":0.0,"pcjGapHoje":-98,"pcjGapAcc":-98,"tudoAvHoje":60.0,"tudoAvAcc":60.0},"145":{"cartaoHoje":97.35,"cartaoAcc":97.35,"cartaoGapHoje":173,"cartaoGapAcc":173,"pcjHoje":58.59,"pcjAcc":58.59,"pcjGapHoje":73,"pcjGapAcc":73,"tudoAvHoje":100.0,"tudoAvAcc":100.0},"35":{"cartaoHoje":0.0,"cartaoAcc":0.0,"cartaoGapHoje":-84,"cartaoGapAcc":-84,"pcjHoje":0.0,"pcjAcc":0.0,"pcjGapHoje":0,"pcjGapAcc":0,"tudoAvHoje":50.0,"tudoAvAcc":50.0}},"source":"SISTEMA OFICIAL DA LOJA","capturedAt":"2026-07-01T23:59:59"},"2026-07-02":{"store":{"vendaAtual":7988,"compromissoDia":13962,"ativadosHoje":1,"ativadosMeta":2,"cartaoAv":40.4,"cartaoAvAcc":39.45,"cartaoGap":-208,"cartaoGapAcc":-548,"pcj":47.34,"pcjAcc":53.83,"pcjGap":398,"pcjGapAcc":1146,"tudoAv":86.76,"tudoAvAcc":83.61},"operators":{"total":{"cartaoHoje":40.4,"cartaoAcc":39.45,"cartaoGapHoje":-208,"cartaoGapAcc":-548,"pcjHoje":47.34,"pcjAcc":53.83,"pcjGapHoje":398,"pcjGapAcc":1146,"tudoAvHoje":86.76,"tudoAvAcc":83.61},"145":{"cartaoHoje":35.1,"cartaoAcc":42.92,"cartaoGapHoje":-175,"cartaoGapAcc":-2,"pcjHoje":50.55,"pcjAcc":52.84,"pcjGapHoje":121,"pcjGapAcc":193,"tudoAvHoje":85.71,"tudoAvAcc":87.5},"31":{"cartaoHoje":28.89,"cartaoAcc":35.51,"cartaoGapHoje":-277,"cartaoGapAcc":-231,"pcjHoje":87.64,"pcjAcc":93.59,"pcjGapHoje":298,"pcjGapAcc":640,"tudoAvHoje":100.0,"tudoAvAcc":100.0},"37":{"cartaoHoje":50.13,"cartaoAcc":36.37,"cartaoGapHoje":63,"cartaoGapAcc":-147,"pcjHoje":100.0,"pcjAcc":99.99,"pcjGapHoje":286,"pcjGapAcc":525,"tudoAvHoje":77.78,"tudoAvAcc":71.43},"124":{"cartaoHoje":69.62,"cartaoAcc":60.91,"cartaoGapHoje":228,"cartaoGapAcc":258,"pcjHoje":0.0,"pcjAcc":0.0,"pcjGapHoje":-209,"pcjGapAcc":-306,"tudoAvHoje":66.67,"tudoAvAcc":63.64},"36":{"cartaoHoje":67.82,"cartaoAcc":61.22,"cartaoGapHoje":158,"cartaoGapAcc":342,"pcjHoje":0.0,"pcjAcc":44.32,"pcjGapHoje":-151,"pcjGapAcc":107,"tudoAvHoje":75.0,"tudoAvAcc":92.31},"29":{"cartaoHoje":50.32,"cartaoAcc":50.32,"cartaoGapHoje":41,"cartaoGapAcc":41,"pcjHoje":71.32,"pcjAcc":71.32,"pcjGapHoje":101,"pcjGapAcc":101,"tudoAvHoje":100.0,"tudoAvAcc":100.0},"35":{"cartaoHoje":24.0,"cartaoAcc":17.24,"cartaoGapHoje":-95,"cartaoGapAcc":-179,"pcjHoje":0.0,"pcjAcc":0.0,"pcjGapHoje":-42,"pcjGapAcc":-42,"tudoAvHoje":75.0,"tudoAvAcc":66.67},"144":{"cartaoHoje":4.63,"cartaoAcc":22.35,"cartaoGapHoje":-151,"cartaoGapAcc":-628,"pcjHoje":0.0,"pcjAcc":24.4,"pcjGapHoje":-6,"pcjGapAcc":-72,"tudoAvHoje":87.5,"tudoAvAcc":78.26}},"source":"SISTEMA OFICIAL DA LOJA","capturedAt":"2026-07-02T23:59:59"},"2026-07-03":{"store":{"vendaAtual":16181,"compromissoDia":17818,"ativadosHoje":0,"ativadosMeta":3,"cartaoAv":36.1,"cartaoAvAcc":37.73,"cartaoGap":-1117,"cartaoGapAcc":-1664,"pcj":53.21,"pcjAcc":53.53,"pcjGap":1064,"pcjGapAcc":2210,"tudoAv":85.11,"tudoAvAcc":84.26},"operators":{"total":{"cartaoHoje":36.1,"cartaoAcc":37.73,"cartaoGapHoje":-1117,"cartaoGapAcc":-1664,"pcjHoje":53.21,"pcjAcc":53.53,"pcjGapHoje":1064,"pcjGapAcc":2210,"tudoAvHoje":85.11,"tudoAvAcc":84.26},"36":{"cartaoHoje":31.22,"cartaoAcc":39.23,"cartaoGapHoje":-606,"cartaoGapAcc":-264,"pcjHoje":52.76,"pcjAcc":49.25,"pcjGapHoje":285,"pcjGapAcc":392,"tudoAvHoje":87.5,"tudoAvAcc":89.19},"145":{"cartaoHoje":32.68,"cartaoAcc":38.04,"cartaoGapHoje":-238,"cartaoGapAcc":-240,"pcjHoje":42.97,"pcjAcc":48.8,"pcjGapHoje":60,"pcjGapAcc":254,"tudoAvHoje":90.0,"tudoAvAcc":88.89},"35":{"cartaoHoje":34.49,"cartaoAcc":30.26,"cartaoGapHoje":-182,"cartaoGapAcc":-361,"pcjHoje":99.99,"pcjAcc":86.01,"pcjGapHoje":480,"pcjGapAcc":438,"tudoAvHoje":92.86,"tudoAvAcc":85.0},"31":{"cartaoHoje":61.14,"cartaoAcc":45.61,"cartaoGapHoje":363,"cartaoGapAcc":133,"pcjHoje":39.87,"pcjAcc":65.21,"pcjGapHoje":60,"pcjGapAcc":700,"tudoAvHoje":100.0,"tudoAvAcc":100.0},"144":{"cartaoHoje":13.94,"cartaoAcc":19.41,"cartaoGapHoje":-477,"cartaoGapAcc":-1105,"pcjHoje":0.0,"pcjAcc":18.26,"pcjGapHoje":-80,"pcjGapAcc":-152,"tudoAvHoje":71.43,"tudoAvAcc":76.67},"29":{"cartaoHoje":80.46,"cartaoAcc":71.99,"cartaoGapHoje":531,"cartaoGapAcc":572,"pcjHoje":49.15,"pcjAcc":53.51,"pcjGapHoje":161,"pcjGapAcc":263,"tudoAvHoje":66.67,"tudoAvAcc":81.25},"37":{"cartaoHoje":11.27,"cartaoAcc":26.96,"cartaoGapHoje":-422,"cartaoGapAcc":-569,"pcjHoje":99.99,"pcjAcc":99.99,"pcjGapHoje":97,"pcjGapAcc":622,"tudoAvHoje":80.0,"tudoAvAcc":74.19},"124":{"cartaoHoje":0.0,"cartaoAcc":53.48,"cartaoGapHoje":-66,"cartaoGapAcc":172,"pcjHoje":0.0,"pcjAcc":0.0,"pcjGapHoje":0,"pcjGapAcc":-306,"tudoAvHoje":0.0,"tudoAvAcc":58.33}},"source":"SISTEMA OFICIAL DA LOJA","capturedAt":"2026-07-03T23:59:59"},"2026-07-04":{"store":{"vendaAtual":26027,"compromissoDia":34854,"ativadosHoje":7,"ativadosMeta":6,"cartaoAv":46.3,"cartaoAvAcc":41.6,"cartaoGap":858,"cartaoGapAcc":-807,"pcj":63.31,"pcjAcc":58.44,"pcjGap":3411,"pcjGapAcc":5621,"tudoAv":81.42,"tudoAvAcc":82.96},"operators":{"total":{"cartaoHoje":46.3,"cartaoAcc":41.6,"cartaoGapHoje":858,"cartaoGapAcc":-807,"pcjHoje":63.31,"pcjAcc":58.44,"pcjGapHoje":3411,"pcjGapAcc":5621,"tudoAvHoje":81.42,"tudoAvAcc":82.96},"29":{"cartaoHoje":50.16,"cartaoAcc":55.83,"cartaoGapHoje":403,"cartaoGapAcc":975,"pcjHoje":71.67,"pcjAcc":65.59,"pcjGapHoje":1035,"pcjGapAcc":1298,"tudoAvHoje":70.59,"tudoAvAcc":74.0},"35":{"cartaoHoje":55.87,"cartaoAcc":46.41,"cartaoGapHoje":624,"cartaoGapAcc":262,"pcjHoje":61.4,"pcjAcc":67.33,"pcjGapHoje":715,"pcjGapAcc":1153,"tudoAvHoje":100.0,"tudoAvAcc":93.18},"36":{"cartaoHoje":55.08,"cartaoAcc":45.01,"cartaoGapHoje":487,"cartaoGapAcc":222,"pcjHoje":85.85,"pcjAcc":65.58,"pcjGapHoje":1128,"pcjGapAcc":1521,"tudoAvHoje":81.48,"tudoAvAcc":85.94},"37":{"cartaoHoje":27.65,"cartaoAcc":27.28,"cartaoGapHoje":-471,"cartaoGapAcc":-1041,"pcjHoje":81.39,"pcjAcc":91.25,"pcjGapHoje":394,"pcjGapAcc":1016,"tudoAvHoje":84.0,"tudoAvAcc":78.57},"31":{"cartaoHoje":43.16,"cartaoAcc":44.81,"cartaoGapHoje":4,"cartaoGapAcc":137,"pcjHoje":32.97,"pcjAcc":55.05,"pcjGapHoje":-22,"pcjGapAcc":678,"tudoAvHoje":85.0,"tudoAvAcc":94.44},"144":{"cartaoHoje":40.09,"cartaoAcc":26.54,"cartaoGapHoje":-72,"cartaoGapAcc":-1177,"pcjHoje":0.0,"pcjAcc":8.74,"pcjGapHoje":-346,"pcjGapAcc":-498,"tudoAvHoje":80.0,"tudoAvAcc":78.0},"145":{"cartaoHoje":51.2,"cartaoAcc":42.29,"cartaoGapHoje":189,"cartaoGapAcc":-51,"pcjHoje":84.33,"pcjAcc":62.7,"pcjGapHoje":582,"pcjGapAcc":836,"tudoAvHoje":85.0,"tudoAvAcc":87.5},"124":{"cartaoHoje":23.82,"cartaoAcc":42.92,"cartaoGapHoje":-173,"cartaoGapAcc":-2,"pcjHoje":0.0,"pcjAcc":0.0,"pcjGapHoje":-75,"pcjGapAcc":-382,"tudoAvHoje":62.5,"tudoAvAcc":60.0},"133":{"cartaoHoje":0.0,"cartaoAcc":0.0,"cartaoGapHoje":-132,"cartaoGapAcc":-132,"pcjHoje":0.0,"pcjAcc":0.0,"pcjGapHoje":0,"pcjGapAcc":0,"tudoAvHoje":60.0,"tudoAvAcc":60.0}},"source":"SISTEMA OFICIAL DA LOJA","capturedAt":"2026-07-04T23:59:59"},"2026-07-05":{"store":{"vendaAtual":13842,"compromissoDia":24226,"ativadosHoje":5,"ativadosMeta":4,"cartaoAv":46.2,"cartaoAvAcc":42.49,"cartaoGap":443,"cartaoGapAcc":-364,"pcj":48.46,"pcjAcc":56.34,"pcjGap":861,"pcjGapAcc":6482,"tudoAv":75.53,"tudoAvAcc":81.54},"operators":{"total":{"cartaoHoje":46.2,"cartaoAcc":42.49,"cartaoGapHoje":443,"cartaoGapAcc":-364,"pcjHoje":48.46,"pcjAcc":56.34,"pcjGapHoje":861,"pcjGapAcc":6482,"tudoAvHoje":75.53,"tudoAvAcc":81.54},"144":{"cartaoHoje":39.18,"cartaoAcc":31.28,"cartaoGapHoje":-164,"cartaoGapAcc":-1340,"pcjHoje":27.17,"pcjAcc":17.39,"pcjGapHoje":-131,"pcjGapAcc":-630,"tudoAvHoje":58.82,"tudoAvAcc":70.24},"143":{"cartaoHoje":53.45,"cartaoAcc":53.45,"cartaoGapHoje":330,"cartaoGapAcc":330,"pcjHoje":57.55,"pcjAcc":57.55,"pcjGapHoje":381,"pcjGapAcc":381,"tudoAvHoje":93.75,"tudoAvAcc":93.75},"35":{"cartaoHoje":50.88,"cartaoAcc":47.67,"cartaoGapHoje":238,"cartaoGapAcc":500,"pcjHoje":88.92,"pcjAcc":73.83,"pcjGapHoje":628,"pcjGapAcc":1981,"tudoAvHoje":73.91,"tudoAvAcc":66.67},"36":{"cartaoHoje":27.88,"cartaoAcc":42.13,"cartaoGapHoje":-338,"cartaoGapAcc":-116,"pcjHoje":49.07,"pcjAcc":63.74,"pcjGapHoje":88,"pcjGapAcc":1608,"tudoAvHoje":87.5,"tudoAvAcc":86.25},"133":{"cartaoHoje":75.91,"cartaoAcc":59.82,"cartaoGapHoje":377,"cartaoGapAcc":244,"pcjHoje":0.0,"pcjAcc":0.0,"pcjGapHoje":-304,"pcjGapAcc":-304,"tudoAvHoje":100.0,"tudoAvAcc":80.0},"124":{"cartaoHoje":0.0,"cartaoAcc":42.92,"cartaoGapHoje":0,"cartaoGapAcc":-2,"pcjHoje":0.0,"pcjAcc":0.0,"pcjGapHoje":0,"pcjGapAcc":-382,"tudoAvHoje":0.0,"tudoAvAcc":60.0},"29":{"cartaoHoje":0.0,"cartaoAcc":55.83,"cartaoGapHoje":0,"cartaoGapAcc":975,"pcjHoje":0.0,"pcjAcc":65.59,"pcjGapHoje":0,"pcjGapAcc":1298,"tudoAvHoje":0.0,"tudoAvAcc":74.0},"145":{"cartaoHoje":0.0,"cartaoAcc":42.29,"cartaoGapHoje":0,"cartaoGapAcc":-51,"pcjHoje":0.0,"pcjAcc":62.7,"pcjGapHoje":0,"pcjGapAcc":836,"tudoAvHoje":0.0,"tudoAvAcc":87.5},"31":{"cartaoHoje":0.0,"cartaoAcc":44.81,"cartaoGapHoje":0,"cartaoGapAcc":137,"pcjHoje":0.0,"pcjAcc":55.05,"pcjGapHoje":0,"pcjGapAcc":678,"tudoAvHoje":0.0,"tudoAvAcc":94.44},"37":{"cartaoHoje":0.0,"cartaoAcc":27.28,"cartaoGapHoje":0,"cartaoGapAcc":-1041,"pcjHoje":0.0,"pcjAcc":91.25,"pcjGapHoje":0,"pcjGapAcc":1016,"tudoAvHoje":0.0,"tudoAvAcc":78.57}},"source":"SISTEMA OFICIAL DA LOJA","capturedAt":"2026-07-05T23:59:59"},"2026-07-06":{"store":{"vendaAtual":12269,"compromissoDia":16984,"ativadosHoje":1,"ativadosMeta":3,"cartaoAv":33.96,"cartaoAvAcc":null,"cartaoGap":null,"cartaoGapAcc":null,"pcj":58.27,"pcjAcc":null,"pcjGap":null,"pcjGapAcc":null,"tudoAv":null,"tudoAvAcc":null},"operators":{},"source":"SISTEMA OFICIAL DA LOJA","capturedAt":"2026-07-06T23:59:59"},"2026-07-07":{"store":{"vendaAtual":12797,"compromissoDia":19016,"ativadosHoje":3,"ativadosMeta":3,"cartaoAv":44.87,"cartaoAvAcc":41.72,"cartaoGap":239,"cartaoGapAcc":-1234,"pcj":68.38,"pcjAcc":58.26,"pcjGap":1916,"pcjGapAcc":9368,"tudoAv":84.95,"tudoAvAcc":82.24},"operators":{"total":{"cartaoHoje":44.87,"cartaoAcc":41.72,"cartaoGapHoje":239,"cartaoGapAcc":-1234,"pcjHoje":68.38,"pcjAcc":58.26,"pcjGapHoje":1916,"pcjGapAcc":9368,"tudoAvHoje":84.95,"tudoAvAcc":82.24},"35":{"cartaoHoje":52.04,"cartaoAcc":48.74,"cartaoGapHoje":313,"cartaoGapAcc":813,"pcjHoje":54.49,"pcjAcc":68.79,"pcjGapHoje":351,"pcjGapAcc":2332,"tudoAvHoje":75.0,"tudoAvAcc":83.91},"36":{"cartaoHoje":43.36,"cartaoAcc":41.72,"cartaoGapHoje":12,"cartaoGapAcc":-215,"pcjHoje":68.61,"pcjAcc":64.73,"pcjGapHoje":482,"pcjGapAcc":2090,"tudoAvHoje":85.29,"tudoAvAcc":85.59},"29":{"cartaoHoje":37.18,"cartaoAcc":51.61,"cartaoGapHoje":-129,"cartaoGapAcc":846,"pcjHoje":92.73,"pcjAcc":70.01,"pcjGapHoje":477,"pcjGapAcc":1774,"tudoAvHoje":100.0,"tudoAvAcc":78.69},"37":{"cartaoHoje":70.92,"cartaoAcc":34.59,"cartaoGapHoje":426,"cartaoGapAcc":-802,"pcjHoje":85.5,"pcjAcc":78.02,"pcjGapHoje":547,"pcjGapAcc":1419,"tudoAvHoje":87.5,"tudoAvAcc":81.08},"133":{"cartaoHoje":28.48,"cartaoAcc":45.93,"cartaoGapHoje":-168,"cartaoGapAcc":77,"pcjHoje":0.0,"pcjAcc":0.0,"pcjGapHoje":-115,"pcjGapAcc":-419,"tudoAvHoje":75.0,"tudoAvAcc":77.27},"124":{"cartaoHoje":23.94,"cartaoAcc":38.5,"cartaoGapHoje":-215,"cartaoGapAcc":-173,"pcjHoje":99.99,"pcjAcc":23.71,"pcjGapHoje":175,"pcjGapAcc":-167,"tudoAvHoje":100.0,"tudoAvAcc":75.76},"143":{"cartaoHoje":0.0,"cartaoAcc":52.95,"cartaoGapHoje":0,"cartaoGapAcc":317,"pcjHoje":0.0,"pcjAcc":57.55,"pcjGapHoje":0,"pcjGapAcc":381,"tudoAvHoje":0.0,"tudoAvAcc":94.12},"145":{"cartaoHoje":0.0,"cartaoAcc":45.24,"cartaoGapHoje":0,"cartaoGapAcc":229,"pcjHoje":0.0,"pcjAcc":62.14,"pcjGapHoje":0,"pcjGapAcc":1255,"tudoAvHoje":0.0,"tudoAvAcc":83.54},"144":{"cartaoHoje":0.0,"cartaoAcc":33.01,"cartaoGapHoje":0,"cartaoGapAcc":-1483,"pcjHoje":0.0,"pcjAcc":27.52,"pcjGapHoje":0,"pcjGapAcc":-367,"tudoAvHoje":0.0,"tudoAvAcc":71.03},"31":{"cartaoHoje":0.0,"cartaoAcc":35.65,"cartaoGapHoje":0,"cartaoGapAcc":-841,"pcjHoje":0.0,"pcjAcc":61.21,"pcjGapHoje":0,"pcjGapAcc":1070,"tudoAvHoje":0.0,"tudoAvAcc":95.83}},"source":"SISTEMA OFICIAL DA LOJA","capturedAt":"2026-07-07T23:59:59"},"2026-07-08":{"store":{"vendaAtual":10181,"compromissoDia":23809,"ativadosHoje":3,"ativadosMeta":3,"cartaoAv":50.61,"cartaoAvAcc":42.57,"cartaoGap":775,"cartaoGapAcc":-459,"pcj":58.8,"pcjAcc":58.32,"pcjGap":1226,"pcjGapAcc":10595,"tudoAv":80.49,"tudoAvAcc":82.05},"operators":{"total":{"cartaoHoje":50.61,"cartaoAcc":42.57,"cartaoGapHoje":775,"cartaoGapAcc":-459,"pcjHoje":58.8,"pcjAcc":58.32,"pcjGapHoje":1226,"pcjGapAcc":10595,"tudoAvHoje":80.49,"tudoAvAcc":82.05},"35":{"cartaoHoje":65.0,"cartaoAcc":52.22,"cartaoGapHoje":848,"cartaoGapAcc":1661,"pcjHoje":68.29,"pcjAcc":68.65,"pcjGapHoje":834,"pcjGapAcc":3166,"tudoAvHoje":79.31,"tudoAvAcc":82.76},"29":{"cartaoHoje":37.46,"cartaoAcc":49.07,"cartaoGapHoje":-119,"cartaoGapAcc":727,"pcjHoje":51.74,"pcjAcc":67.51,"pcjGapHoje":135,"pcjGapAcc":1909,"tudoAvHoje":78.57,"tudoAvAcc":78.67},"37":{"cartaoHoje":64.68,"cartaoAcc":39.27,"cartaoGapHoje":381,"cartaoGapAcc":-421,"pcjHoje":25.57,"pcjAcc":64.58,"pcjGapHoje":-107,"pcjGapAcc":1312,"tudoAvHoje":92.31,"tudoAvAcc":82.76},"31":{"cartaoHoje":45.28,"cartaoAcc":36.51,"cartaoGapHoje":25,"cartaoGapAcc":-816,"pcjHoje":81.36,"pcjAcc":63.43,"pcjGapHoje":234,"pcjGapAcc":1304,"tudoAvHoje":100.0,"tudoAvAcc":96.1},"145":{"cartaoHoje":0.0,"cartaoAcc":41.99,"cartaoGapHoje":-340,"cartaoGapAcc":-111,"pcjHoje":0.0,"pcjAcc":62.14,"pcjGapHoje":0,"pcjGapAcc":1255,"tudoAvHoje":77.78,"tudoAvAcc":82.95},"144":{"cartaoHoje":38.91,"cartaoAcc":33.21,"cartaoGapHoje":-21,"cartaoGapAcc":-1504,"pcjHoje":99.98,"pcjAcc":30.39,"pcjGapHoje":131,"pcjGapAcc":-235,"tudoAvHoje":66.67,"tudoAvAcc":70.59},"133":{"cartaoHoje":0.0,"cartaoAcc":45.93,"cartaoGapHoje":0,"cartaoGapAcc":77,"pcjHoje":0.0,"pcjAcc":0.0,"pcjGapHoje":0,"pcjGapAcc":-419,"tudoAvHoje":0.0,"tudoAvAcc":77.27},"124":{"cartaoHoje":0.0,"cartaoAcc":38.5,"cartaoGapHoje":0,"cartaoGapAcc":-173,"pcjHoje":0.0,"pcjAcc":23.71,"pcjGapHoje":0,"pcjGapAcc":-167,"tudoAvHoje":0.0,"tudoAvAcc":75.76},"143":{"cartaoHoje":0.0,"cartaoAcc":52.95,"cartaoGapHoje":0,"cartaoGapAcc":317,"pcjHoje":0.0,"pcjAcc":57.55,"pcjGapHoje":0,"pcjGapAcc":381,"tudoAvHoje":0.0,"tudoAvAcc":94.12},"36":{"cartaoHoje":0.0,"cartaoAcc":41.72,"cartaoGapHoje":0,"cartaoGapAcc":-215,"pcjHoje":0.0,"pcjAcc":64.73,"pcjGapHoje":0,"pcjGapAcc":2090,"tudoAvHoje":0.0,"tudoAvAcc":85.59}},"source":"SISTEMA OFICIAL DA LOJA","capturedAt":"2026-07-08T23:59:59"},"2026-07-09":{"store":{"vendaAtual":26328,"compromissoDia":18182,"ativadosHoje":4,"ativadosMeta":3,"cartaoAv":31.78,"cartaoAvAcc":40.44,"cartaoGap":-2954,"cartaoGapAcc":-3412,"pcj":36.61,"pcjAcc":54.94,"pcjGap":135,"pcjGapAcc":10730,"tudoAv":71.88,"tudoAvAcc":80.26},"operators":{"total":{"cartaoHoje":31.78,"cartaoAcc":40.44,"cartaoGapHoje":-2954,"cartaoGapAcc":-3412,"pcjHoje":36.61,"pcjAcc":54.94,"pcjGapHoje":135,"pcjGapAcc":10730,"tudoAvHoje":71.88,"tudoAvAcc":80.26},"36":{"cartaoHoje":33.47,"cartaoAcc":39.42,"cartaoGapHoje":-620,"cartaoGapAcc":-835,"pcjHoje":42.94,"pcjAcc":59.57,"pcjGapHoje":173,"pcjGapAcc":2263,"tudoAvHoje":72.5,"tudoAvAcc":82.28},"144":{"cartaoHoje":28.34,"cartaoAcc":32.04,"cartaoGapHoje":-712,"cartaoGapAcc":-2216,"pcjHoje":0.0,"pcjAcc":23.94,"pcjGapHoje":-482,"pcjGapAcc":-717,"tudoAvHoje":52.17,"tudoAvAcc":67.61},"37":{"cartaoHoje":30.77,"cartaoAcc":36.88,"cartaoGapHoje":-541,"cartaoGapAcc":-962,"pcjHoje":46.64,"pcjAcc":60.37,"pcjGapHoje":158,"pcjGapAcc":1470,"tudoAvHoje":86.36,"tudoAvAcc":83.49},"29":{"cartaoHoje":43.74,"cartaoAcc":48.02,"cartaoGapHoje":22,"cartaoGapAcc":749,"pcjHoje":23.83,"pcjAcc":59.67,"pcjGapHoje":-143,"pcjGapAcc":1766,"tudoAvHoje":78.95,"tudoAvAcc":78.72},"31":{"cartaoHoje":40.94,"cartaoAcc":37.32,"cartaoGapHoje":-58,"cartaoGapAcc":-874,"pcjHoje":45.93,"pcjAcc":59.92,"pcjGapHoje":126,"pcjGapAcc":1429,"tudoAvHoje":64.71,"tudoAvAcc":90.43},"145":{"cartaoHoje":18.0,"cartaoAcc":37.32,"cartaoGapHoje":-665,"cartaoGapAcc":-776,"pcjHoje":100.0,"pcjAcc":65.69,"pcjGapHoje":311,"pcjGapAcc":1566,"tudoAvHoje":72.22,"tudoAvAcc":81.13},"35":{"cartaoHoje":15.31,"cartaoAcc":49.26,"cartaoGapHoje":-436,"cartaoGapAcc":1225,"pcjHoje":75.08,"pcjAcc":68.82,"pcjGapHoje":97,"pcjGapAcc":3263,"tudoAvHoje":80.0,"tudoAvAcc":82.44},"124":{"cartaoHoje":71.67,"cartaoAcc":41.74,"cartaoGapHoje":119,"cartaoGapAcc":-54,"pcjHoje":0.0,"pcjAcc":19.74,"pcjGapHoje":-104,"pcjGapAcc":-272,"tudoAvHoje":50.0,"tudoAvAcc":72.97},"133":{"cartaoHoje":0.0,"cartaoAcc":43.5,"cartaoGapHoje":-63,"cartaoGapAcc":14,"pcjHoje":0.0,"pcjAcc":0.0,"pcjGapHoje":0,"pcjGapAcc":-419,"tudoAvHoje":100.0,"tudoAvAcc":79.17},"143":{"cartaoHoje":0.0,"cartaoAcc":52.95,"cartaoGapHoje":0,"cartaoGapAcc":317,"pcjHoje":0.0,"pcjAcc":57.55,"pcjGapHoje":0,"pcjGapAcc":381,"tudoAvHoje":0.0,"tudoAvAcc":94.12}},"source":"SISTEMA OFICIAL DA LOJA","capturedAt":"2026-07-09T23:59:59"},"2026-07-10":{"store":{"vendaAtual":17958,"compromissoDia":19537,"ativadosHoje":2,"ativadosMeta":4,"cartaoAv":49.44,"cartaoAvAcc":41.51,"cartaoGap":1156,"cartaoGapAcc":-2256,"pcj":65.93,"pcjAcc":56.5,"pcjGap":2746,"pcjGapAcc":13476,"tudoAv":76.87,"tudoAvAcc":79.83},"operators":{"total":{"cartaoHoje":49.44,"cartaoAcc":41.51,"cartaoGapHoje":1156,"cartaoGapAcc":-2256,"pcjHoje":65.93,"pcjAcc":56.5,"pcjGapHoje":2746,"pcjGapAcc":13476,"tudoAvHoje":76.87,"tudoAvAcc":79.83},"35":{"cartaoHoje":60.02,"cartaoAcc":51.38,"cartaoGapHoje":820,"cartaoGapAcc":2046,"pcjHoje":70.9,"pcjAcc":69.3,"pcjGapHoje":1039,"pcjGapAcc":4301,"tudoAvHoje":88.89,"tudoAvAcc":83.54},"36":{"cartaoHoje":56.06,"cartaoAcc":41.96,"cartaoGapHoje":549,"cartaoGapAcc":-287,"pcjHoje":62.19,"pcjAcc":60.11,"pcjGapHoje":640,"pcjGapAcc":2904,"tudoAvHoje":64.52,"tudoAvAcc":79.37},"29":{"cartaoHoje":45.48,"cartaoAcc":47.65,"cartaoGapHoje":63,"cartaoGapAcc":812,"pcjHoje":100.0,"pcjAcc":65.3,"pcjGapHoje":754,"pcjGapAcc":2520,"tudoAvHoje":72.73,"tudoAvAcc":77.59},"31":{"cartaoHoje":58.14,"cartaoAcc":40.15,"cartaoGapHoje":367,"cartaoGapAcc":-507,"pcjHoje":63.74,"pcjAcc":60.67,"pcjGapHoje":405,"pcjGapAcc":1834,"tudoAvHoje":80.95,"tudoAvAcc":88.7},"144":{"cartaoHoje":46.08,"cartaoAcc":33.09,"cartaoGapHoje":50,"cartaoGapAcc":-2166,"pcjHoje":37.22,"pcjAcc":25.32,"pcjGapHoje":17,"pcjGapAcc":-701,"tudoAvHoje":84.62,"tudoAvAcc":69.03},"145":{"cartaoHoje":26.24,"cartaoAcc":36.57,"cartaoGapHoje":-166,"cartaoGapAcc":-943,"pcjHoje":0.0,"pcjAcc":62.5,"pcjGapHoje":-91,"pcjGapAcc":1475,"tudoAvHoje":72.73,"tudoAvAcc":80.34},"37":{"cartaoHoje":0.0,"cartaoAcc":34.81,"cartaoGapHoje":-402,"cartaoGapAcc":-1364,"pcjHoje":0.0,"pcjAcc":60.37,"pcjGapHoje":0,"pcjGapAcc":1470,"tudoAvHoje":100.0,"tudoAvAcc":84.21},"124":{"cartaoHoje":12.31,"cartaoAcc":39.18,"cartaoGapHoje":-125,"cartaoGapAcc":-178,"pcjHoje":0.0,"pcjAcc":19.2,"pcjGapHoje":-17,"pcjGapAcc":-289,"tudoAvHoje":50.0,"tudoAvAcc":70.73},"133":{"cartaoHoje":0.0,"cartaoAcc":43.5,"cartaoGapHoje":0,"cartaoGapAcc":14,"pcjHoje":0.0,"pcjAcc":0.0,"pcjGapHoje":0,"pcjGapAcc":-419,"tudoAvHoje":0.0,"tudoAvAcc":79.17},"143":{"cartaoHoje":0.0,"cartaoAcc":52.95,"cartaoGapHoje":0,"cartaoGapAcc":317,"pcjHoje":0.0,"pcjAcc":57.55,"pcjGapHoje":0,"pcjGapAcc":381,"tudoAvHoje":0.0,"tudoAvAcc":94.12}},"source":"SISTEMA OFICIAL DA LOJA","capturedAt":"2026-07-10T23:59:59"}};
@@ -4459,7 +4800,8 @@
         storageVersion:2,
         officialSnapshotVersion:String(normalized._meta?.officialSnapshotVersion || ""),
         calendarHistoryVersion:String(normalized._meta?.calendarHistoryVersion || ""),
-        pfHistoryVersion:String(normalized._meta?.pfHistoryVersion || "")
+        pfHistoryVersion:String(normalized._meta?.pfHistoryVersion || ""),
+        dailyResultsPatchVersion:String(normalized._meta?.dailyResultsPatchVersion || "")
       };
 
       if(normalized._meta.officialSnapshotVersion !== OFFICIAL_SNAPSHOT_VERSION){
@@ -4539,6 +4881,78 @@
         normalized._meta.updatedAt = new Date().toISOString();
         normalized._meta.lastWriter = "pf_history_2026_07_01_10";
         normalized._meta.pfHistoryVersion = PF_HISTORY_VERSION;
+      }
+
+
+      if(normalized._meta.dailyResultsPatchVersion !== DAILY_RESULTS_PATCH_VERSION){
+        const patch = JSON.parse(JSON.stringify(DAILY_RESULTS_PATCH));
+        const patchDate = patch.date;
+        const patchMonth = monthPrefix(patchDate);
+
+        normalized.pcjSnapshots = normalized.pcjSnapshots || {};
+        Object.entries(patch.operators || {}).forEach(([operator, values]) => {
+          normalized.pcjSnapshots[operator] = {
+            ...(normalized.pcjSnapshots[operator] || {}),
+            ...values
+          };
+        });
+        normalized.snapshotDate = patchDate;
+
+        normalized.calendarSnapshots = normalized.calendarSnapshots || {};
+        normalized.calendarSnapshots[patchDate] = {
+          ...(normalized.calendarSnapshots[patchDate] || {}),
+          store:{
+            ...(normalized.calendarSnapshots[patchDate]?.store || {}),
+            ...patch.store
+          },
+          operators:JSON.parse(JSON.stringify(patch.operators || {})),
+          pf:JSON.parse(JSON.stringify(patch.pf || null)),
+          source:patch.source,
+          capturedAt:patch.capturedAt
+        };
+
+        normalized.header = {
+          ...normalized.header,
+          vendaAtual:Number(patch.store.vendaAtual || 0),
+          compromissoDia:Number(patch.store.compromissoDia || 0),
+          vendaAcumulada:Number(patch.store.vendaAcumulada || 0),
+          metaTotal:Number(patch.store.metaTotal || 0),
+          cartaoAv:Number(patch.store.cartaoAv || 0),
+          cartaoAvAcc:Number(patch.store.cartaoAvAcc || 0),
+          pcjDia:Number(patch.store.pcj || 0),
+          pcjAcc:Number(patch.store.pcjAcc || 0),
+          tudoAvDia:Number(patch.store.tudoAv || 0),
+          tudoAvAcc:Number(patch.store.tudoAvAcc || 0),
+          ativadosDia:Number(patch.store.ativadosHoje || 0),
+          ativadosTotal:Number(patch.store.ativadosAcc || 0)
+        };
+
+        normalized.monthlyStoreGoals = normalized.monthlyStoreGoals || {};
+        normalized.monthlyStoreGoals[patchMonth] = Number(patch.store.metaTotal || 0);
+
+        /* Operadores sem caixa aberto no relatório oficial não podem manter
+           lançamentos de teste ou resultados manuais na mesma data. */
+        const closedOperators = new Set((patch.closedOperators || []).map(normalizeOperator));
+        normalized.records = (normalized.records || []).filter(record => !(
+          record.date === patchDate &&
+          closedOperators.has(normalizeOperator(record.operator))
+        ));
+
+        normalized.audit = Array.isArray(normalized.audit) ? normalized.audit : [];
+        normalized.audit.unshift({
+          id:`import_${patchDate.replaceAll("-", "")}`,
+          at:new Date().toISOString(),
+          operator:"SISTEMA",
+          user:"Sistema",
+          action:"IMPORTAÇÃO OFICIAL",
+          details:"Resultados gerais da loja e acompanhamento de Cartão AV, PCJ e Tudo AV dos operadores em 12/07/2026. Valores ACC substituídos pelo acumulado oficial."
+        });
+        normalized.audit = normalized.audit.slice(0,250);
+
+        normalized._meta.revision += 1;
+        normalized._meta.updatedAt = new Date().toISOString();
+        normalized._meta.lastWriter = "official_results_2026_07_12";
+        normalized._meta.dailyResultsPatchVersion = DAILY_RESULTS_PATCH_VERSION;
       }
 
       return normalized;
@@ -5407,8 +5821,12 @@
       const snapshotMonth = monthPrefix(db.snapshotDate || SIGA_SNAPSHOT_DATE);
       const currentMonth = monthPrefix(refDate);
 
+      const snapshotDate = db.snapshotDate || SIGA_SNAPSHOT_DATE;
       const customRecords = recordsUntilReference(operator, refDate)
-        .filter(record => !String(record.source || "").startsWith("SIGA"));
+        .filter(record =>
+          !String(record.source || "").startsWith("SIGA") &&
+          record.date > snapshotDate
+        );
 
       const dailyValues = [...groupRecordsByDate(customRecords).values()]
         .map(dayRecords => latestValue(dayRecords, key))
@@ -5416,7 +5834,7 @@
 
       const values = [];
 
-      if(currentMonth === snapshotMonth && refDate >= (db.snapshotDate || SIGA_SNAPSHOT_DATE)){
+      if(currentMonth === snapshotMonth && refDate >= snapshotDate){
         values.push(Number(snapshot[snapshotKey] || 0));
       }
 
@@ -5446,12 +5864,12 @@
         !String(record.source || "").startsWith("SIGA")
       );
 
-      if(customDay.length) return latestValue(customDay, key);
-
       if(refDate === (db.snapshotDate || SIGA_SNAPSHOT_DATE)){
         const snapshot = db.pcjSnapshots?.[operator] || SIGA_SNAPSHOT[operator] || {};
         return Number(key === "pcj" ? snapshot.pcjHoje : snapshot.tudoAvHoje) || 0;
       }
+
+      if(customDay.length) return latestValue(customDay, key);
 
       return latestValue(dayRecords, key);
     }
@@ -5583,6 +6001,8 @@
       $("#referenceDate").value = today();
       $("#calendarDate").value = today();
       $("#calendarDate").max = today();
+      $("#calendarGoalsMonth").value = monthPrefix(today());
+      $("#calendarGoalsMonth").max = monthPrefix(today());
       buildRecordOperatorOptions();
       renderAllSafely();
       updateTopbarActions();
@@ -6428,6 +6848,427 @@
     }
 
 
+    let calendarGoalsMetricsCache = [];
+
+    function calendarGoalsMonthKey(){
+      const input = $("#calendarGoalsMonth");
+      const currentMonth = monthPrefix(today());
+      if(!input) return currentMonth;
+      input.max = currentMonth;
+      if(!input.value || input.value > currentMonth) input.value = currentMonth;
+      return input.value;
+    }
+
+    function calendarMonthSnapshots(month){
+      return Object.entries(db.calendarSnapshots || {})
+        .filter(([date]) => String(date).startsWith(`${month}-`))
+        .sort(([dateA],[dateB]) => dateA.localeCompare(dateB));
+    }
+
+    function calendarNestedValue(source, path){
+      return path.reduce((value, key) => value?.[key], source);
+    }
+
+    function calendarLatestNumeric(entries, paths){
+      for(let index = entries.length - 1; index >= 0; index--){
+        const snapshot = entries[index][1];
+        for(const path of paths){
+          const value = calendarNestedValue(snapshot, path);
+          if(value === null || value === undefined || value === "") continue;
+          const numeric = Number(value);
+          if(Number.isFinite(numeric)) return numeric;
+        }
+      }
+      return null;
+    }
+
+    function calendarGoalDistributionTotals(month){
+      const totals = {
+        ativados:0,
+        bolsa:0,
+        compra:0,
+        sabadao:0,
+        sms:0,
+        vida:0,
+        pcjValues:[]
+      };
+
+      Object.values(db.goalDistribution?.[month] || {}).forEach(distribution => {
+        totals.ativados += Math.max(Number(distribution?.ativados || 0), 0);
+        totals.bolsa += Math.max(Number(distribution?.bolsa || 0), 0);
+        totals.compra += Math.max(Number(distribution?.compra || 0), 0);
+        totals.sabadao += Math.max(Number(distribution?.sabadao || 0), 0);
+        totals.sms += Math.max(Number(distribution?.sms || 0), 0);
+        totals.vida += Math.max(Number(distribution?.vida || 0), 0);
+        const pcjGoal = Number(distribution?.pcj || 0);
+        if(pcjGoal > 0) totals.pcjValues.push(pcjGoal);
+      });
+
+      totals.pf = totals.bolsa + totals.compra + totals.sabadao + totals.sms + totals.vida;
+      totals.pcj = totals.pcjValues.length
+        ? totals.pcjValues.reduce((sum,value) => sum + value, 0) / totals.pcjValues.length
+        : 0;
+      return totals;
+    }
+
+    function calendarGoalMonthRecords(month){
+      return (db.records || []).filter(record => String(record.date || "").startsWith(`${month}-`));
+    }
+
+    function calendarGoalRecordTotal(month, key){
+      return calendarGoalMonthRecords(month).reduce((sum,record) => {
+        if(key === "pf") return sum + pfTotal(record);
+        return sum + Number(record[key] || 0);
+      }, 0);
+    }
+
+    function calendarGoalPfActual(month, key, entries){
+      const accKey = key === "pf" ? "pfAcc" : `${key}Acc`;
+      const paths = [
+        ["pf","total",accKey],
+        ["operators","total",accKey]
+      ];
+      let value = calendarLatestNumeric(entries, paths);
+
+      if(value === null && String(db.snapshotDate || "").startsWith(month)){
+        const snapshotValue = db.pcjSnapshots?.total?.[accKey];
+        if(snapshotValue !== null && snapshotValue !== undefined && Number.isFinite(Number(snapshotValue))){
+          value = Number(snapshotValue);
+        }
+      }
+
+      if(value !== null) return Math.max(value,0);
+      return Math.max(calendarGoalRecordTotal(month,key),0);
+    }
+
+    function calendarGoalSalesActual(month, entries){
+      const currentMonth = monthPrefix(today());
+      if(month === currentMonth && Number.isFinite(Number(db.header?.vendaAcumulada))){
+        return Math.max(Number(db.header.vendaAcumulada || 0),0);
+      }
+
+      const accumulated = calendarLatestNumeric(entries, [
+        ["store","vendaAcumulada"]
+      ]);
+      if(accumulated !== null) return Math.max(accumulated,0);
+
+      return entries.reduce((sum,[,snapshot]) => {
+        const value = Number(snapshot?.store?.vendaAtual);
+        return sum + (Number.isFinite(value) ? value : 0);
+      },0);
+    }
+
+    function calendarGoalActivatedActual(month, entries){
+      const accumulated = calendarLatestNumeric(entries, [
+        ["store","ativadosAcc"]
+      ]);
+      if(accumulated !== null) return Math.max(accumulated,0);
+
+      if(month === monthPrefix(today()) && Number.isFinite(Number(db.header?.ativadosTotal))){
+        return Math.max(Number(db.header.ativadosTotal || 0),0);
+      }
+
+      return entries.reduce((sum,[,snapshot]) => {
+        const value = Number(snapshot?.store?.ativadosHoje);
+        return sum + (Number.isFinite(value) ? value : 0);
+      },0);
+    }
+
+    function calendarGoalPercentageActual(month, entries, storeKey, totalKey, headerKey){
+      let value = calendarLatestNumeric(entries, [
+        ["store",storeKey],
+        ["operators","total",totalKey]
+      ]);
+
+      if(value === null && String(db.snapshotDate || "").startsWith(month)){
+        const snapshotValue = db.pcjSnapshots?.total?.[totalKey];
+        if(snapshotValue !== null && snapshotValue !== undefined && Number.isFinite(Number(snapshotValue))){
+          value = Number(snapshotValue);
+        }
+      }
+
+      if(value === null && month === monthPrefix(today())){
+        const headerValue = Number(db.header?.[headerKey]);
+        if(Number.isFinite(headerValue)) value = headerValue;
+      }
+
+      return Math.max(Number(value || 0),0);
+    }
+
+    function calendarGoalMetric(title, subtitle, actual, target, format = "integer"){
+      const safeActual = Math.max(Number(actual || 0),0);
+      const safeTarget = Math.max(Number(target || 0),0);
+      const percentage = safeTarget > 0 ? (safeActual / safeTarget) * 100 : 0;
+      return {title,subtitle,actual:safeActual,target:safeTarget,format,percentage};
+    }
+
+    function calendarGoalMetrics(month = calendarGoalsMonthKey()){
+      const entries = calendarMonthSnapshots(month);
+      const goals = calendarGoalDistributionTotals(month);
+
+      const latestAtivadosTarget = calendarLatestNumeric(entries, [
+        ["store","ativadosMetaAcc"]
+      ]);
+      const latestPfTarget = calendarLatestNumeric(entries, [
+        ["store","pfMetaAcc"]
+      ]);
+
+      const ativadosTarget = goals.ativados > 0 ? goals.ativados : Math.max(Number(latestAtivadosTarget || 0),0);
+      const pfTarget = goals.pf > 0 ? goals.pf : Math.max(Number(latestPfTarget || 0),0);
+      const pcjTarget = goals.pcj > 0 ? goals.pcj : 35;
+
+      return [
+        calendarGoalMetric(
+          "Venda mensal",
+          "Meta total da loja",
+          calendarGoalSalesActual(month,entries),
+          getStoreMonthlyGoal(month),
+          "money"
+        ),
+        calendarGoalMetric(
+          "Ativados",
+          "Soma das metas individuais",
+          calendarGoalActivatedActual(month,entries),
+          ativadosTarget
+        ),
+        calendarGoalMetric(
+          "PF Total",
+          "Soma dos cinco produtos financeiros",
+          calendarGoalPfActual(month,"pf",entries),
+          pfTarget
+        ),
+        calendarGoalMetric(
+          "Bolsa Protegida",
+          "Meta distribuída à equipe",
+          calendarGoalPfActual(month,"bolsa",entries),
+          goals.bolsa
+        ),
+        calendarGoalMetric(
+          "Compra da Sorte",
+          "Meta distribuída à equipe",
+          calendarGoalPfActual(month,"compra",entries),
+          goals.compra
+        ),
+        calendarGoalMetric(
+          "Sabadão",
+          "Meta distribuída à equipe",
+          calendarGoalPfActual(month,"sabadao",entries),
+          goals.sabadao
+        ),
+        calendarGoalMetric(
+          "SMS",
+          "Meta distribuída à equipe",
+          calendarGoalPfActual(month,"sms",entries),
+          goals.sms
+        ),
+        calendarGoalMetric(
+          "Vida+",
+          "Meta distribuída à equipe",
+          calendarGoalPfActual(month,"vida",entries),
+          goals.vida
+        ),
+        calendarGoalMetric(
+          "Cartão AV",
+          "Parâmetro operacional da loja",
+          calendarGoalPercentageActual(month,entries,"cartaoAvAcc","cartaoAcc","cartaoAvAcc"),
+          43,
+          "percent"
+        ),
+        calendarGoalMetric(
+          "PCJ",
+          goals.pcj > 0 ? "Média das metas individuais" : "Parâmetro operacional da loja",
+          calendarGoalPercentageActual(month,entries,"pcjAcc","pcjAcc","pcjAcc"),
+          pcjTarget,
+          "percent"
+        ),
+        calendarGoalMetric(
+          "Tudo AV",
+          "Parâmetro operacional da loja",
+          calendarGoalPercentageActual(month,entries,"tudoAvAcc","tudoAvAcc","tudoAvAcc"),
+          80,
+          "percent"
+        )
+      ];
+    }
+
+    function calendarGoalFormat(metric, value){
+      if(metric.format === "money") return money(value);
+      if(metric.format === "percent") return pct(value);
+      return Number(value || 0).toLocaleString("pt-BR");
+    }
+
+    function calendarGoalStatusClass(metric){
+      if(metric.target <= 0) return "undefined";
+      if(metric.percentage >= 100) return "reached";
+      if(metric.percentage >= 50) return "halfway";
+      return "distant";
+    }
+
+    function drawCalendarGoalsChart(metrics = calendarGoalsMetricsCache){
+      const canvas = $("#calendarGoalsChart");
+      const subview = $("#calendarGoalsSubview");
+      if(!canvas || !subview?.classList.contains("active")) return;
+
+      const chartMetrics = metrics.filter(metric => metric.target > 0);
+      const rowHeight = 36;
+      const desiredHeight = Math.max(360, chartMetrics.length * rowHeight + 76);
+      canvas.style.height = `${desiredHeight}px`;
+
+      const rect = canvas.getBoundingClientRect();
+      if(rect.width <= 0 || rect.height <= 0) return;
+
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.max(650, Math.round(rect.width * ratio));
+      canvas.height = Math.round(desiredHeight * ratio);
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(ratio,0,0,ratio,0,0);
+
+      const width = rect.width;
+      const height = desiredHeight;
+      ctx.clearRect(0,0,width,height);
+
+      const css = getComputedStyle(document.body);
+      const line = css.getPropertyValue("--line").trim();
+      const text = css.getPropertyValue("--text").trim();
+      const muted = css.getPropertyValue("--muted").trim();
+      const surface = css.getPropertyValue("--surface").trim();
+      const brand = css.getPropertyValue("--brand").trim();
+      const warn = css.getPropertyValue("--warn").trim();
+      const bad = css.getPropertyValue("--bad").trim();
+      const ok = css.getPropertyValue("--ok").trim();
+
+      const pad = {left:155,right:64,top:42,bottom:24};
+      const chartWidth = Math.max(width - pad.left - pad.right, 200);
+      const chartHeight = height - pad.top - pad.bottom;
+
+      ctx.font = "10px system-ui";
+      ctx.fillStyle = muted;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      [0,25,50,75,100].forEach(tick => {
+        const x = pad.left + chartWidth * (tick / 100);
+        ctx.fillText(`${tick}%`,x,pad.top - 10);
+        ctx.strokeStyle = line;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x,pad.top - 5);
+        ctx.lineTo(x,height - pad.bottom);
+        ctx.stroke();
+      });
+
+      chartMetrics.forEach((metric,index) => {
+        const y = pad.top + index * rowHeight + 8;
+        const percent = Math.max(metric.percentage,0);
+        const visiblePercent = Math.min(percent,100);
+        const status = calendarGoalStatusClass(metric);
+        const fillColor = status === "reached" ? ok : status === "halfway" ? warn : status === "undefined" ? muted : bad;
+
+        ctx.fillStyle = text;
+        ctx.font = "600 11px system-ui";
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        ctx.fillText(metric.title,pad.left - 12,y + 7);
+
+        ctx.fillStyle = surface;
+        ctx.strokeStyle = line;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(pad.left,y,chartWidth,14,7);
+        ctx.fill();
+        ctx.stroke();
+
+        const fillWidth = chartWidth * (visiblePercent / 100);
+        if(fillWidth > 0){
+          ctx.fillStyle = fillColor;
+          ctx.beginPath();
+          ctx.roundRect(pad.left,y,Math.max(fillWidth,4),14,7);
+          ctx.fill();
+        }
+
+        ctx.fillStyle = percent >= 100 ? ok : brand;
+        ctx.font = "800 11px system-ui";
+        ctx.textAlign = "left";
+        ctx.fillText(`${percent.toFixed(1).replace(".",",")}%`,pad.left + chartWidth + 10,y + 7);
+      });
+    }
+
+    function renderCalendarGoals(){
+      const month = calendarGoalsMonthKey();
+      const metrics = calendarGoalMetrics(month);
+      calendarGoalsMetricsCache = metrics;
+
+      const configured = metrics.filter(metric => metric.target > 0);
+      const reached = configured.filter(metric => metric.actual >= metric.target);
+      const average = configured.length
+        ? configured.reduce((sum,metric) => sum + Math.min(metric.percentage,100),0) / configured.length
+        : 0;
+      const pending = Math.max(configured.length - reached.length,0);
+
+      const periodLabel = $("#calendarGoalsPeriodLabel");
+      if(periodLabel) periodLabel.textContent = goalMonthLabel(month);
+      $("#calendarGoalsConfigured").textContent = configured.length.toLocaleString("pt-BR");
+      $("#calendarGoalsReached").textContent = reached.length.toLocaleString("pt-BR");
+      $("#calendarGoalsReachedSub").textContent = reached.length
+        ? `${reached.length} de ${configured.length} meta${configured.length === 1 ? "" : "s"} concluída${reached.length === 1 ? "" : "s"}`
+        : "Nenhuma meta concluída";
+      $("#calendarGoalsAverage").textContent = pct(average);
+      $("#calendarGoalsPending").textContent = pending.toLocaleString("pt-BR");
+
+      const list = $("#calendarGoalsProgressList");
+      list.innerHTML = metrics.map(metric => {
+        const status = calendarGoalStatusClass(metric);
+        const defined = metric.target > 0;
+        const visible = defined ? Math.min(Math.max(metric.percentage,0),100) : 0;
+        const remaining = defined ? Math.max(metric.target - metric.actual,0) : 0;
+        const complete = defined && metric.actual >= metric.target;
+
+        return `
+          <div class="calendar-goal-card ${complete ? "goal-complete" : ""} ${defined ? "" : "goal-undefined"}">
+            <div class="calendar-goal-card-head">
+              <div>
+                <h5>${escapeHtml(metric.title)}</h5>
+                <small>${escapeHtml(metric.subtitle)}</small>
+              </div>
+              <div class="calendar-goal-percent">${defined ? pct(metric.percentage) : "—"}</div>
+            </div>
+            <div class="calendar-goal-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${defined ? Math.min(Math.round(metric.percentage),100) : 0}">
+              <i class="calendar-goal-fill ${status}" style="width:${visible}%"></i>
+            </div>
+            <div class="calendar-goal-values">
+              <span>Realizado: <strong>${calendarGoalFormat(metric,metric.actual)}</strong></span>
+              <span>Meta: <strong>${defined ? calendarGoalFormat(metric,metric.target) : "Não definida"}</strong></span>
+              <span>Falta: <strong>${defined ? calendarGoalFormat(metric,remaining) : "—"}</strong></span>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      $("#calendarGoalsDataNote").textContent = configured.length
+        ? `${configured.length} metas configuradas em ${goalMonthLabel(month)}. Os percentuais acima usam o acumulado mais recente disponível no Calendário de Vendas.`
+        : `Nenhuma meta mensal foi configurada para ${goalMonthLabel(month)}. Cadastre a Meta Total e a Distribuição de Meta para acompanhar o progresso.`;
+
+      requestAnimationFrame(() => drawCalendarGoalsChart(metrics));
+    }
+
+    function setCalendarSubtab(tabName = "daily"){
+      const goalsActive = tabName === "goals";
+      $("#calendarDailySubview")?.classList.toggle("active",!goalsActive);
+      $("#calendarGoalsSubview")?.classList.toggle("active",goalsActive);
+
+      $$("[data-calendar-tab]").forEach(button => {
+        const active = button.dataset.calendarTab === tabName;
+        button.classList.toggle("active",active);
+        button.setAttribute("aria-selected",String(active));
+      });
+
+      if(goalsActive){
+        renderCalendarGoals();
+      }else{
+        renderSalesCalendar();
+      }
+    }
+
+
     function ensurePremiaAttempt(operatorValue){
       const operator = normalizeOperator(operatorValue);
       if(!operator) return null;
@@ -6969,6 +7810,7 @@
       renderUserGoalPanel();
       renderHeaderCards();
       renderSalesCalendar();
+      renderCalendarGoals();
       renderOperatorsTable();
       renderEmployees();
       renderHistory();
@@ -6987,7 +7829,8 @@
       const renderers = [
         ["metas individuais", renderUserGoalPanel],
         ["painel principal", renderHeaderCards],
-        ["calendário", renderSalesCalendar],
+        ["calendário diário", renderSalesCalendar],
+        ["progresso das metas", renderCalendarGoals],
         ["operadores", renderOperatorsTable],
         ["funcionários", renderEmployees],
         ["lançamentos", renderHistory],
@@ -8238,6 +9081,15 @@
       renderSalesCalendar();
     });
 
+    $$("[data-calendar-tab]").forEach(button => {
+      button.addEventListener("click", () => setCalendarSubtab(button.dataset.calendarTab));
+    });
+    $("#calendarGoalsMonth").addEventListener("change", renderCalendarGoals);
+    $("#calendarGoalsCurrentMonthBtn").addEventListener("click", () => {
+      $("#calendarGoalsMonth").value = monthPrefix(today());
+      renderCalendarGoals();
+    });
+
     $$(".game-tab").forEach(button => {
       button.addEventListener("click", () => {
         currentGameMetric = button.dataset.gameMetric;
@@ -8301,7 +9153,10 @@
       $("#sidebar").classList.remove("open");
 
       if(sectionName === "dashboard") requestAnimationFrame(drawChart);
-      if(sectionName === "calendario") renderSalesCalendar();
+      if(sectionName === "calendario"){
+        renderSalesCalendar();
+        renderCalendarGoals();
+      }
       if(sectionName === "game") renderGame();
       if(sectionName === "premia") renderAvPremia();
       if(sectionName === "config"){
@@ -8319,7 +9174,10 @@
     $("#themeBtn").addEventListener("click", () => {
       document.body.classList.toggle("dark");
       safeStorageSet("av_resultados_operadores_theme", document.body.classList.contains("dark") ? "dark" : "light");
-      requestAnimationFrame(drawChart);
+      requestAnimationFrame(() => {
+        drawChart();
+        drawCalendarGoalsChart();
+      });
     });
     $("#mobileMenuBtn").addEventListener("click", () => $("#sidebar").classList.toggle("open"));
 
@@ -8619,6 +9477,7 @@
     window.addEventListener("resize", () => {
       requestAnimationFrame(() => {
         drawChart();
+        drawCalendarGoalsChart();
         updateSidebarNavScrollState();
         keepActiveNavVisible();
       });
