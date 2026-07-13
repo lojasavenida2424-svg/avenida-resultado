@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AV Resultados Operadores V46 — Configuração Mensal de PF</title>
+  <title>AV Resultados Operadores V57 — Painel Principal Atualizado</title>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <style>
     :root{
@@ -636,6 +636,173 @@
     .header-value{margin-top:14px; font-size:28px; font-weight:900}
     .header-sub{margin-top:8px; color:var(--muted); font-size:13px}
 
+    .dashboard-period-block{margin-bottom:26px}
+    .dashboard-period-heading{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:18px;
+      margin-bottom:14px;
+    }
+    .dashboard-period-heading h3{
+      margin:0;
+      font-size:22px;
+      letter-spacing:-.02em;
+    }
+    .dashboard-period-heading p{
+      margin:5px 0 0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.5;
+    }
+    .dashboard-period-heading .tag{flex:0 0 auto}
+    .dashboard-metric-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:16px;
+    }
+    .dashboard-metric-card{
+      position:relative;
+      min-width:0;
+      min-height:238px;
+      padding:18px;
+      overflow:hidden;
+      transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+    }
+    .dashboard-metric-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 15px 34px rgba(0,0,0,.10);
+    }
+    .dashboard-metric-card::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      bottom:0;
+      width:4px;
+      background:var(--brand);
+    }
+    .dashboard-metric-card.metric-achieved::before{background:var(--ok)}
+    .dashboard-metric-card.metric-progress::before{background:var(--warn)}
+    .dashboard-metric-card.metric-low::before{background:var(--bad)}
+    .dashboard-metric-card.metric-undefined::before{background:var(--muted)}
+    .dashboard-metric-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:17px;
+    }
+    .dashboard-metric-head h4{
+      margin:4px 0 0;
+      font-size:18px;
+      letter-spacing:-.01em;
+    }
+    .dashboard-metric-icon{
+      width:38px;
+      height:38px;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      border-radius:12px;
+      background:var(--brand-soft);
+      color:var(--brand);
+      font-size:12px;
+      font-weight:1000;
+      letter-spacing:.03em;
+    }
+    .dashboard-metric-values{
+      display:grid;
+      grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+      gap:11px;
+      margin-bottom:16px;
+    }
+    .dashboard-metric-value{
+      min-width:0;
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:var(--surface-2);
+    }
+    .dashboard-metric-value.goal{
+      background:
+        radial-gradient(circle at 100% 0,rgba(var(--brand-rgb),.10),transparent 48%),
+        var(--surface);
+    }
+    .dashboard-metric-value small{
+      display:block;
+      min-height:25px;
+      margin-bottom:7px;
+      color:var(--muted);
+      font-size:9px;
+      font-weight:1000;
+      letter-spacing:.06em;
+      line-height:1.35;
+      text-transform:uppercase;
+    }
+    .dashboard-metric-value strong{
+      display:block;
+      overflow:hidden;
+      color:var(--text);
+      font-size:21px;
+      line-height:1.1;
+      font-variant-numeric:tabular-nums;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .dashboard-metric-card.metric-achieved .dashboard-metric-value:first-child strong{
+      color:var(--ok);
+    }
+    .dashboard-metric-track{
+      height:10px;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:var(--surface-2);
+    }
+    .dashboard-metric-track i{
+      display:block;
+      width:0;
+      height:100%;
+      border-radius:inherit;
+      background:var(--bad);
+      transition:width .35s ease;
+    }
+    .dashboard-metric-track i.achieved{background:var(--ok)}
+    .dashboard-metric-track i.progress{background:var(--warn)}
+    .dashboard-metric-track i.low{background:var(--bad)}
+    .dashboard-metric-track i.undefined{background:var(--muted)}
+    .dashboard-metric-footer{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:10px;
+      color:var(--muted);
+      font-size:10px;
+      font-weight:900;
+    }
+    .dashboard-metric-footer strong{color:var(--text)}
+    .dashboard-metric-percent{
+      color:var(--brand);
+      font-size:12px;
+      font-weight:1000;
+    }
+    .dashboard-metric-card.metric-achieved .dashboard-metric-percent{color:var(--ok)}
+    .dashboard-metric-card.metric-low .dashboard-metric-percent{color:var(--bad)}
+    .dashboard-metric-card.metric-progress .dashboard-metric-percent{color:var(--warn)}
+    @media(max-width:1180px){
+      .dashboard-metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media(max-width:650px){
+      .dashboard-period-heading{
+        align-items:flex-start;
+        flex-direction:column;
+      }
+      .dashboard-metric-grid{grid-template-columns:1fr}
+      .dashboard-metric-card{min-height:0}
+    }
+
 
     .goal-floating-toggle{
       position:fixed;
@@ -940,9 +1107,23 @@
     .goal-progress-details strong{
       color:var(--text);
     }
-    .currency-input{
+    .currency-input,
+    .percentage-input,
+    .gap-integer-input{
       font-weight:800;
       letter-spacing:.01em;
+      font-variant-numeric:tabular-nums;
+    }
+    .store-activated-fields{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+      grid-column:1 / -1;
+    }
+    @media(max-width:820px){
+      .store-activated-fields{
+        grid-template-columns:1fr;
+      }
     }
 
     .group-title{
@@ -2624,11 +2805,31 @@
       background:var(--surface-2);
       overflow:hidden;
     }
-    #calendarGoalsChart{
+    .calendar-goals-chart-canvas{
       display:block;
       width:100%;
       height:100%;
       min-height:360px;
+    }
+    .calendar-goals-result-section{
+      margin-bottom:24px;
+    }
+    .calendar-goals-result-section:last-of-type{
+      margin-bottom:0;
+    }
+    .calendar-goals-pf-section{
+      padding-top:22px;
+      border-top:1px solid var(--line);
+    }
+    .calendar-goals-pf-chart-card{
+      background:
+        radial-gradient(circle at 100% 0,rgba(var(--brand-rgb),.10),transparent 38%),
+        var(--surface);
+    }
+    .calendar-goals-pf-progress-grid .calendar-goal-card{
+      background:
+        linear-gradient(135deg,rgba(var(--brand-rgb),.055),transparent 46%),
+        var(--surface);
     }
 
     .calendar-goals-progress-grid{
@@ -2718,7 +2919,7 @@
       .calendar-goals-month-controls{justify-content:flex-start}
       .calendar-goals-progress-grid{grid-template-columns:1fr}
       .calendar-goals-chart-box{overflow-x:auto}
-      #calendarGoalsChart{min-width:650px}
+      .calendar-goals-chart-canvas{min-width:650px}
     }
     @media(max-width:520px){
       .calendar-subtab-button{flex:1 0 auto}
@@ -2726,6 +2927,434 @@
       .calendar-goals-month-controls{display:grid;grid-template-columns:1fr}
       .calendar-goals-month-field{min-width:0}
       #calendarGoalsCurrentMonthBtn{width:100%}
+    }
+
+
+
+    /* DISTRIBUIÇÃO DE METAS — ASSESSOR / LOJA */
+    .distribution-type-card{
+      margin-bottom:18px;
+      background:
+        radial-gradient(circle at 0 0,rgba(var(--brand-rgb),.11),transparent 40%),
+        var(--surface);
+    }
+    .distribution-type-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(280px,380px);
+      gap:22px;
+      align-items:end;
+    }
+    .distribution-type-field{
+      margin:0;
+    }
+    .distribution-type-field .control{
+      font-weight:1000;
+      letter-spacing:.035em;
+    }
+    .distribution-mode-panel{
+      animation:distributionPanelIn .22s ease;
+    }
+    .distribution-store-header{
+      width:100%;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-bottom:2px;
+    }
+    .distribution-store-header h3{
+      margin:5px 0;
+    }
+    #distributionStorePanel #headerForm{
+      width:100%;
+    }
+    #distributionStorePanel .form-grid{
+      margin-top:18px;
+    }
+    @keyframes distributionPanelIn{
+      from{opacity:0;transform:translateY(7px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    @media(max-width:820px){
+      .distribution-type-layout{
+        grid-template-columns:1fr;
+        align-items:stretch;
+      }
+      .distribution-type-field{
+        width:100%;
+      }
+    }
+
+    .store-goal-selector-card{
+      margin-top:18px;
+      padding:16px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:
+        radial-gradient(circle at 100% 0,rgba(var(--brand-rgb),.09),transparent 42%),
+        var(--surface-2);
+    }
+    .store-goal-selector-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(260px,360px);
+      gap:18px;
+      align-items:end;
+    }
+    .store-goal-selector-layout h4{
+      margin:4px 0 5px;
+      font-size:17px;
+    }
+    .store-goal-selector-layout p{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.5;
+    }
+    .store-goal-selector-field{
+      margin:0;
+    }
+    .store-goal-selector-field .control{
+      font-weight:1000;
+      letter-spacing:.035em;
+    }
+    .store-goal-subpanel{
+      margin-top:18px;
+      padding:18px;
+      border:1px solid var(--line);
+      border-radius:17px;
+      background:var(--surface-2);
+      animation:distributionPanelIn .22s ease;
+    }
+    .store-goal-subpanel-header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:4px;
+    }
+    .store-goal-subpanel-header h4{
+      margin:4px 0 5px;
+      font-size:19px;
+    }
+    .store-goal-subpanel-header p{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    .store-pcj-period-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+      margin-top:18px;
+    }
+    .store-pcj-period-card{
+      min-width:0;
+      padding:17px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--surface);
+      box-shadow:0 10px 26px rgba(0,0,0,.06);
+    }
+    .store-pcj-period-card.accumulated{
+      background:
+        radial-gradient(circle at 100% 0,rgba(var(--brand-rgb),.09),transparent 42%),
+        var(--surface);
+    }
+    .store-pcj-period-card-header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:15px;
+      padding-bottom:13px;
+      border-bottom:1px solid var(--line);
+    }
+    .store-pcj-period-card-header h5{
+      margin:4px 0 3px;
+      font-size:17px;
+    }
+    .store-pcj-period-card-header p{
+      margin:0;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.45;
+    }
+    .store-pcj-period-card .form-grid{
+      margin-top:0;
+    }
+
+    .calendar-goals-control-stack{
+      display:grid;
+      justify-items:end;
+      gap:10px;
+    }
+    .calendar-goals-mode-switch{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:5px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:var(--surface);
+    }
+    .calendar-goals-mode-button{
+      min-width:112px;
+      min-height:36px;
+      padding:8px 14px;
+      border:0;
+      border-radius:9px;
+      background:transparent;
+      color:var(--muted);
+      font-weight:1000;
+      cursor:pointer;
+    }
+    .calendar-goals-mode-button.active{
+      background:var(--brand);
+      color:#fff;
+      box-shadow:0 6px 16px rgba(var(--brand-rgb),.22);
+    }
+    .calendar-goals-period-controls{
+      display:flex;
+      align-items:flex-end;
+      justify-content:flex-end;
+      gap:9px;
+      flex-wrap:wrap;
+    }
+    .calendar-goals-date-field{
+      display:grid;
+      gap:5px;
+      min-width:190px;
+    }
+    .calendar-goals-date-field label{
+      color:var(--muted);
+      font-size:9px;
+      font-weight:1000;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    #calendarGoalsDate{height:42px}
+
+    .calendar-goals-pcj-card{
+      padding:20px;
+      margin-bottom:18px;
+    }
+    .calendar-goals-pcj-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+    }
+    .calendar-goals-pcj-item{
+      min-width:0;
+      padding:15px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface-2);
+    }
+    .calendar-goals-pcj-item small{
+      display:block;
+      min-height:28px;
+      color:var(--muted);
+      font-size:9px;
+      font-weight:1000;
+      letter-spacing:.05em;
+      line-height:1.35;
+      text-transform:uppercase;
+    }
+    .calendar-goals-pcj-item strong{
+      display:block;
+      margin-top:8px;
+      font-size:23px;
+      line-height:1;
+      font-variant-numeric:tabular-nums;
+    }
+    .calendar-goals-pcj-item.gap-positive strong{color:var(--ok)}
+    .calendar-goals-pcj-item.gap-negative strong{color:var(--bad)}
+
+    @media(max-width:1040px){
+      .calendar-goals-pcj-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media(max-width:900px){
+      .store-pcj-period-grid{grid-template-columns:1fr}
+      .calendar-goals-control-stack{justify-items:stretch}
+      .calendar-goals-mode-switch{justify-content:stretch}
+      .calendar-goals-mode-button{flex:1}
+      .calendar-goals-period-controls{justify-content:stretch}
+    }
+    @media(max-width:560px){
+      .calendar-goals-pcj-grid{grid-template-columns:1fr}
+      .calendar-goals-period-controls > *{width:100%}
+      .calendar-goals-date-field,
+      .calendar-goals-month-field{min-width:0;width:100%}
+    }
+
+    .store-pf-period-toolbar{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:16px;
+      margin:16px 0;
+      padding:15px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--surface-2);
+    }
+    .store-pf-period-field{
+      display:grid;
+      gap:6px;
+      width:min(280px,100%);
+    }
+    .store-pf-period-field label{
+      color:var(--muted);
+      font-size:9px;
+      font-weight:1000;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .store-pf-period-panel.hidden{
+      display:none;
+    }
+    .store-pf-today-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:15px;
+    }
+    .store-pf-today-header h5{
+      margin:4px 0 0;
+      font-size:18px;
+    }
+    .store-pf-today-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+    }
+    .store-pf-today-card{
+      padding:15px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface);
+    }
+    .store-pf-today-card strong{
+      display:block;
+      margin-bottom:10px;
+      font-size:13px;
+    }
+    .store-pf-today-card .field{
+      margin:0;
+    }
+    .store-pf-today-summary{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+      margin-top:16px;
+    }
+    .store-pf-today-summary-item{
+      padding:15px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:
+        radial-gradient(circle at 100% 0,rgba(var(--brand-rgb),.10),transparent 42%),
+        var(--surface);
+    }
+    .store-pf-today-summary-item small{
+      display:block;
+      margin-bottom:7px;
+      color:var(--muted);
+      font-size:9px;
+      font-weight:1000;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+    .store-pf-today-summary-item strong{
+      font-size:24px;
+      font-variant-numeric:tabular-nums;
+    }
+    @media(max-width:900px){
+      .store-pf-period-toolbar{
+        align-items:stretch;
+        flex-direction:column;
+      }
+      .store-pf-today-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+    }
+    @media(max-width:620px){
+      .store-pf-today-grid,
+      .store-pf-today-summary{
+        grid-template-columns:1fr;
+      }
+    }
+
+    .store-pf-summary{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin:16px 0 4px;
+    }
+    .store-pf-summary-item{
+      padding:14px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:var(--surface);
+    }
+    .store-pf-summary-item small{
+      display:block;
+      color:var(--muted);
+      font-size:9px;
+      font-weight:1000;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+    .store-pf-summary-item strong{
+      display:block;
+      margin-top:7px;
+      font-size:23px;
+      line-height:1;
+    }
+    .store-pf-pair{
+      padding:14px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface);
+    }
+    .store-pf-pair-title{
+      margin:0 0 12px;
+      color:var(--text);
+      font-size:13px;
+      font-weight:1000;
+    }
+    .store-pf-pair-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .store-pf-pair-grid .field{
+      margin:0;
+    }
+    .store-pf-total-fields{
+      margin-top:16px;
+      padding-top:16px;
+      border-top:1px solid var(--line);
+    }
+    .store-pf-total-fields input[readonly]{
+      font-weight:1000;
+      background:var(--brand-soft);
+      color:var(--brand-2);
+    }
+    @media(max-width:1000px){
+      .store-pf-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media(max-width:820px){
+      .store-goal-selector-layout{grid-template-columns:1fr}
+    }
+    @media(max-width:620px){
+      .store-pf-summary{grid-template-columns:1fr}
+      .store-pf-pair-grid{grid-template-columns:1fr}
     }
 
   </style>
@@ -2812,7 +3441,7 @@
           </button>
           <button data-section="distribuicao" data-permission-tab="distribuicao">
             <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg></span>
-            <span class="menu-label">Distribuição de Meta</span>
+            <span class="menu-label">Distribuição de Metas</span>
           </button>
         </nav>
       </div>
@@ -2829,7 +3458,7 @@
         <div>
           <div class="eyebrow">AV Resultados Operadores</div>
           <h1 id="pageTitle">Painel principal</h1>
-          <p id="pageSubtitle">Indicadores gerais da loja e desempenho por operador.</p>
+          <p id="pageSubtitle">Resultados realizados e metas de Hoje e do Acumulado.</p>
         </div>
         <div class="actions">
           <div class="action-badges">
@@ -2865,99 +3494,205 @@
       </header>
 
       <section id="dashboard" class="section active">
-        <div class="group-title">
-          <h3>HOJE</h3>
-          <span>Indicadores principais da loja</span>
-        </div>
-        <div class="grid header-grid">
-          <div class="card header-card">
-            <div class="header-label">Venda atual</div>
-            <div id="hVendaAtual" class="header-value">R$ 0,00</div>
-            <div class="header-sub">Resultado informado para o dia</div>
-          </div>
-          <div class="card header-card">
-            <div class="header-label">Compromisso do dia</div>
-            <div id="hCompromissoDia" class="header-value">R$ 0,00</div>
-            <div class="header-sub">Meta ou compromisso diário</div>
-          </div>
-          <div class="card header-card">
-            <div class="header-label">Cartão AV</div>
-            <div id="hCartaoAv" class="header-value">0%</div>
-            <div id="hCartaoAvSub" class="header-sub">Percentual atual do dia</div>
-          </div>
-          <div class="card header-card">
-            <div class="header-label">PCJ</div>
-            <div id="hPcjDia" class="header-value">0%</div>
-            <div id="hPcjSub" class="header-sub">Percentual atual do dia</div>
-          </div>
-          <div class="card header-card">
-            <div class="header-label">Tudo AV</div>
-            <div id="hTudoAvDia" class="header-value">0%</div>
-            <div class="header-sub">Resultado consolidado de hoje</div>
-          </div>
-        </div>
-
-        <div class="group-title" style="margin-top:6px">
-          <h3>ACUMULADO</h3>
-          <span>Informações gerais do período</span>
-        </div>
-        <div class="grid header-grid">
-          <div class="card header-card">
-            <div class="header-label">Total de Ativados</div>
-            <div id="hAtivadosTotal" class="header-value">0</div>
-            <div class="header-sub">Total geral informado para o período</div>
-          </div>
-          <div class="card header-card">
-            <div class="header-label">Venda acumulada</div>
-            <div id="hVendaAcumulada" class="header-value">R$ 0,00</div>
-            <div class="header-sub">Resultado acumulado do período</div>
-          </div>
-          <div class="card header-card">
-            <div class="header-label">Meta total</div>
-            <div id="hMetaTotal" class="header-value">R$ 0,00</div>
-            <div class="header-sub">Meta total do período</div>
-          </div>
-          <div class="card header-card">
-            <div class="header-label">Atingimento acumulado</div>
-            <div id="hAtingimento" class="header-value">0%</div>
-            <div class="header-sub">Venda acumulada sobre a meta total</div>
-          </div>
-          <div class="card header-card">
-            <div class="header-label">Tudo AV acumulado</div>
-            <div id="hTudoAvAcc" class="header-value">0%</div>
-            <div class="header-sub">Resultado consolidado do período</div>
-          </div>
-        </div>
-
-        <div class="card goal-progress-card">
-          <div class="goal-progress-header">
+        <div class="dashboard-period-block">
+          <div class="dashboard-period-heading">
             <div>
-              <div class="eyebrow">Progresso da meta</div>
-              <h3>Meta total do período</h3>
-              <p id="goalProgressMessage">Aguardando os valores de venda acumulada e meta total.</p>
+              <div class="eyebrow">Resultado diário</div>
+              <h3>HOJE</h3>
+              <p>Compare o valor realizado hoje com o objetivo definido para o dia.</p>
             </div>
+            <span id="dashboardTodayDate" class="tag brand-soft">HOJE</span>
+          </div>
+
+          <div class="dashboard-metric-grid">
+            <div id="dashTodaySalesCard" class="card dashboard-metric-card">
+              <div class="dashboard-metric-head">
+                <div><div class="eyebrow">Venda</div><h4>Venda atual</h4></div>
+                <div class="dashboard-metric-icon">R$</div>
+              </div>
+              <div class="dashboard-metric-values">
+                <div class="dashboard-metric-value">
+                  <small>Realizado hoje</small>
+                  <strong id="dashTodaySalesActual">R$ 0,00</strong>
+                </div>
+                <div class="dashboard-metric-value goal">
+                  <small>Compromisso do dia</small>
+                  <strong id="dashTodaySalesGoal">R$ 0,00</strong>
+                </div>
+              </div>
+              <div class="dashboard-metric-track"><i id="dashTodaySalesFill"></i></div>
+              <div class="dashboard-metric-footer">
+                <span id="dashTodaySalesRemaining">Falta: R$ 0,00</span>
+                <strong id="dashTodaySalesPercent" class="dashboard-metric-percent">0,00%</strong>
+              </div>
+            </div>
+
+            <div id="dashTodayActivatedCard" class="card dashboard-metric-card">
+              <div class="dashboard-metric-head">
+                <div><div class="eyebrow">Ativação</div><h4>Ativados</h4></div>
+                <div class="dashboard-metric-icon">ATV</div>
+              </div>
+              <div class="dashboard-metric-values">
+                <div class="dashboard-metric-value">
+                  <small>Realizado hoje</small>
+                  <strong id="dashTodayActivatedActual">0</strong>
+                </div>
+                <div class="dashboard-metric-value goal">
+                  <small>Meta do dia</small>
+                  <strong id="dashTodayActivatedGoal">0</strong>
+                </div>
+              </div>
+              <div class="dashboard-metric-track"><i id="dashTodayActivatedFill"></i></div>
+              <div class="dashboard-metric-footer">
+                <span id="dashTodayActivatedRemaining">Falta: 0</span>
+                <strong id="dashTodayActivatedPercent" class="dashboard-metric-percent">0,00%</strong>
+              </div>
+            </div>
+
+            <div id="dashTodayPfCard" class="card dashboard-metric-card">
+              <div class="dashboard-metric-head">
+                <div><div class="eyebrow">Produtos Financeiros</div><h4>PF</h4></div>
+                <div class="dashboard-metric-icon">PF</div>
+              </div>
+              <div class="dashboard-metric-values">
+                <div class="dashboard-metric-value">
+                  <small>Realizado hoje</small>
+                  <strong id="dashTodayPfActual">0</strong>
+                </div>
+                <div class="dashboard-metric-value goal">
+                  <small>Meta de PF hoje</small>
+                  <strong id="dashTodayPfGoal">0</strong>
+                </div>
+              </div>
+              <div class="dashboard-metric-track"><i id="dashTodayPfFill"></i></div>
+              <div class="dashboard-metric-footer">
+                <span id="dashTodayPfRemaining">Falta: 0</span>
+                <strong id="dashTodayPfPercent" class="dashboard-metric-percent">0,00%</strong>
+              </div>
+            </div>
+
+            <div id="dashTodayPcjCard" class="card dashboard-metric-card">
+              <div class="dashboard-metric-head">
+                <div><div class="eyebrow">Indicador</div><h4>PCJ</h4></div>
+                <div class="dashboard-metric-icon">%</div>
+              </div>
+              <div class="dashboard-metric-values">
+                <div class="dashboard-metric-value">
+                  <small>Realizado hoje</small>
+                  <strong id="dashTodayPcjActual">0,00%</strong>
+                </div>
+                <div class="dashboard-metric-value goal">
+                  <small>Meta de PCJ</small>
+                  <strong id="dashTodayPcjGoal">0,00%</strong>
+                </div>
+              </div>
+              <div class="dashboard-metric-track"><i id="dashTodayPcjFill"></i></div>
+              <div class="dashboard-metric-footer">
+                <span id="dashTodayPcjRemaining">Falta: 0,00 p.p.</span>
+                <strong id="dashTodayPcjPercent" class="dashboard-metric-percent">0,00%</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-period-block">
+          <div class="dashboard-period-heading">
             <div>
-              <div id="goalProgressPercentage" class="goal-progress-percentage">0,00%</div>
-              <span id="goalProgressStatus" class="goal-progress-status">Sem meta definida</span>
+              <div class="eyebrow">Resultado mensal</div>
+              <h3>ACUMULADO</h3>
+              <p>Compare o total realizado no mês com a meta final de cada indicador.</p>
             </div>
+            <span id="dashboardAccumulatedMonth" class="tag brand-soft">MÊS ATUAL</span>
           </div>
 
-          <div
-            id="goalProgressTrack"
-            class="goal-progress-track"
-            role="progressbar"
-            aria-label="Percentual atingido da meta"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow="0"
-          >
-            <div id="goalProgressFill" class="goal-progress-fill neutral"></div>
-          </div>
+          <div class="dashboard-metric-grid">
+            <div id="dashAccumSalesCard" class="card dashboard-metric-card">
+              <div class="dashboard-metric-head">
+                <div><div class="eyebrow">Venda</div><h4>Venda acumulada</h4></div>
+                <div class="dashboard-metric-icon">R$</div>
+              </div>
+              <div class="dashboard-metric-values">
+                <div class="dashboard-metric-value">
+                  <small>Realizado no mês</small>
+                  <strong id="dashAccumSalesActual">R$ 0,00</strong>
+                </div>
+                <div class="dashboard-metric-value goal">
+                  <small>Meta total do mês</small>
+                  <strong id="dashAccumSalesGoal">R$ 0,00</strong>
+                </div>
+              </div>
+              <div class="dashboard-metric-track"><i id="dashAccumSalesFill"></i></div>
+              <div class="dashboard-metric-footer">
+                <span id="dashAccumSalesRemaining">Falta: R$ 0,00</span>
+                <strong id="dashAccumSalesPercent" class="dashboard-metric-percent">0,00%</strong>
+              </div>
+            </div>
 
-          <div class="goal-progress-details">
-            <span>Realizado: <strong id="goalProgressRealized">R$ 0,00</strong></span>
-            <span>Meta: <strong id="goalProgressGoal">R$ 0,00</strong></span>
-            <span>Falta: <strong id="goalProgressRemaining">R$ 0,00</strong></span>
+            <div id="dashAccumActivatedCard" class="card dashboard-metric-card">
+              <div class="dashboard-metric-head">
+                <div><div class="eyebrow">Ativação</div><h4>Ativados acumulados</h4></div>
+                <div class="dashboard-metric-icon">ATV</div>
+              </div>
+              <div class="dashboard-metric-values">
+                <div class="dashboard-metric-value">
+                  <small>Realizado no mês</small>
+                  <strong id="dashAccumActivatedActual">0</strong>
+                </div>
+                <div class="dashboard-metric-value goal">
+                  <small>Meta total de Ativados</small>
+                  <strong id="dashAccumActivatedGoal">0</strong>
+                </div>
+              </div>
+              <div class="dashboard-metric-track"><i id="dashAccumActivatedFill"></i></div>
+              <div class="dashboard-metric-footer">
+                <span id="dashAccumActivatedRemaining">Falta: 0</span>
+                <strong id="dashAccumActivatedPercent" class="dashboard-metric-percent">0,00%</strong>
+              </div>
+            </div>
+
+            <div id="dashAccumPfCard" class="card dashboard-metric-card">
+              <div class="dashboard-metric-head">
+                <div><div class="eyebrow">Produtos Financeiros</div><h4>PF acumulado</h4></div>
+                <div class="dashboard-metric-icon">PF</div>
+              </div>
+              <div class="dashboard-metric-values">
+                <div class="dashboard-metric-value">
+                  <small>Realizado no mês</small>
+                  <strong id="dashAccumPfActual">0</strong>
+                </div>
+                <div class="dashboard-metric-value goal">
+                  <small>Meta mensal de PF</small>
+                  <strong id="dashAccumPfGoal">0</strong>
+                </div>
+              </div>
+              <div class="dashboard-metric-track"><i id="dashAccumPfFill"></i></div>
+              <div class="dashboard-metric-footer">
+                <span id="dashAccumPfRemaining">Falta: 0</span>
+                <strong id="dashAccumPfPercent" class="dashboard-metric-percent">0,00%</strong>
+              </div>
+            </div>
+
+            <div id="dashAccumPcjCard" class="card dashboard-metric-card">
+              <div class="dashboard-metric-head">
+                <div><div class="eyebrow">Indicador</div><h4>PCJ acumulado</h4></div>
+                <div class="dashboard-metric-icon">%</div>
+              </div>
+              <div class="dashboard-metric-values">
+                <div class="dashboard-metric-value">
+                  <small>Realizado no mês</small>
+                  <strong id="dashAccumPcjActual">0,00%</strong>
+                </div>
+                <div class="dashboard-metric-value goal">
+                  <small>Meta de PCJ</small>
+                  <strong id="dashAccumPcjGoal">0,00%</strong>
+                </div>
+              </div>
+              <div class="dashboard-metric-track"><i id="dashAccumPcjFill"></i></div>
+              <div class="dashboard-metric-footer">
+                <span id="dashAccumPcjRemaining">Falta: 0,00 p.p.</span>
+                <strong id="dashAccumPcjPercent" class="dashboard-metric-percent">0,00%</strong>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -3209,16 +3944,32 @@
           <div id="calendarGoalsSubview" class="calendar-subview" role="tabpanel" aria-labelledby="calendarGoalsTabBtn">
             <div class="calendar-goals-toolbar">
               <div class="calendar-goals-period">
-                <div class="header-label">Acompanhamento mensal</div>
+                <div id="calendarGoalsScopeLabel" class="header-label">Acompanhamento diário</div>
                 <h4 id="calendarGoalsPeriodLabel">—</h4>
-                <p>Compare o acumulado da loja com todas as metas configuradas para o período.</p>
+                <p id="calendarGoalsPeriodDescription">Compare o resultado do dia com as metas disponíveis para a data selecionada.</p>
               </div>
-              <div class="calendar-goals-month-controls">
-                <div class="calendar-goals-month-field">
-                  <label for="calendarGoalsMonth">Selecionar mês</label>
-                  <input id="calendarGoalsMonth" class="control" type="month" aria-label="Selecionar mês das metas" />
+
+              <div class="calendar-goals-control-stack">
+                <div class="calendar-goals-mode-switch" role="tablist" aria-label="Período do progresso das metas">
+                  <button class="calendar-goals-mode-button active" type="button" role="tab" aria-selected="true" data-calendar-goals-mode="day">Dia</button>
+                  <button class="calendar-goals-mode-button" type="button" role="tab" aria-selected="false" data-calendar-goals-mode="accumulated">Acumulado</button>
                 </div>
-                <button id="calendarGoalsCurrentMonthBtn" class="btn btn-primary" type="button">Mês atual</button>
+
+                <div id="calendarGoalsDayControls" class="calendar-goals-period-controls">
+                  <div class="calendar-goals-date-field">
+                    <label for="calendarGoalsDate">Selecionar dia</label>
+                    <input id="calendarGoalsDate" class="control" type="date" aria-label="Selecionar dia das metas" />
+                  </div>
+                  <button id="calendarGoalsTodayBtn" class="btn btn-primary" type="button">Hoje</button>
+                </div>
+
+                <div id="calendarGoalsAccumulatedControls" class="calendar-goals-period-controls hidden">
+                  <div class="calendar-goals-month-field">
+                    <label for="calendarGoalsMonth">Selecionar mês</label>
+                    <input id="calendarGoalsMonth" class="control" type="month" aria-label="Selecionar mês das metas" />
+                  </div>
+                  <button id="calendarGoalsCurrentMonthBtn" class="btn btn-primary" type="button">Mês atual</button>
+                </div>
               </div>
             </div>
 
@@ -3245,31 +3996,78 @@
               </div>
             </div>
 
-            <div class="card calendar-goals-chart-card">
+            <div class="card calendar-goals-pcj-card">
               <div class="calendar-goals-section-header">
                 <div>
-                  <div class="eyebrow">Visão comparativa</div>
-                  <h4>Percentual atingido por meta</h4>
-                  <p>A linha completa representa 100% do objetivo de cada indicador.</p>
+                  <div id="calendarGoalsPcjEyebrow" class="eyebrow">Indicadores do dia</div>
+                  <h4 id="calendarGoalsPcjTitle">Cartão AV e PCJ — Dia</h4>
+                  <p id="calendarGoalsPcjDescription">Resultado atual e GAP da data selecionada.</p>
                 </div>
-                <span class="tag brand-soft">ACUMULADO DO MÊS</span>
+                <span id="calendarGoalsPcjScopeTag" class="tag brand-soft">DIA</span>
               </div>
-              <div class="calendar-goals-chart-box">
-                <canvas id="calendarGoalsChart" aria-label="Gráfico do progresso de todas as metas"></canvas>
-              </div>
+              <div id="calendarGoalsPcjGrid" class="calendar-goals-pcj-grid"></div>
             </div>
 
-            <div class="calendar-goals-section-header">
-              <div>
-                <div class="eyebrow">Detalhamento</div>
-                <h4>Barras de progresso</h4>
-                <p>Realizado, meta, saldo restante e percentual de cada indicador.</p>
+            <div class="calendar-goals-result-section">
+              <div class="card calendar-goals-chart-card">
+                <div class="calendar-goals-section-header">
+                  <div>
+                    <div class="eyebrow">Resultados gerais</div>
+                    <h4 id="calendarGoalsGeneralChartTitle">Progresso geral do dia</h4>
+                    <p id="calendarGoalsGeneralChartDescription">Venda, Ativados, Cartão AV, PCJ e Tudo AV separados dos Produtos Financeiros.</p>
+                  </div>
+                  <span id="calendarGoalsGeneralChartScopeTag" class="tag brand-soft">DIA</span>
+                </div>
+                <div class="calendar-goals-chart-box">
+                  <canvas
+                    id="calendarGoalsGeneralChart"
+                    class="calendar-goals-chart-canvas"
+                    aria-label="Gráfico do progresso dos resultados gerais"
+                  ></canvas>
+                </div>
               </div>
+
+              <div class="calendar-goals-section-header">
+                <div>
+                  <div class="eyebrow">Resultados gerais</div>
+                  <h4 id="calendarGoalsGeneralDetailTitle">Barras dos resultados gerais</h4>
+                  <p id="calendarGoalsGeneralDetailDescription">Venda, Ativados e indicadores comerciais do período.</p>
+                </div>
+              </div>
+              <div id="calendarGoalsGeneralProgressList" class="calendar-goals-progress-grid"></div>
             </div>
-            <div id="calendarGoalsProgressList" class="calendar-goals-progress-grid"></div>
+
+            <div class="calendar-goals-result-section calendar-goals-pf-section">
+              <div class="card calendar-goals-chart-card calendar-goals-pf-chart-card">
+                <div class="calendar-goals-section-header">
+                  <div>
+                    <div class="eyebrow">Produtos Financeiros</div>
+                    <h4 id="calendarGoalsPfChartTitle">Progresso dos PFs do dia</h4>
+                    <p id="calendarGoalsPfChartDescription">PF Total e produtos individuais em uma área exclusiva.</p>
+                  </div>
+                  <span id="calendarGoalsPfChartScopeTag" class="tag brand-soft">DIA</span>
+                </div>
+                <div class="calendar-goals-chart-box">
+                  <canvas
+                    id="calendarGoalsPfChart"
+                    class="calendar-goals-chart-canvas"
+                    aria-label="Gráfico do progresso dos Produtos Financeiros"
+                  ></canvas>
+                </div>
+              </div>
+
+              <div class="calendar-goals-section-header">
+                <div>
+                  <div class="eyebrow">Produtos Financeiros</div>
+                  <h4 id="calendarGoalsPfDetailTitle">Barras dos Produtos Financeiros</h4>
+                  <p id="calendarGoalsPfDetailDescription">PF Total, Bolsa Protegida, Compra da Sorte, Proteção da Sorte, Sabadão, SMS e Vida+.</p>
+                </div>
+              </div>
+              <div id="calendarGoalsPfProgressList" class="calendar-goals-progress-grid calendar-goals-pf-progress-grid"></div>
+            </div>
 
             <div id="calendarGoalsDataNote" class="calendar-goals-note">
-              As metas mensais são obtidas da Meta Total da loja e da Distribuição de Meta por operador. Cartão AV, PCJ e Tudo AV utilizam os parâmetros operacionais do sistema.
+              Os Produtos Financeiros são exibidos em uma área própria, separados dos demais resultados. Selecione Dia ou Acumulado para consultar o período desejado.
             </div>
           </div>
         </div>
@@ -3590,12 +4388,31 @@
 
 
       <section id="distribuicao" class="section">
+        <div class="card section-card distribution-type-card">
+          <div class="distribution-type-layout">
+            <div>
+              <div class="eyebrow">Central de metas</div>
+              <h3 style="margin:5px 0">Distribuição de Metas</h3>
+              <small>Escolha se deseja administrar as metas individuais dos assessores ou os indicadores gerais da loja.</small>
+            </div>
+            <div class="field distribution-type-field">
+              <label for="distributionTypeSelect">Tipo de meta</label>
+              <select id="distributionTypeSelect" class="control">
+                <option value="assessor">META ASSESSOR</option>
+                <option value="loja">META DE LOJA</option>
+              </select>
+              <small id="distributionTypeHint">Metas mensais individuais por operador.</small>
+            </div>
+          </div>
+        </div>
+
+        <div id="distributionAssessorPanel" class="distribution-mode-panel">
         <div class="card section-card">
           <div style="display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px">
             <div>
-              <div class="eyebrow">Objetivos por operador</div>
-              <h3 style="margin:5px 0">Distribuição de Meta</h3>
-              <small>As metas são mensais. Cada lançamento diário é somado ao acumulado do mês até a avaliação final.</small>
+              <div class="eyebrow">Objetivos individuais por operador</div>
+              <h3 style="margin:5px 0">Meta Assessor</h3>
+              <small>Defina as metas mensais individuais de cada assessor. Os lançamentos diários alimentam automaticamente o acumulado do mês.</small>
             </div>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
               <span id="distributionMonthBadge" class="tag">MÊS ATUAL</span>
@@ -3695,6 +4512,309 @@
             </div>
           </form>
         </div>
+        </div>
+
+        <div id="distributionStorePanel" class="distribution-mode-panel hidden">
+          <form id="headerForm" class="card section-card">
+            <div class="distribution-store-header">
+              <div>
+                <div class="eyebrow">Objetivos gerais da unidade</div>
+                <h3>Meta de Loja</h3>
+                <small>Escolha uma categoria para administrar vendas, indicadores de PCJ ou Produtos Financeiros da loja.</small>
+              </div>
+              <span id="distributionStoreModeBadge" class="tag brand-soft">VISUALIZAÇÃO</span>
+            </div>
+
+            <div class="store-goal-selector-card">
+              <div class="store-goal-selector-layout">
+                <div>
+                  <div class="eyebrow">Distribuição por categoria</div>
+                  <h4>Qual meta deseja configurar?</h4>
+                  <p id="storeGoalSectionHint">Resultados de venda, ativados e metas mensais da unidade.</p>
+                </div>
+                <div class="field store-goal-selector-field">
+                  <label for="storeGoalSectionSelect">Categoria da Meta de Loja</label>
+                  <select id="storeGoalSectionSelect" class="control">
+                    <option value="venda">META DE VENDA</option>
+                    <option value="pcj">META DE PCJ</option>
+                    <option value="pf">META DE PF</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div id="storeGoalSalesPanel" class="store-goal-subpanel">
+              <div class="store-goal-subpanel-header">
+                <div>
+                  <div class="eyebrow">Vendas e ativação</div>
+                  <h4>Meta de Venda</h4>
+                  <p>Controle o resultado atual, a meta do dia, o acumulado mensal e os ativados da loja.</p>
+                </div>
+                <span class="tag brand-soft">VENDA</span>
+              </div>
+              <div class="form-grid">
+                <div class="field">
+                  <label>Venda atual</label>
+                  <input id="cfgVendaAtual" class="control currency-input" type="text" inputmode="decimal" autocomplete="off" placeholder="R$ 0,00" required />
+                </div>
+                <div class="field">
+                  <label>Meta de venda do dia</label>
+                  <input id="cfgCompromissoDia" class="control currency-input" type="text" inputmode="decimal" autocomplete="off" placeholder="R$ 0,00" required />
+                  <small>Valor anteriormente identificado como compromisso do dia.</small>
+                </div>
+                <div class="field">
+                  <label>Venda acumulada</label>
+                  <input id="cfgVendaAcumulada" class="control currency-input" type="text" inputmode="decimal" autocomplete="off" placeholder="R$ 0,00" required />
+                </div>
+                <div class="field">
+                  <label>Meta total mensal</label>
+                  <input id="cfgMetaTotal" class="control currency-input" type="text" inputmode="decimal" autocomplete="off" placeholder="R$ 0,00" required />
+                  <small id="cfgMetaTotalHint" class="meta-lock-state">A meta mensal é definida no primeiro dia do mês.</small>
+                </div>
+                <div class="store-activated-fields">
+                  <div class="field">
+                    <label>Ativados do dia</label>
+                    <input id="cfgAtivadosDia" class="control" type="number" min="0" step="1" required />
+                    <small>Quantidade realizada somente no dia atual.</small>
+                  </div>
+                  <div class="field">
+                    <label>Ativados acumulado</label>
+                    <input id="cfgAtivadosAcc" class="control" type="number" min="0" step="1" required />
+                    <small>Quantidade já realizada no mês.</small>
+                  </div>
+                  <div class="field">
+                    <label>Total de Ativados</label>
+                    <input id="cfgAtivadosTotal" class="control" type="number" min="0" step="1" required />
+                    <small>Meta total de Ativados para o final do mês.</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="storeGoalPcjPanel" class="store-goal-subpanel hidden">
+              <div class="store-goal-subpanel-header">
+                <div>
+                  <div class="eyebrow">Indicadores e GAP</div>
+                  <h4>Meta de PCJ</h4>
+                </div>
+                <span class="tag brand-soft">PCJ</span>
+              </div>
+
+              <div class="store-pcj-period-grid">
+                <div class="store-pcj-period-card">
+                  <div class="store-pcj-period-card-header">
+                    <div>
+                      <div class="eyebrow">Resultado do dia</div>
+                      <h5>Atual</h5>
+                    </div>
+                    <span class="tag brand-soft">DIA</span>
+                  </div>
+                  <div class="form-grid">
+                    <div class="field">
+                      <label>Cartão AV atual (%)</label>
+                      <input id="cfgCartaoAv" class="control percentage-input" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00%" required />
+                    </div>
+                    <div class="field">
+                      <label>Cartão AV — GAP atual</label>
+                      <input id="cfgCartaoAvGap" class="control gap-integer-input" type="text" inputmode="text" autocomplete="off" placeholder="0" required />
+                    </div>
+                    <div class="field">
+                      <label>PCJ atual (%)</label>
+                      <input id="cfgPcjDia" class="control percentage-input" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00%" required />
+                    </div>
+                    <div class="field">
+                      <label>PCJ — GAP atual</label>
+                      <input id="cfgPcjGap" class="control gap-integer-input" type="text" inputmode="text" autocomplete="off" placeholder="0" required />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="store-pcj-period-card accumulated">
+                  <div class="store-pcj-period-card-header">
+                    <div>
+                      <div class="eyebrow">Resultado mensal</div>
+                      <h5>Acumulado</h5>
+                    </div>
+                    <span class="tag brand-soft">ACUMULADO</span>
+                  </div>
+                  <div class="form-grid">
+                    <div class="field">
+                      <label>Cartão AV acumulado (%)</label>
+                      <input id="cfgCartaoAvAcc" class="control percentage-input" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00%" required />
+                    </div>
+                    <div class="field">
+                      <label>Cartão AV — GAP acumulado</label>
+                      <input id="cfgCartaoAvGapAcc" class="control gap-integer-input" type="text" inputmode="text" autocomplete="off" placeholder="0" required />
+                    </div>
+                    <div class="field">
+                      <label>PCJ acumulado (%)</label>
+                      <input id="cfgPcjAcc" class="control percentage-input" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00%" required />
+                    </div>
+                    <div class="field">
+                      <label>PCJ — GAP acumulado</label>
+                      <input id="cfgPcjGapAcc" class="control gap-integer-input" type="text" inputmode="text" autocomplete="off" placeholder="0" required />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="storeGoalPfPanel" class="store-goal-subpanel hidden">
+              <div class="store-goal-subpanel-header">
+                <div>
+                  <div class="eyebrow">Produtos Financeiros da unidade</div>
+                  <h4>Meta de PF</h4>
+                </div>
+                <span class="tag brand-soft">PF</span>
+              </div>
+
+              <div class="store-pf-period-toolbar">
+                <div class="store-pf-period-field">
+                  <label for="storePfPeriodSelect">Período da meta</label>
+                  <select id="storePfPeriodSelect" class="control" aria-label="Selecionar período da meta de PF">
+                    <option value="hoje">HOJE</option>
+                    <option value="mes">MÊS</option>
+                  </select>
+                </div>
+                <span id="storePfPeriodBadge" class="tag brand-soft">META DE HOJE</span>
+              </div>
+
+              <div id="storePfTodayPanel" class="store-pf-period-panel">
+                <div class="store-pf-today-header">
+                  <div>
+                    <div class="eyebrow">Meta diária da loja</div>
+                    <h5 id="storePfTodayDateLabel">—</h5>
+                  </div>
+                  <span class="tag brand-soft">HOJE</span>
+                </div>
+
+                <div class="store-pf-today-grid">
+                  <div class="store-pf-today-card">
+                    <strong>Bolsa Protegida</strong>
+                    <div class="field">
+                      <label>Meta do dia</label>
+                      <input id="cfgPfBolsaMetaHoje" class="control store-pf-today-goal-input" type="number" min="0" step="1" required />
+                    </div>
+                  </div>
+                  <div class="store-pf-today-card">
+                    <strong>Compra da Sorte</strong>
+                    <div class="field">
+                      <label>Meta do dia</label>
+                      <input id="cfgPfCompraMetaHoje" class="control store-pf-today-goal-input" type="number" min="0" step="1" required />
+                    </div>
+                  </div>
+                  <div class="store-pf-today-card">
+                    <strong>Proteção da Sorte</strong>
+                    <div class="field">
+                      <label>Meta do dia</label>
+                      <input id="cfgPfProtecaoMetaHoje" class="control store-pf-today-goal-input" type="number" min="0" step="1" required />
+                    </div>
+                  </div>
+                  <div class="store-pf-today-card">
+                    <strong>Sabadão</strong>
+                    <div class="field">
+                      <label>Meta do dia</label>
+                      <input id="cfgPfSabadaoMetaHoje" class="control store-pf-today-goal-input" type="number" min="0" step="1" required />
+                    </div>
+                  </div>
+                  <div class="store-pf-today-card">
+                    <strong>SMS</strong>
+                    <div class="field">
+                      <label>Meta do dia</label>
+                      <input id="cfgPfSmsMetaHoje" class="control store-pf-today-goal-input" type="number" min="0" step="1" required />
+                    </div>
+                  </div>
+                  <div class="store-pf-today-card">
+                    <strong>Vida+</strong>
+                    <div class="field">
+                      <label>Meta do dia</label>
+                      <input id="cfgPfVidaMetaHoje" class="control store-pf-today-goal-input" type="number" min="0" step="1" required />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="store-pf-today-summary">
+                  <div class="store-pf-today-summary-item">
+                    <small>Meta total de PF hoje</small>
+                    <strong id="storePfTodayGoalTotal">0</strong>
+                  </div>
+                  <div class="store-pf-today-summary-item">
+                    <small>Data da meta</small>
+                    <strong id="storePfTodaySummaryDate">—</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div id="storePfMonthPanel" class="store-pf-period-panel hidden">
+                <div class="store-pf-summary">
+                  <div class="store-pf-summary-item"><small>PF realizado</small><strong id="storePfRealizedTotal">0</strong></div>
+                  <div class="store-pf-summary-item"><small>Meta total de PF</small><strong id="storePfGoalTotal">0</strong></div>
+                  <div class="store-pf-summary-item"><small>Restante</small><strong id="storePfRemainingTotal">0</strong></div>
+                  <div class="store-pf-summary-item"><small>Progresso</small><strong id="storePfProgressTotal">0,00%</strong></div>
+                </div>
+
+                <div class="form-grid">
+                  <div class="store-pf-pair">
+                    <div class="store-pf-pair-title">Bolsa Protegida</div>
+                    <div class="store-pf-pair-grid">
+                      <div class="field"><label>Realizado</label><input id="cfgPfBolsaRealizado" class="control store-pf-value-input" type="number" min="0" step="1" required /></div>
+                      <div class="field"><label>Meta mensal</label><input id="cfgPfBolsaMeta" class="control store-pf-goal-input" type="number" min="0" step="1" required /></div>
+                    </div>
+                  </div>
+                  <div class="store-pf-pair">
+                    <div class="store-pf-pair-title">Compra da Sorte</div>
+                    <div class="store-pf-pair-grid">
+                      <div class="field"><label>Realizado</label><input id="cfgPfCompraRealizado" class="control store-pf-value-input" type="number" min="0" step="1" required /></div>
+                      <div class="field"><label>Meta mensal</label><input id="cfgPfCompraMeta" class="control store-pf-goal-input" type="number" min="0" step="1" required /></div>
+                    </div>
+                  </div>
+                  <div class="store-pf-pair">
+                    <div class="store-pf-pair-title">Proteção da Sorte</div>
+                    <div class="store-pf-pair-grid">
+                      <div class="field"><label>Realizado</label><input id="cfgPfProtecaoRealizado" class="control store-pf-value-input" type="number" min="0" step="1" required /></div>
+                      <div class="field"><label>Meta mensal</label><input id="cfgPfProtecaoMeta" class="control store-pf-goal-input" type="number" min="0" step="1" required /></div>
+                    </div>
+                  </div>
+                  <div class="store-pf-pair">
+                    <div class="store-pf-pair-title">Sabadão</div>
+                    <div class="store-pf-pair-grid">
+                      <div class="field"><label>Realizado</label><input id="cfgPfSabadaoRealizado" class="control store-pf-value-input" type="number" min="0" step="1" required /></div>
+                      <div class="field"><label>Meta mensal</label><input id="cfgPfSabadaoMeta" class="control store-pf-goal-input" type="number" min="0" step="1" required /></div>
+                    </div>
+                  </div>
+                  <div class="store-pf-pair">
+                    <div class="store-pf-pair-title">SMS</div>
+                    <div class="store-pf-pair-grid">
+                      <div class="field"><label>Realizado</label><input id="cfgPfSmsRealizado" class="control store-pf-value-input" type="number" min="0" step="1" required /></div>
+                      <div class="field"><label>Meta mensal</label><input id="cfgPfSmsMeta" class="control store-pf-goal-input" type="number" min="0" step="1" required /></div>
+                    </div>
+                  </div>
+                  <div class="store-pf-pair">
+                    <div class="store-pf-pair-title">Vida+</div>
+                    <div class="store-pf-pair-grid">
+                      <div class="field"><label>Realizado</label><input id="cfgPfVidaRealizado" class="control store-pf-value-input" type="number" min="0" step="1" required /></div>
+                      <div class="field"><label>Meta mensal</label><input id="cfgPfVidaMeta" class="control store-pf-goal-input" type="number" min="0" step="1" required /></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-grid store-pf-total-fields">
+                  <div class="field">
+                    <label>PF realizado no mês — total</label>
+                    <input id="cfgPfRealizado" class="control" data-computed="true" type="number" min="0" step="1" readonly />
+                  </div>
+                  <div class="field">
+                    <label>Meta mensal de PF — total</label>
+                    <input id="cfgPfMetaMensal" class="control" data-computed="true" type="number" min="0" step="1" readonly />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="storeGoalReadOnlyNote" class="source-note hidden">Seu acesso permite apenas visualizar as metas gerais da loja. Alterações são realizadas por gerente ou desenvolvedor.</div>
+            <div id="storeGoalSaveActions" style="display:flex;justify-content:flex-end;margin-top:18px"><button class="btn btn-primary" type="submit">Salvar meta da loja</button></div>
+          </form>
+        </div>
       </section>
 
       <section id="config" class="section">
@@ -3766,7 +4886,7 @@
                     <th>Operadores</th>
                     <th>Funcionários</th>
                     <th>Lançamentos</th>
-                    <th>Distribuição de Meta</th>
+                    <th>Distribuição de Metas</th>
                   </tr>
                 </thead>
                 <tbody id="permissionsTableBody"></tbody>
@@ -3778,40 +4898,8 @@
           </form>
 
 
-          <div class="split">
-          <form id="headerForm" class="card section-card">
-            <div>
-              <h3>Metas e indicadores gerais da loja</h3>
-              <small>Configure os resultados gerais da loja, incluindo o PF realizado no mês e a meta mensal de Produtos Financeiros.</small>
-            </div>
-            <div class="form-grid">
-              <div class="field"><label>Venda atual</label><input id="cfgVendaAtual" class="control currency-input" type="text" inputmode="decimal" autocomplete="off" placeholder="R$ 0,00" required /></div>
-              <div class="field"><label>Compromisso do dia</label><input id="cfgCompromissoDia" class="control currency-input" type="text" inputmode="decimal" autocomplete="off" placeholder="R$ 0,00" required /></div>
-              <div class="field"><label>Cartão AV (%)</label><input id="cfgCartaoAv" class="control" type="number" min="0" step="0.01" required /></div>
-              <div class="field"><label>PCJ do dia (%)</label><input id="cfgPcjDia" class="control" type="number" min="0" step="0.01" required /></div>
-              <div class="field"><label>Tudo AV hoje (%)</label><input id="cfgTudoAvDia" class="control" type="number" min="0" step="0.01" required /></div>
-              <div class="field"><label>Tudo AV acumulado (%)</label><input id="cfgTudoAvAcc" class="control" type="number" min="0" step="0.01" required /></div>
-              <div class="field"><label>Venda acumulada</label><input id="cfgVendaAcumulada" class="control currency-input" type="text" inputmode="decimal" autocomplete="off" placeholder="R$ 0,00" required /></div>
-              <div class="field">
-                <label>Meta total mensal</label>
-                <input id="cfgMetaTotal" class="control currency-input" type="text" inputmode="decimal" autocomplete="off" placeholder="R$ 0,00" required />
-                <small id="cfgMetaTotalHint" class="meta-lock-state">A meta mensal é definida no primeiro dia do mês.</small>
-              </div>
-              <div class="field"><label>Ativados do dia</label><input id="cfgAtivadosDia" class="control" type="number" min="0" step="1" required /></div>
-              <div class="field"><label>Total de Ativados</label><input id="cfgAtivadosTotal" class="control" type="number" min="0" step="1" required /></div>
-              <div class="field">
-                <label>PF realizado no mês</label>
-                <input id="cfgPfRealizado" class="control" type="number" min="0" step="1" required />
-                <small>Quantidade acumulada de Produtos Financeiros já realizada no mês.</small>
-              </div>
-              <div class="field">
-                <label>Meta mensal de PF</label>
-                <input id="cfgPfMetaMensal" class="control" type="number" min="0" step="1" required />
-                <small>Quantidade total de PF que a loja deve alcançar até o final do mês.</small>
-              </div>
-            </div>
-            <div style="margin-top:18px"><button class="btn btn-primary" type="submit">Salvar cabeçalho</button></div>
-          </form>
+          <div class="config-stack">
+
 
           <div class="card section-card">
             <div>
@@ -3991,6 +5079,7 @@
         <div class="field"><label>Tudo AV (%)</label><input id="recTudoAv" class="control" type="number" min="0" step="0.01" value="0" required /></div>
         <div class="field"><label>Bolsa Protegida</label><input id="recBolsa" class="control" type="number" min="0" step="1" value="0" required /></div>
         <div class="field"><label>Compra da Sorte</label><input id="recCompra" class="control" type="number" min="0" step="1" value="0" required /></div>
+        <div class="field"><label>Proteção da Sorte</label><input id="recProtecao" class="control" type="number" min="0" step="1" value="0" required /></div>
         <div class="field"><label>Sabadão</label><input id="recSabadao" class="control" type="number" min="0" step="1" value="0" required /></div>
         <div class="field"><label>SMS</label><input id="recSms" class="control" type="number" min="0" step="1" value="0" required /></div>
         <div class="field"><label>Vida+</label><input id="recVida" class="control" type="number" min="0" step="1" value="0" required /></div>
@@ -4418,20 +5507,91 @@
       return rows;
     }
 
+    const STORE_PF_DEFINITIONS = [
+      {key:"bolsa", label:"Bolsa Protegida"},
+      {key:"compra", label:"Compra da Sorte"},
+      {key:"protecao", label:"Proteção da Sorte"},
+      {key:"sabadao", label:"Sabadão"},
+      {key:"sms", label:"SMS"},
+      {key:"vida", label:"Vida+"}
+    ];
+
+    function normalizeStorePfBreakdown(source = {}){
+      return STORE_PF_DEFINITIONS.reduce((result,item) => {
+        result[item.key] = Math.max(Number(source?.[item.key] || 0),0);
+        return result;
+      },{});
+    }
+
+    function storePfBreakdownTotal(source = {}){
+      const normalized = normalizeStorePfBreakdown(source);
+      return STORE_PF_DEFINITIONS.reduce((sum,item) => sum + normalized[item.key],0);
+    }
+
+    function currentStorePfSnapshotFallback(data, month = monthPrefix(today())){
+      const monthSnapshots = Object.entries(data?.calendarSnapshots || {})
+        .filter(([date]) => String(date).startsWith(`${month}-`))
+        .sort(([dateA],[dateB]) => dateA.localeCompare(dateB));
+      const latest = monthSnapshots.length ? monthSnapshots[monthSnapshots.length - 1][1] : null;
+      const total = latest?.pf?.total || latest?.operators?.total || data?.pcjSnapshots?.total || {};
+      return normalizeStorePfBreakdown({
+        bolsa:total.bolsaAcc,
+        compra:total.compraAcc,
+        protecao:total.protecaoAcc,
+        sabadao:total.sabadaoAcc,
+        sms:total.smsAcc,
+        vida:total.vidaAcc
+      });
+    }
+
+    function getStorePfRealized(){
+      return normalizeStorePfBreakdown(db?.header?.storePfRealized || {});
+    }
+
+    function getStoreMonthlyPfBreakdownGoal(month = monthPrefix(today())){
+      return normalizeStorePfBreakdown(db?.monthlyStorePfGoals?.[month] || {});
+    }
+
+    function getStoreDailyPfBreakdownGoal(date = today()){
+      return normalizeStorePfBreakdown(
+        db?.dailyStorePfGoals?.[date] || {}
+      );
+    }
+
+    function getStoreDailyPfGoal(date = today()){
+      return storePfBreakdownTotal(
+        getStoreDailyPfBreakdownGoal(date)
+      );
+    }
+
     const seedData = {
       header: {
         vendaAtual: 0,
         compromissoDia: 0,
         cartaoAv: SIGA_SNAPSHOT.total.cartaoHoje,
         cartaoAvAcc: SIGA_SNAPSHOT.total.cartaoAcc,
+        cartaoAvGap: SIGA_SNAPSHOT.total.cartaoGapHoje,
+        cartaoAvGapAcc: SIGA_SNAPSHOT.total.cartaoGapAcc,
         pcjDia: SIGA_SNAPSHOT.total.pcjHoje,
         pcjAcc: SIGA_SNAPSHOT.total.pcjAcc,
+        pcjGap: SIGA_SNAPSHOT.total.pcjGapHoje,
+        pcjGapAcc: SIGA_SNAPSHOT.total.pcjGapAcc,
         tudoAvDia: SIGA_SNAPSHOT.total.tudoAvHoje,
         tudoAvAcc: SIGA_SNAPSHOT.total.tudoAvAcc,
+        tudoAvGap: 0,
         ativadosDia: 0,
+        ativadosAcc: 0,
         ativadosTotal: 0,
         pfRealizado: 0,
         pfMetaMensal: 0,
+        storePfRealized: {
+          bolsa:Math.max(Number(SIGA_SNAPSHOT.total.bolsaAcc || 0),0),
+          compra:Math.max(Number(SIGA_SNAPSHOT.total.compraAcc || 0),0),
+          protecao:Math.max(Number(SIGA_SNAPSHOT.total.protecaoAcc || 0),0),
+          sabadao:Math.max(Number(SIGA_SNAPSHOT.total.sabadaoAcc || 0),0),
+          sms:Math.max(Number(SIGA_SNAPSHOT.total.smsAcc || 0),0),
+          vida:Math.max(Number(SIGA_SNAPSHOT.total.vidaAcc || 0),0)
+        },
         vendaAcumulada: 0,
         metaTotal: 0
       },
@@ -4446,6 +5606,12 @@
       },
       monthlyPfGoals: {
         [monthPrefix(today())]: 0
+      },
+      monthlyStorePfGoals: {
+        [monthPrefix(today())]: normalizeStorePfBreakdown({})
+      },
+      dailyStorePfGoals: {
+        [today()]: normalizeStorePfBreakdown({})
       },
       employeeAccounts: JSON.parse(JSON.stringify(DEFAULT_EMPLOYEE_ACCOUNTS)),
       systemUsers: buildDefaultSystemUsers(),
@@ -4516,10 +5682,85 @@
         normalized.calendarSnapshots?.[today()]?.store?.ativadosHoje ??
         0
       );
-      normalized.header.ativadosTotal = Number(
-        normalized.header.ativadosTotal ??
+
+      const activatedMonthSnapshots = Object.entries(normalized.calendarSnapshots || {})
+        .filter(([date]) => String(date).startsWith(`${monthPrefix(today())}-`))
+        .sort(([dateA],[dateB]) => dateA.localeCompare(dateB));
+      const latestActivatedSnapshot = activatedMonthSnapshots.length
+        ? activatedMonthSnapshots[activatedMonthSnapshots.length - 1][1]
+        : null;
+      const hadSeparateActivatedFields = normalized.header.ativadosAcc !== undefined;
+      const legacyActivatedValue = Number(normalized.header.ativadosTotal ?? 0);
+
+      normalized.header.ativadosAcc = Number(
+        normalized.header.ativadosAcc ??
+        latestActivatedSnapshot?.store?.ativadosAcc ??
+        DAILY_RESULTS_PATCH?.store?.ativadosAcc ??
+        legacyActivatedValue ??
         0
       );
+
+      normalized.header.ativadosTotal = Number(
+        hadSeparateActivatedFields
+          ? (normalized.header.ativadosTotal ?? 0)
+          : (
+              latestActivatedSnapshot?.store?.ativadosMetaAcc ??
+              DAILY_RESULTS_PATCH?.store?.ativadosMetaAcc ??
+              normalized.header.ativadosMetaTotal ??
+              0
+            )
+      );
+      normalized.header.cartaoAv = Number(
+        normalized.header.cartaoAv ??
+        latestActivatedSnapshot?.store?.cartaoAv ??
+        normalized.pcjSnapshots?.total?.cartaoHoje ??
+        0
+      );
+      normalized.header.cartaoAvAcc = Number(
+        normalized.header.cartaoAvAcc ??
+        latestActivatedSnapshot?.store?.cartaoAvAcc ??
+        normalized.pcjSnapshots?.total?.cartaoAcc ??
+        0
+      );
+      normalized.header.cartaoAvGap = Number(
+        normalized.header.cartaoAvGap ??
+        latestActivatedSnapshot?.store?.cartaoGap ??
+        normalized.pcjSnapshots?.total?.cartaoGapHoje ??
+        0
+      );
+      normalized.header.cartaoAvGapAcc = Number(
+        normalized.header.cartaoAvGapAcc ??
+        latestActivatedSnapshot?.store?.cartaoGapAcc ??
+        normalized.pcjSnapshots?.total?.cartaoGapAcc ??
+        DAILY_RESULTS_PATCH?.store?.cartaoGapAcc ??
+        0
+      );
+      normalized.header.pcjDia = Number(
+        normalized.header.pcjDia ??
+        latestActivatedSnapshot?.store?.pcj ??
+        normalized.pcjSnapshots?.total?.pcjHoje ??
+        0
+      );
+      normalized.header.pcjAcc = Number(
+        normalized.header.pcjAcc ??
+        latestActivatedSnapshot?.store?.pcjAcc ??
+        normalized.pcjSnapshots?.total?.pcjAcc ??
+        0
+      );
+      normalized.header.pcjGap = Number(
+        normalized.header.pcjGap ??
+        latestActivatedSnapshot?.store?.pcjGap ??
+        normalized.pcjSnapshots?.total?.pcjGapHoje ??
+        0
+      );
+      normalized.header.pcjGapAcc = Number(
+        normalized.header.pcjGapAcc ??
+        latestActivatedSnapshot?.store?.pcjGapAcc ??
+        normalized.pcjSnapshots?.total?.pcjGapAcc ??
+        DAILY_RESULTS_PATCH?.store?.pcjGapAcc ??
+        0
+      );
+      normalized.header.tudoAvGap = Number(normalized.header.tudoAvGap ?? 0);
 
       const hadMonthlyStoreGoals =
         normalized.monthlyStoreGoals &&
@@ -4596,6 +5837,61 @@
       });
 
       normalized.header.pfMetaMensal = normalized.monthlyPfGoals[currentPfMonth];
+
+      const storePfFallback = currentStorePfSnapshotFallback(normalized,currentPfMonth);
+      normalized.header.storePfRealized = normalizeStorePfBreakdown(
+        normalized.header.storePfRealized || storePfFallback
+      );
+      const storePfRealizedTotal = storePfBreakdownTotal(normalized.header.storePfRealized);
+      if(storePfRealizedTotal > 0){
+        normalized.header.pfRealizado = storePfRealizedTotal;
+      }
+
+      const hadMonthlyStorePfGoals =
+        normalized.monthlyStorePfGoals &&
+        typeof normalized.monthlyStorePfGoals === "object" &&
+        !Array.isArray(normalized.monthlyStorePfGoals);
+
+      normalized.monthlyStorePfGoals = hadMonthlyStorePfGoals
+        ? normalized.monthlyStorePfGoals
+        : { [currentPfMonth]:normalizeStorePfBreakdown({}) };
+
+      if(!normalized.monthlyStorePfGoals[currentPfMonth]){
+        normalized.monthlyStorePfGoals[currentPfMonth] = normalizeStorePfBreakdown({});
+      }
+
+      Object.keys(normalized.monthlyStorePfGoals).forEach(month => {
+        normalized.monthlyStorePfGoals[month] = normalizeStorePfBreakdown(
+          normalized.monthlyStorePfGoals[month]
+        );
+      });
+
+      normalized.dailyStorePfGoals =
+        normalized.dailyStorePfGoals &&
+        typeof normalized.dailyStorePfGoals === "object" &&
+        !Array.isArray(normalized.dailyStorePfGoals)
+          ? normalized.dailyStorePfGoals
+          : {};
+
+      Object.keys(normalized.dailyStorePfGoals).forEach(date => {
+        normalized.dailyStorePfGoals[date] =
+          normalizeStorePfBreakdown(
+            normalized.dailyStorePfGoals[date]
+          );
+      });
+
+      if(!normalized.dailyStorePfGoals[today()]){
+        normalized.dailyStorePfGoals[today()] =
+          normalizeStorePfBreakdown({});
+      }
+
+      const currentStorePfGoalTotal = storePfBreakdownTotal(
+        normalized.monthlyStorePfGoals[currentPfMonth]
+      );
+      if(currentStorePfGoalTotal > 0){
+        normalized.monthlyPfGoals[currentPfMonth] = currentStorePfGoalTotal;
+        normalized.header.pfMetaMensal = currentStorePfGoalTotal;
+      }
 
       if(!normalized.calendarSnapshots[SIGA_SNAPSHOT_DATE]){
         normalized.calendarSnapshots[SIGA_SNAPSHOT_DATE] =
@@ -4877,8 +6173,12 @@
 
         normalized.header.cartaoAv = SIGA_SNAPSHOT.total.cartaoHoje;
         normalized.header.cartaoAvAcc = SIGA_SNAPSHOT.total.cartaoAcc;
+        normalized.header.cartaoAvGap = SIGA_SNAPSHOT.total.cartaoGapHoje;
+        normalized.header.cartaoAvGapAcc = SIGA_SNAPSHOT.total.cartaoGapAcc;
         normalized.header.pcjDia = SIGA_SNAPSHOT.total.pcjHoje;
         normalized.header.pcjAcc = SIGA_SNAPSHOT.total.pcjAcc;
+        normalized.header.pcjGap = SIGA_SNAPSHOT.total.pcjGapHoje;
+        normalized.header.pcjGapAcc = SIGA_SNAPSHOT.total.pcjGapAcc;
         normalized.header.tudoAvDia = SIGA_SNAPSHOT.total.tudoAvHoje;
         normalized.header.tudoAvAcc = SIGA_SNAPSHOT.total.tudoAvAcc;
 
@@ -4984,12 +6284,17 @@
           metaTotal:Number(patch.store.metaTotal || 0),
           cartaoAv:Number(patch.store.cartaoAv || 0),
           cartaoAvAcc:Number(patch.store.cartaoAvAcc || 0),
+          cartaoAvGap:Number(patch.store.cartaoGap || 0),
+          cartaoAvGapAcc:Number(patch.store.cartaoGapAcc || 0),
           pcjDia:Number(patch.store.pcj || 0),
           pcjAcc:Number(patch.store.pcjAcc || 0),
+          pcjGap:Number(patch.store.pcjGap || 0),
+          pcjGapAcc:Number(patch.store.pcjGapAcc || 0),
           tudoAvDia:Number(patch.store.tudoAv || 0),
           tudoAvAcc:Number(patch.store.tudoAvAcc || 0),
           ativadosDia:Number(patch.store.ativadosHoje || 0),
-          ativadosTotal:Number(patch.store.ativadosAcc || 0),
+          ativadosAcc:Number(patch.store.ativadosAcc || 0),
+          ativadosTotal:Number(patch.store.ativadosMetaAcc || 0),
           pfRealizado:Number(patch.store.pfAcc ?? patch.pf?.total?.pfAcc ?? 0),
           pfMetaMensal:Number(patch.store.pfMetaAcc || 0)
         };
@@ -5156,6 +6461,86 @@
         input.addEventListener("blur", () => formatCurrencyField(input));
         input.addEventListener("keydown", event => {
           if(event.key === "Enter") formatCurrencyField(input);
+        });
+      });
+    }
+
+    function parsePercentageValue(value){
+      if(typeof value === "number"){
+        return Number.isFinite(value) ? Math.min(Math.max(value,0),100) : 0;
+      }
+
+      let normalized = String(value || "")
+        .trim()
+        .replace(/%/g, "")
+        .replace(/\s/g, "");
+
+      if(normalized.includes(",")){
+        normalized = normalized.replace(/\./g, "").replace(",", ".");
+      }
+
+      normalized = normalized.replace(/[^\d.-]/g, "");
+      const parsed = Number(normalized);
+      return Number.isFinite(parsed) ? Math.min(Math.max(parsed,0),100) : 0;
+    }
+
+    function formatPercentageValue(value){
+      return `${parsePercentageValue(value).toLocaleString("pt-BR",{
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      })}%`;
+    }
+
+    function formatPercentageField(input){
+      if(!input) return;
+      input.value = formatPercentageValue(input.value);
+    }
+
+    function bindPercentageFields(){
+      $$(".percentage-input").forEach(input => {
+        if(input.dataset.percentageBound === "true") return;
+        input.dataset.percentageBound = "true";
+        input.addEventListener("focus", () => input.select());
+        input.addEventListener("blur", () => formatPercentageField(input));
+        input.addEventListener("keydown", event => {
+          if(event.key === "Enter") formatPercentageField(input);
+        });
+      });
+    }
+
+    function parseGapInteger(value){
+      if(typeof value === "number"){
+        return Number.isFinite(value) ? Math.trunc(value) : 0;
+      }
+
+      const raw = String(value || "").trim();
+      const negative = raw.includes("-");
+      const digits = raw.replace(/\D/g, "");
+      const parsed = digits ? Number(digits) : 0;
+
+      if(!Number.isFinite(parsed)) return 0;
+      return negative ? -parsed : parsed;
+    }
+
+    function formatGapInteger(value){
+      return parseGapInteger(value).toLocaleString("pt-BR",{
+        maximumFractionDigits:0
+      });
+    }
+
+    function formatGapIntegerField(input){
+      if(!input) return;
+      input.value = formatGapInteger(input.value);
+    }
+
+    function bindGapIntegerFields(){
+      $$(".gap-integer-input").forEach(input => {
+        if(input.dataset.gapBound === "true") return;
+        input.dataset.gapBound = "true";
+        input.addEventListener("focus", () => input.select());
+        input.addEventListener("blur", () => formatGapIntegerField(input));
+        input.addEventListener("keydown", event => {
+          if(event.key === "Enter") formatGapIntegerField(input);
         });
       });
     }
@@ -5888,63 +7273,502 @@
       return Number(ordered[ordered.length - 1]?.[key] || 0);
     }
 
-    function accumulatedPercentage(operator, refDate, key){
-      const snapshot = db.pcjSnapshots?.[operator] || SIGA_SNAPSHOT[operator] || {};
-      const snapshotKey = key === "pcj" ? "pcjAcc" : "tudoAvAcc";
-      const snapshotMonth = monthPrefix(db.snapshotDate || SIGA_SNAPSHOT_DATE);
-      const currentMonth = monthPrefix(refDate);
+    function isManualLaunchRecord(record){
+      const source = String(record?.source || "").trim().toUpperCase();
+      return !source.startsWith("SIGA");
+    }
 
-      const snapshotDate = db.snapshotDate || SIGA_SNAPSHOT_DATE;
-      const customRecords = recordsUntilReference(operator, refDate)
-        .filter(record =>
-          !String(record.source || "").startsWith("SIGA") &&
-          record.date > snapshotDate
+    function calendarSnapshotEntriesOnOrBefore(date){
+      return Object.entries(db.calendarSnapshots || {})
+        .filter(([snapshotDate]) => String(snapshotDate) <= String(date))
+        .sort(([dateA],[dateB]) => dateA.localeCompare(dateB));
+    }
+
+    function calendarExactSnapshot(date){
+      return db.calendarSnapshots?.[date] || null;
+    }
+
+    function calendarRawSnapshotForDate(date){
+      const exact = calendarExactSnapshot(date);
+      if(exact) return JSON.parse(JSON.stringify(exact));
+
+      if(date === (db.snapshotDate || SIGA_SNAPSHOT_DATE)){
+        return {
+          store:{
+            cartaoAv:Number(db.pcjSnapshots?.total?.cartaoHoje || 0),
+            cartaoAvAcc:Number(db.pcjSnapshots?.total?.cartaoAcc || 0),
+            cartaoGap:Number(db.pcjSnapshots?.total?.cartaoGapHoje || 0),
+            cartaoGapAcc:Number(db.pcjSnapshots?.total?.cartaoGapAcc || 0),
+            pcj:Number(db.pcjSnapshots?.total?.pcjHoje || 0),
+            pcjAcc:Number(db.pcjSnapshots?.total?.pcjAcc || 0),
+            pcjGap:Number(db.pcjSnapshots?.total?.pcjGapHoje || 0),
+            pcjGapAcc:Number(db.pcjSnapshots?.total?.pcjGapAcc || 0),
+            tudoAv:Number(db.pcjSnapshots?.total?.tudoAvHoje || 0),
+            tudoAvAcc:Number(db.pcjSnapshots?.total?.tudoAvAcc || 0)
+          },
+          operators:JSON.parse(JSON.stringify(db.pcjSnapshots || {})),
+          pf:DAILY_PF_HISTORY[date]
+            ? JSON.parse(JSON.stringify(DAILY_PF_HISTORY[date]))
+            : null,
+          source:"SISTEMA OFICIAL DA LOJA",
+          capturedAt:`${date}T23:59:59`
+        };
+      }
+
+      if(date === today()){
+        const realized = getStorePfRealized();
+        return {
+          store:{
+            vendaAtual:Number(db.header.vendaAtual || 0),
+            compromissoDia:Number(db.header.compromissoDia || 0),
+            vendaAcumulada:Number(db.header.vendaAcumulada || 0),
+            cartaoAv:Number(db.header.cartaoAv || 0),
+            cartaoAvAcc:Number(db.header.cartaoAvAcc || 0),
+            cartaoGap:Number(db.header.cartaoAvGap || 0),
+            cartaoGapAcc:Number(db.header.cartaoAvGapAcc || 0),
+            pcj:Number(db.header.pcjDia || 0),
+            pcjAcc:Number(db.header.pcjAcc || 0),
+            pcjGap:Number(db.header.pcjGap || 0),
+            pcjGapAcc:Number(db.header.pcjGapAcc || 0),
+            tudoAv:Number(db.header.tudoAvDia || 0),
+            tudoAvAcc:Number(db.header.tudoAvAcc || 0),
+            ativadosHoje:0,
+            ativadosAcc:Number(db.header.ativadosAcc || 0),
+            ativadosMetaAcc:Number(db.header.ativadosTotal || 0),
+            ativadosMeta:null,
+            pfAcc:Number(db.header.pfRealizado || 0),
+            pfMetaAcc:getStoreMonthlyPfGoal(monthPrefix(date))
+          },
+          operators:{},
+          pf:{
+            total:{
+              bolsaHoje:0,
+              bolsaAcc:Number(realized.bolsa || 0),
+              compraHoje:0,
+              compraAcc:Number(realized.compra || 0),
+              protecaoHoje:0,
+              protecaoAcc:Number(realized.protecao || 0),
+              sabadaoHoje:0,
+              sabadaoAcc:Number(realized.sabadao || 0),
+              smsHoje:0,
+              smsAcc:Number(realized.sms || 0),
+              vidaHoje:0,
+              vidaAcc:Number(realized.vida || 0),
+              pfHoje:0,
+              pfAcc:Number(db.header.pfRealizado || 0)
+            },
+            operators:{}
+          },
+          source:"AV RESULTADOS",
+          capturedAt:null
+        };
+      }
+
+      return null;
+    }
+
+    function calendarLatestValueEntry(date, paths){
+      const entries = calendarSnapshotEntriesOnOrBefore(date);
+
+      for(let index = entries.length - 1; index >= 0; index--){
+        const [snapshotDate,snapshot] = entries[index];
+
+        for(const path of paths){
+          const value = path.reduce((current,key) => current?.[key], snapshot);
+          if(value === null || value === undefined || value === "") continue;
+
+          const numeric = Number(value);
+          if(Number.isFinite(numeric)){
+            return {date:snapshotDate,snapshot,value:numeric};
+          }
+        }
+      }
+
+      return null;
+    }
+
+    function calendarRecordTimestamp(record){
+      const timestamp = Date.parse(record?.updatedAt || record?.createdAt || "");
+      return Number.isFinite(timestamp) ? timestamp : null;
+    }
+
+    function calendarSnapshotTimestamp(entry){
+      const timestamp = Date.parse(entry?.snapshot?.capturedAt || "");
+      return Number.isFinite(timestamp) ? timestamp : null;
+    }
+
+    function calendarManualRecordAfterBaseline(record, baselineEntry){
+      if(!isManualLaunchRecord(record)) return false;
+      if(!baselineEntry) return true;
+
+      const recordDate = String(record.date || "");
+      const baselineDate = String(baselineEntry.date || "");
+
+      if(recordDate > baselineDate) return true;
+      if(recordDate < baselineDate) return false;
+
+      /*
+        Os snapshots gerenciais não armazenam as linhas individuais
+        de Lançamentos. Portanto, um lançamento manual da mesma data
+        deve continuar sendo somado ao resultado diário e acumulado.
+      */
+      return true;
+    }
+
+    function calendarManualRecordsForDate(date, operator = null, baselineEntry = null){
+      return (db.records || []).filter(record =>
+        String(record.date) === String(date) &&
+        isManualLaunchRecord(record) &&
+        (
+          operator === null ||
+          normalizeOperator(record.operator) === normalizeOperator(operator)
+        ) &&
+        calendarManualRecordAfterBaseline(record, baselineEntry)
+      );
+    }
+
+    function calendarManualRecordsUntilDate(date, baselineEntry = null, operator = null){
+      const month = monthPrefix(date);
+
+      return (db.records || []).filter(record =>
+        String(record.date || "").startsWith(`${month}-`) &&
+        String(record.date) <= String(date) &&
+        isManualLaunchRecord(record) &&
+        (
+          operator === null ||
+          normalizeOperator(record.operator) === normalizeOperator(operator)
+        ) &&
+        calendarManualRecordAfterBaseline(record, baselineEntry)
+      );
+    }
+
+    function calendarSumRecords(records, key){
+      return records.reduce(
+        (total,record) => total + Number(record?.[key] || 0),
+        0
+      );
+    }
+
+    function calendarManualPfTotal(records){
+      return records.reduce(
+        (total,record) => total + pfTotal(record),
+        0
+      );
+    }
+
+    function calendarLatestManualValuesByOperator(records, key){
+      const grouped = new Map();
+
+      records.forEach(record => {
+        const operator = normalizeOperator(record.operator);
+        if(!grouped.has(operator)) grouped.set(operator,[]);
+        grouped.get(operator).push(record);
+      });
+
+      return [...grouped.values()].map(group => latestValue(group,key));
+    }
+
+    function calendarDailyManualPercentageAverage(records, key){
+      const values = calendarLatestManualValuesByOperator(records,key)
+        .filter(value => Number.isFinite(value));
+
+      return values.length
+        ? values.reduce((sum,value) => sum + value,0) / values.length
+        : null;
+    }
+
+    function calendarMonthlyManualPercentageAverages(records, key){
+      const byDate = groupRecordsByDate(records);
+
+      return [...byDate.values()]
+        .map(dayGroup => calendarDailyManualPercentageAverage(dayGroup,key))
+        .filter(value => Number.isFinite(value));
+    }
+
+    function calendarHeaderAccumulatedFallback(date, key){
+      if(monthPrefix(date) !== monthPrefix(today())) return null;
+      if(String(date) < String(db.snapshotDate || SIGA_SNAPSHOT_DATE)) return null;
+
+      if(key === "ativados") return Number(db.header?.ativadosAcc);
+      if(key === "pf") return Number(db.header?.pfRealizado);
+      if(STORE_PF_DEFINITIONS.some(item => item.key === key)){
+        return Number(getStorePfRealized()?.[key]);
+      }
+      if(key === "pcj") return Number(db.header?.pcjAcc);
+      if(key === "tudoAv") return Number(db.header?.tudoAvAcc);
+      return null;
+    }
+
+    function calendarAccumulatedCount(date, key){
+      const paths = key === "ativados"
+        ? [["store","ativadosAcc"]]
+        : key === "pf"
+          ? [["pf","total","pfAcc"],["operators","total","pfAcc"],["store","pfAcc"]]
+          : [["pf","total",`${key}Acc`],["operators","total",`${key}Acc`]];
+
+      let baselineEntry = calendarLatestValueEntry(date,paths);
+      let baseline = baselineEntry?.value ?? 0;
+
+      const headerFallback = calendarHeaderAccumulatedFallback(date,key);
+      if(Number.isFinite(headerFallback)){
+        baseline = headerFallback;
+        baselineEntry = {
+          date:db.snapshotDate || SIGA_SNAPSHOT_DATE,
+          snapshot:{source:"HEADER"}
+        };
+      }
+
+      const manualRecords = calendarManualRecordsUntilDate(
+        date,
+        baselineEntry
+      );
+
+      const addition = key === "ativados"
+        ? calendarSumRecords(manualRecords,"ativados")
+        : key === "pf"
+          ? calendarManualPfTotal(manualRecords)
+          : calendarSumRecords(manualRecords,key);
+
+      return Math.max(Number(baseline || 0) + Number(addition || 0),0);
+    }
+
+    function calendarDailyCount(date, key){
+      const exact = calendarExactSnapshot(date);
+      const baselineEntry = exact
+        ? {date,snapshot:exact}
+        : null;
+
+      const paths = key === "ativados"
+        ? [["store","ativadosHoje"]]
+        : key === "pf"
+          ? [["pf","total","pfHoje"],["operators","total","pfHoje"]]
+          : [["pf","total",`${key}Hoje`],["operators","total",`${key}Hoje`]];
+
+      let baseline = 0;
+      if(exact){
+        for(const path of paths){
+          const value = path.reduce((current,part) => current?.[part], exact);
+          if(value === null || value === undefined || value === "") continue;
+          const numeric = Number(value);
+          if(Number.isFinite(numeric)){
+            baseline = numeric;
+            break;
+          }
+        }
+      }
+
+      const manualRecords = calendarManualRecordsForDate(
+        date,
+        null,
+        baselineEntry
+      );
+
+      const addition = key === "ativados"
+        ? calendarSumRecords(manualRecords,"ativados")
+        : key === "pf"
+          ? calendarManualPfTotal(manualRecords)
+          : calendarSumRecords(manualRecords,key);
+
+      return Math.max(Number(baseline || 0) + Number(addition || 0),0);
+    }
+
+    function calendarStorePercentage(date, key, accumulated = false){
+      const storeKey = key === "pcj"
+        ? accumulated ? "pcjAcc" : "pcj"
+        : accumulated ? "tudoAvAcc" : "tudoAv";
+      const totalKey = key === "pcj"
+        ? accumulated ? "pcjAcc" : "pcjHoje"
+        : accumulated ? "tudoAvAcc" : "tudoAvHoje";
+
+      if(!accumulated){
+        const exact = calendarExactSnapshot(date);
+        const baselineEntry = exact ? {date,snapshot:exact} : null;
+        let baseline = null;
+
+        if(exact){
+          const candidates = [
+            exact?.store?.[storeKey],
+            exact?.operators?.total?.[totalKey]
+          ];
+          for(const candidate of candidates){
+            const numeric = Number(candidate);
+            if(Number.isFinite(numeric)){
+              baseline = numeric;
+              break;
+            }
+          }
+        }else if(date === today()){
+          const headerValue = Number(
+            key === "pcj" ? db.header?.pcjDia : db.header?.tudoAvDia
+          );
+          if(Number.isFinite(headerValue)) baseline = headerValue;
+        }
+
+        const manualRecords = calendarManualRecordsForDate(
+          date,
+          null,
+          baselineEntry
+        );
+        const manualAverage = calendarDailyManualPercentageAverage(
+          manualRecords,
+          key
         );
 
+        const values = [];
+        if(Number.isFinite(baseline)) values.push(baseline);
+        if(Number.isFinite(manualAverage)) values.push(manualAverage);
+
+        return values.length
+          ? values.reduce((sum,value) => sum + value,0) / values.length
+          : 0;
+      }
+
+      let baselineEntry = calendarLatestValueEntry(date,[
+        ["store",storeKey],
+        ["operators","total",totalKey]
+      ]);
+      let baseline = baselineEntry?.value ?? null;
+
+      const headerFallback = calendarHeaderAccumulatedFallback(date,key);
+      if(Number.isFinite(headerFallback)){
+        baseline = headerFallback;
+        baselineEntry = {
+          date:db.snapshotDate || SIGA_SNAPSHOT_DATE,
+          snapshot:{source:"HEADER"}
+        };
+      }
+
+      const manualRecords = calendarManualRecordsUntilDate(
+        date,
+        baselineEntry
+      );
+      const manualDailyAverages = calendarMonthlyManualPercentageAverages(
+        manualRecords,
+        key
+      );
+
+      const values = [];
+      if(Number.isFinite(baseline)) values.push(baseline);
+      values.push(...manualDailyAverages);
+
+      return values.length
+        ? values.reduce((sum,value) => sum + value,0) / values.length
+        : 0;
+    }
+
+    function calendarLatestOperatorBaseline(operator, date){
+      const entries = calendarSnapshotEntriesOnOrBefore(date);
+
+      for(let index = entries.length - 1; index >= 0; index--){
+        const [snapshotDate,snapshot] = entries[index];
+        const performance = snapshot?.operators?.[operator] || null;
+        const pf =
+          snapshot?.pf?.operators?.[operator] ||
+          (
+            performance && (
+              performance.pfAcc !== undefined ||
+              performance.bolsaAcc !== undefined
+            )
+              ? performance
+              : null
+          );
+
+        if(performance || pf){
+          const fallback =
+            String(snapshotDate) === String(db.snapshotDate || "") &&
+            db.pcjSnapshots?.[operator]
+              ? db.pcjSnapshots[operator]
+              : null;
+
+          return {
+            date:snapshotDate,
+            snapshot,
+            performance:{
+              ...(performance || {}),
+              ...(fallback || {})
+            },
+            pf:{
+              ...(pf || {}),
+              ...(fallback || {})
+            }
+          };
+        }
+      }
+
+      if(
+        String(db.snapshotDate || "") <= String(date) &&
+        db.pcjSnapshots?.[operator]
+      ){
+        return {
+          date:db.snapshotDate,
+          snapshot:{
+            source:"SISTEMA OFICIAL DA LOJA",
+            capturedAt:`${db.snapshotDate}T23:59:59`
+          },
+          performance:db.pcjSnapshots[operator],
+          pf:db.pcjSnapshots[operator]
+        };
+      }
+
+      return null;
+    }
+
+    function accumulatedPercentage(operator, refDate, key){
+      const baseline = calendarLatestOperatorBaseline(operator,refDate);
+      const snapshotKey = key === "pcj" ? "pcjAcc" : "tudoAvAcc";
+      const baselineValue = Number(baseline?.performance?.[snapshotKey]);
+      const baselineEntry = baseline
+        ? {date:baseline.date,snapshot:baseline.snapshot}
+        : null;
+
+      const customRecords = calendarManualRecordsUntilDate(
+        refDate,
+        baselineEntry,
+        operator
+      );
+
       const dailyValues = [...groupRecordsByDate(customRecords).values()]
-        .map(dayRecords => latestValue(dayRecords, key))
+        .map(dayGroup => latestValue(dayGroup,key))
         .filter(value => Number.isFinite(value));
 
       const values = [];
-
-      if(currentMonth === snapshotMonth && refDate >= snapshotDate){
-        values.push(Number(snapshot[snapshotKey] || 0));
-      }
-
+      if(Number.isFinite(baselineValue)) values.push(baselineValue);
       values.push(...dailyValues);
 
-      if(!values.length){
-        const allRecords = recordsUntilReference(operator, refDate);
-        const generatedValues = [...groupRecordsByDate(allRecords).values()]
-          .map(dayRecords => latestValue(dayRecords, key))
-          .filter(value => Number.isFinite(value));
-
-        return generatedValues.length
-          ? generatedValues.reduce((sum,value) => sum + value,0) / generatedValues.length
-          : 0;
-      }
+      if(!values.length) return 0;
 
       return values.reduce((sum,value) => sum + value,0) / values.length;
     }
 
     function todayPercentage(operator, refDate, key){
-      const dayRecords = db.records.filter(record =>
-        normalizeOperator(record.operator) === normalizeOperator(operator) &&
-        record.date === refDate
+      const exactSnapshot = calendarExactSnapshot(refDate);
+      const baselineEntry = exactSnapshot
+        ? {date:refDate,snapshot:exactSnapshot}
+        : null;
+
+      const customDay = calendarManualRecordsForDate(
+        refDate,
+        operator,
+        baselineEntry
       );
 
-      const customDay = dayRecords.filter(record =>
-        !String(record.source || "").startsWith("SIGA")
-      );
-
-      if(refDate === (db.snapshotDate || SIGA_SNAPSHOT_DATE)){
-        const snapshot = db.pcjSnapshots?.[operator] || SIGA_SNAPSHOT[operator] || {};
-        return Number(key === "pcj" ? snapshot.pcjHoje : snapshot.tudoAvHoje) || 0;
+      if(customDay.length){
+        return latestValue(customDay,key);
       }
 
-      if(customDay.length) return latestValue(customDay, key);
+      const official =
+        exactSnapshot?.operators?.[operator] ||
+        (
+          refDate === (db.snapshotDate || SIGA_SNAPSHOT_DATE)
+            ? db.pcjSnapshots?.[operator]
+            : null
+        );
 
-      return latestValue(dayRecords, key);
+      return Number(
+        key === "pcj"
+          ? official?.pcjHoje
+          : official?.tudoAvHoje
+      ) || 0;
     }
 
     function summarizeUser(op, refDate){
@@ -6074,6 +7898,8 @@
       $("#referenceDate").value = today();
       $("#calendarDate").value = today();
       $("#calendarDate").max = today();
+      $("#calendarGoalsDate").value = today();
+      $("#calendarGoalsDate").max = today();
       $("#calendarGoalsMonth").value = monthPrefix(today());
       $("#calendarGoalsMonth").max = monthPrefix(today());
       buildRecordOperatorOptions();
@@ -6335,6 +8161,160 @@
       updateDistributionSummary();
     }
 
+    function selectedDistributionType(){
+      return $("#distributionTypeSelect")?.value === "loja" ? "loja" : "assessor";
+    }
+
+    function selectedStoreGoalSection(){
+      const value = $("#storeGoalSectionSelect")?.value;
+      return ["venda","pcj","pf"].includes(value) ? value : "venda";
+    }
+
+    function renderStoreGoalSection(){
+      const mode = selectedStoreGoalSection();
+      const panels = {
+        venda:$("#storeGoalSalesPanel"),
+        pcj:$("#storeGoalPcjPanel"),
+        pf:$("#storeGoalPfPanel")
+      };
+      Object.entries(panels).forEach(([key,panel]) => {
+        panel?.classList.toggle("hidden",key !== mode);
+      });
+
+      const hint = $("#storeGoalSectionHint");
+      if(hint){
+        hint.textContent = mode === "venda"
+          ? "Resultados de venda, ativados e metas mensais da unidade."
+          : mode === "pcj"
+            ? "Percentuais e GAPs de Cartão AV, PCJ e Tudo AV."
+            : "Metas de Produtos Financeiros separadas entre Hoje e Mês.";
+      }
+
+      if(mode === "pf"){
+        renderStorePfPeriod();
+      }
+    }
+
+    function selectedStorePfPeriod(){
+      return $("#storePfPeriodSelect")?.value === "mes"
+        ? "mes"
+        : "hoje";
+    }
+
+    function renderStorePfPeriod(){
+      const period = selectedStorePfPeriod();
+
+      $("#storePfTodayPanel")?.classList.toggle(
+        "hidden",
+        period !== "hoje"
+      );
+      $("#storePfMonthPanel")?.classList.toggle(
+        "hidden",
+        period !== "mes"
+      );
+
+      const badge = $("#storePfPeriodBadge");
+      if(badge){
+        badge.textContent = period === "hoje"
+          ? "META DE HOJE"
+          : `META DE ${goalMonthLabel(
+              monthPrefix(today())
+            ).toUpperCase()}`;
+      }
+
+      if(period === "hoje"){
+        updateStorePfTodaySummary();
+      }else{
+        updateStorePfSummary();
+      }
+    }
+
+    function storePfTodayFormBreakdown(){
+      return normalizeStorePfBreakdown({
+        bolsa:Number($("#cfgPfBolsaMetaHoje")?.value || 0),
+        compra:Number($("#cfgPfCompraMetaHoje")?.value || 0),
+        protecao:Number($("#cfgPfProtecaoMetaHoje")?.value || 0),
+        sabadao:Number($("#cfgPfSabadaoMetaHoje")?.value || 0),
+        sms:Number($("#cfgPfSmsMetaHoje")?.value || 0),
+        vida:Number($("#cfgPfVidaMetaHoje")?.value || 0)
+      });
+    }
+
+    function updateStorePfTodaySummary(){
+      const goal = storePfTodayFormBreakdown();
+      const total = storePfBreakdownTotal(goal);
+      const dateLabel = calendarLongDate(today());
+
+      if($("#storePfTodayGoalTotal")){
+        $("#storePfTodayGoalTotal").textContent =
+          total.toLocaleString("pt-BR");
+      }
+      if($("#storePfTodayDateLabel")){
+        $("#storePfTodayDateLabel").textContent = dateLabel;
+      }
+      if($("#storePfTodaySummaryDate")){
+        $("#storePfTodaySummaryDate").textContent =
+          new Date(`${today()}T12:00:00`).toLocaleDateString(
+            "pt-BR"
+          );
+      }
+    }
+
+    function storePfFormBreakdown(kind = "realizado"){
+      const suffix = kind === "meta" ? "Meta" : "Realizado";
+      return normalizeStorePfBreakdown({
+        bolsa:Number($("#cfgPfBolsa" + suffix)?.value || 0),
+        compra:Number($("#cfgPfCompra" + suffix)?.value || 0),
+        protecao:Number($("#cfgPfProtecao" + suffix)?.value || 0),
+        sabadao:Number($("#cfgPfSabadao" + suffix)?.value || 0),
+        sms:Number($("#cfgPfSms" + suffix)?.value || 0),
+        vida:Number($("#cfgPfVida" + suffix)?.value || 0)
+      });
+    }
+
+    function updateStorePfSummary(){
+      const realized = storePfFormBreakdown("realizado");
+      const goals = storePfFormBreakdown("meta");
+      const realizedTotal = storePfBreakdownTotal(realized);
+      const goalTotal = storePfBreakdownTotal(goals);
+      const remaining = Math.max(goalTotal - realizedTotal,0);
+      const progress = goalTotal > 0 ? (realizedTotal / goalTotal) * 100 : 0;
+
+      if($("#cfgPfRealizado")) $("#cfgPfRealizado").value = realizedTotal;
+      if($("#cfgPfMetaMensal")) $("#cfgPfMetaMensal").value = goalTotal;
+      if($("#storePfRealizedTotal")) $("#storePfRealizedTotal").textContent = realizedTotal.toLocaleString("pt-BR");
+      if($("#storePfGoalTotal")) $("#storePfGoalTotal").textContent = goalTotal.toLocaleString("pt-BR");
+      if($("#storePfRemainingTotal")) $("#storePfRemainingTotal").textContent = remaining.toLocaleString("pt-BR");
+      if($("#storePfProgressTotal")) $("#storePfProgressTotal").textContent = pct(progress);
+    }
+
+    function renderDistributionType(){
+      const select = $("#distributionTypeSelect");
+      const assessorPanel = $("#distributionAssessorPanel");
+      const storePanel = $("#distributionStorePanel");
+      const hint = $("#distributionTypeHint");
+      if(!select || !assessorPanel || !storePanel) return;
+
+      const mode = selectedDistributionType();
+      const showingStore = mode === "loja";
+
+      assessorPanel.classList.toggle("hidden", showingStore);
+      storePanel.classList.toggle("hidden", !showingStore);
+
+      if(hint){
+        hint.textContent = showingStore
+          ? "Indicadores, resultados e metas mensais gerais da loja."
+          : "Metas mensais individuais por operador.";
+      }
+
+      if(showingStore){
+        renderConfig();
+        renderStoreGoalSection();
+      }else{
+        renderGoalDistribution();
+      }
+    }
+
     function renderGoalDistribution(){
       const select = $("#distributionOperator");
       if(!select || !currentUser) return;
@@ -6404,7 +8384,10 @@
     }
 
     function getStoreMonthlyPfGoal(month = storeGoalMonthKey()){
-      return Math.max(Number(db.monthlyPfGoals?.[month] || 0), 0);
+      const breakdownTotal = storePfBreakdownTotal(getStoreMonthlyPfBreakdownGoal(month));
+      return breakdownTotal > 0
+        ? breakdownTotal
+        : Math.max(Number(db.monthlyPfGoals?.[month] || 0), 0);
     }
 
     function canEditStoreMonthlyGoal(){
@@ -6430,64 +8413,110 @@
 
     function captureHeaderCalendarSnapshot(date = today()){
       const snapshot = ensureCalendarSnapshot(date);
+      const month = monthPrefix(date);
+      const pfRealized = getStorePfRealized();
+      const pfGoals = getStoreMonthlyPfBreakdownGoal(month);
+      const pfTodayGoals =
+        getStoreDailyPfBreakdownGoal(date);
+      const pfRealizedTotal =
+        storePfBreakdownTotal(pfRealized);
+      const pfGoalTotal =
+        storePfBreakdownTotal(pfGoals);
+      const pfTodayGoalTotal =
+        storePfBreakdownTotal(pfTodayGoals);
+
       snapshot.store = {
         ...snapshot.store,
         vendaAtual:Number(db.header.vendaAtual || 0),
         compromissoDia:Number(db.header.compromissoDia || 0),
+        vendaAcumulada:Number(db.header.vendaAcumulada || 0),
         cartaoAv:Number(db.header.cartaoAv || 0),
+        cartaoAvAcc:Number(db.header.cartaoAvAcc || 0),
+        cartaoGap:Number(db.header.cartaoAvGap || 0),
+        cartaoGapAcc:Number(db.header.cartaoAvGapAcc || 0),
         pcj:Number(db.header.pcjDia || 0),
+        pcjAcc:Number(db.header.pcjAcc || 0),
+        pcjGap:Number(db.header.pcjGap || 0),
+        pcjGapAcc:Number(db.header.pcjGapAcc || 0),
         tudoAv:Number(db.header.tudoAvDia || 0),
+        tudoAvGap:Number(db.header.tudoAvGap || 0),
         ativadosHoje:Number(db.header.ativadosDia || 0),
+        ativadosAcc:Number(db.header.ativadosAcc || 0),
+        ativadosMetaAcc:Number(db.header.ativadosTotal || 0),
         ativadosMeta:null,
-        pfAcc:Number(db.header.pfRealizado || 0),
-        pfMetaAcc:getStoreMonthlyPfGoal(monthPrefix(date)),
-        metaTotal:getStoreMonthlyGoal(monthPrefix(date))
+        pfAcc:pfRealizedTotal,
+        pfMetaHoje:pfTodayGoalTotal,
+        pfMetaAcc:pfGoalTotal || getStoreMonthlyPfGoal(month),
+        metaTotal:getStoreMonthlyGoal(month)
+      };
+
+      snapshot.pf = snapshot.pf || {};
+      snapshot.pf.goalsHoje = {
+        ...pfTodayGoals,
+        pf:pfTodayGoalTotal
+      };
+      snapshot.pf.total = {
+        ...(snapshot.pf.total || {}),
+        bolsaAcc:pfRealized.bolsa,
+        compraAcc:pfRealized.compra,
+        protecaoAcc:pfRealized.protecao,
+        sabadaoAcc:pfRealized.sabadao,
+        smsAcc:pfRealized.sms,
+        vidaAcc:pfRealized.vida,
+        pfAcc:pfRealizedTotal
       };
       snapshot.source = "AV RESULTADOS";
       snapshot.capturedAt = new Date().toISOString();
     }
 
     function calendarSnapshotForDate(date){
-      if(db.calendarSnapshots?.[date]){
-        return db.calendarSnapshots[date];
-      }
+      const raw = calendarRawSnapshotForDate(date);
+      const manualDay = calendarManualRecordsForDate(date);
 
-      if(date === (db.snapshotDate || SIGA_SNAPSHOT_DATE)){
-        return {
-          store:{
-            cartaoAv:Number(db.pcjSnapshots?.total?.cartaoHoje || 0),
-            cartaoGap:Number(db.pcjSnapshots?.total?.cartaoGapHoje || 0),
-            pcj:Number(db.pcjSnapshots?.total?.pcjHoje || 0),
-            pcjGap:Number(db.pcjSnapshots?.total?.pcjGapHoje || 0),
-            tudoAv:Number(db.pcjSnapshots?.total?.tudoAvHoje || 0)
-          },
-          operators:db.pcjSnapshots || {},
-          pf:DAILY_PF_HISTORY[date]
-            ? JSON.parse(JSON.stringify(DAILY_PF_HISTORY[date]))
-            : null,
-          source:"SISTEMA OFICIAL DA LOJA"
-        };
-      }
+      if(!raw && !manualDay.length) return null;
 
-      if(date === today()){
-        return {
-          store:{
-            vendaAtual:Number(db.header.vendaAtual || 0),
-            compromissoDia:Number(db.header.compromissoDia || 0),
-            cartaoAv:Number(db.header.cartaoAv || 0),
-            pcj:Number(db.header.pcjDia || 0),
-            tudoAv:Number(db.header.tudoAvDia || 0),
-            ativadosHoje:Number(db.header.ativadosDia || 0),
-            ativadosMeta:null,
-            pfAcc:Number(db.header.pfRealizado || 0),
-            pfMetaAcc:getStoreMonthlyPfGoal(monthPrefix(date))
-          },
-          operators:{},
-          source:"AV RESULTADOS"
-        };
-      }
+      const snapshot = raw || {
+        store:{},
+        operators:{},
+        pf:{total:{},operators:{}},
+        source:"LANÇAMENTOS",
+        capturedAt:null
+      };
 
-      return null;
+      snapshot.store = snapshot.store || {};
+      snapshot.operators = snapshot.operators || {};
+      snapshot.pf = snapshot.pf || {};
+      snapshot.pf.total = snapshot.pf.total || {};
+      snapshot.pf.operators = snapshot.pf.operators || {};
+
+      snapshot.store.ativadosHoje = calendarDailyCount(date,"ativados");
+      snapshot.store.ativadosAcc = calendarAccumulatedCount(date,"ativados");
+
+      STORE_PF_DEFINITIONS.forEach(item => {
+        snapshot.pf.total[`${item.key}Hoje`] =
+          calendarDailyCount(date,item.key);
+        snapshot.pf.total[`${item.key}Acc`] =
+          calendarAccumulatedCount(date,item.key);
+      });
+
+      snapshot.pf.total.pfHoje = calendarDailyCount(date,"pf");
+      snapshot.pf.total.pfAcc = calendarAccumulatedCount(date,"pf");
+      snapshot.store.pfAcc = snapshot.pf.total.pfAcc;
+
+      snapshot.store.pcj = calendarStorePercentage(date,"pcj",false);
+      snapshot.store.pcjAcc = calendarStorePercentage(date,"pcj",true);
+      snapshot.store.tudoAv = calendarStorePercentage(date,"tudoAv",false);
+      snapshot.store.tudoAvAcc = calendarStorePercentage(
+        date,
+        "tudoAv",
+        true
+      );
+
+      snapshot.source = manualDay.length
+        ? `${snapshot.source || "AV RESULTADOS"} + LANÇAMENTOS`
+        : snapshot.source;
+
+      return snapshot;
     }
 
     function calendarDayRecords(operator, date){
@@ -6499,120 +8528,124 @@
     }
 
     function calendarOperatorSummary(operator, date, calendarSnapshot){
-      const records = calendarDayRecords(operator, date);
-      const monthRecordsForOperator = db.records.filter(record =>
-        normalizeOperator(record.operator) === normalizeOperator(operator) &&
-        record.date.startsWith(monthPrefix(date)) &&
-        record.date <= date &&
-        !String(record.source || "").startsWith("SIGA")
+      const exactSnapshot = calendarExactSnapshot(date);
+      const exactEntry = exactSnapshot
+        ? {date,snapshot:exactSnapshot}
+        : null;
+      const baseline = calendarLatestOperatorBaseline(operator,date);
+
+      const manualDay = calendarManualRecordsForDate(
+        date,
+        operator,
+        exactEntry
+      );
+      const manualAcc = calendarManualRecordsUntilDate(
+        date,
+        baseline
+          ? {date:baseline.date,snapshot:baseline.snapshot}
+          : null,
+        operator
       );
 
-      const official =
-        calendarSnapshot?.operators?.[operator] ||
+      const officialToday =
+        exactSnapshot?.operators?.[operator] ||
         (
           date === (db.snapshotDate || SIGA_SNAPSHOT_DATE)
             ? db.pcjSnapshots?.[operator]
             : null
-        );
-      const pfOfficial = calendarSnapshot?.pf?.operators?.[operator] || null;
+        ) ||
+        null;
 
-      const sum = (list, key) =>
-        list.reduce(
-          (total, record) => total + Number(record[key] || 0),
-          0
+      const pfTodayOfficial =
+        exactSnapshot?.pf?.operators?.[operator] ||
+        (
+          officialToday && (
+            officialToday.pfHoje !== undefined ||
+            officialToday.bolsaHoje !== undefined
+          )
+            ? officialToday
+            : null
         );
 
-      const officialValue = (source, key) => {
+      const pfAccOfficial = baseline?.pf || null;
+      const performanceAccOfficial = baseline?.performance || null;
+
+      const officialValue = (source,key) => {
         const value = source?.[key];
-        if(value === null || value === undefined || value === "") return null;
+        if(value === null || value === undefined || value === "") return 0;
         const numeric = Number(value);
-        return Number.isFinite(numeric) ? numeric : null;
+        return Number.isFinite(numeric) ? numeric : 0;
       };
 
-      const hasRecords = records.length > 0;
-      const hasOfficial = Boolean(official);
-      const hasPfOfficial = Boolean(pfOfficial);
+      const todayCount = (recordKey,officialKey) =>
+        officialValue(pfTodayOfficial,officialKey) +
+        calendarSumRecords(manualDay,recordKey);
 
-      const manualToday = key => hasRecords ? sum(records, key) : null;
-      const manualAcc = key =>
-        monthRecordsForOperator.length
-          ? sum(monthRecordsForOperator, key)
-          : null;
+      const accumulatedCount = (recordKey,officialKey) =>
+        officialValue(pfAccOfficial,officialKey) +
+        calendarSumRecords(manualAcc,recordKey);
+
+      const pfHoje =
+        officialValue(pfTodayOfficial,"pfHoje") +
+        calendarManualPfTotal(manualDay);
+      const pfAcc =
+        officialValue(pfAccOfficial,"pfAcc") +
+        calendarManualPfTotal(manualAcc);
+
+      const pcjHoje = todayPercentage(operator,date,"pcj");
+      const pcjAcc = accumulatedPercentage(operator,date,"pcj");
+      const tudoAvHoje = todayPercentage(operator,date,"tudoAv");
+      const tudoAvAcc = accumulatedPercentage(operator,date,"tudoAv");
+
+      const hasOfficialToday = Boolean(
+        officialToday ||
+        pfTodayOfficial
+      );
+      const hasManualToday = manualDay.length > 0;
 
       return {
-        hasData:hasRecords || hasOfficial || hasPfOfficial,
-        recordCount:records.length,
-        ativados:hasRecords ? sum(records, "ativados") : null,
+        hasData:hasOfficialToday || hasManualToday,
+        recordCount:manualDay.length,
+        ativados:calendarSumRecords(manualDay,"ativados"),
 
-        bolsaHoje:hasPfOfficial
-          ? officialValue(pfOfficial, "bolsaHoje")
-          : manualToday("bolsa"),
-        bolsaAcc:hasPfOfficial
-          ? officialValue(pfOfficial, "bolsaAcc")
-          : manualAcc("bolsa"),
+        bolsaHoje:todayCount("bolsa","bolsaHoje"),
+        bolsaAcc:accumulatedCount("bolsa","bolsaAcc"),
 
-        compraHoje:hasPfOfficial
-          ? officialValue(pfOfficial, "compraHoje")
-          : manualToday("compra"),
-        compraAcc:hasPfOfficial
-          ? officialValue(pfOfficial, "compraAcc")
-          : manualAcc("compra"),
+        compraHoje:todayCount("compra","compraHoje"),
+        compraAcc:accumulatedCount("compra","compraAcc"),
 
-        protecaoHoje:hasPfOfficial
-          ? officialValue(pfOfficial, "protecaoHoje")
-          : manualToday("protecao"),
-        protecaoAcc:hasPfOfficial
-          ? officialValue(pfOfficial, "protecaoAcc")
-          : manualAcc("protecao"),
+        protecaoHoje:todayCount("protecao","protecaoHoje"),
+        protecaoAcc:accumulatedCount("protecao","protecaoAcc"),
 
-        sabadaoHoje:hasPfOfficial
-          ? officialValue(pfOfficial, "sabadaoHoje")
-          : manualToday("sabadao"),
-        sabadaoAcc:hasPfOfficial
-          ? officialValue(pfOfficial, "sabadaoAcc")
-          : manualAcc("sabadao"),
+        sabadaoHoje:todayCount("sabadao","sabadaoHoje"),
+        sabadaoAcc:accumulatedCount("sabadao","sabadaoAcc"),
 
-        smsHoje:hasPfOfficial
-          ? officialValue(pfOfficial, "smsHoje")
-          : manualToday("sms"),
-        smsAcc:hasPfOfficial
-          ? officialValue(pfOfficial, "smsAcc")
-          : manualAcc("sms"),
+        smsHoje:todayCount("sms","smsHoje"),
+        smsAcc:accumulatedCount("sms","smsAcc"),
 
-        vidaHoje:hasPfOfficial
-          ? officialValue(pfOfficial, "vidaHoje")
-          : manualToday("vida"),
-        vidaAcc:hasPfOfficial
-          ? officialValue(pfOfficial, "vidaAcc")
-          : manualAcc("vida"),
+        vidaHoje:todayCount("vida","vidaHoje"),
+        vidaAcc:accumulatedCount("vida","vidaAcc"),
 
-        pfHoje:hasPfOfficial
-          ? officialValue(pfOfficial, "pfHoje")
-          : hasRecords
-            ? records.reduce((total, record) => total + pfTotal(record), 0)
-            : null,
-        pfAcc:hasPfOfficial
-          ? officialValue(pfOfficial, "pfAcc")
-          : monthRecordsForOperator.length
-            ? monthRecordsForOperator.reduce(
-                (total, record) => total + pfTotal(record),
-                0
-              )
-            : null,
+        pfHoje,
+        pfAcc,
 
-        cartao:hasOfficial ? officialValue(official, "cartaoHoje") : null,
-        cartaoGap:hasOfficial ? officialValue(official, "cartaoGapHoje") : null,
-        pcj:hasOfficial
-          ? officialValue(official, "pcjHoje")
-          : hasRecords
-            ? latestValue(records, "pcj")
-            : null,
-        pcjGap:hasOfficial ? officialValue(official, "pcjGapHoje") : null,
-        tudoAv:hasOfficial
-          ? officialValue(official, "tudoAvHoje")
-          : hasRecords
-            ? latestValue(records, "tudoAv")
-            : null
+        cartao:officialValue(officialToday,"cartaoHoje"),
+        cartaoGap:officialValue(officialToday,"cartaoGapHoje"),
+        pcj:pcjHoje,
+        pcjGap:officialValue(officialToday,"pcjGapHoje"),
+        tudoAv:tudoAvHoje,
+
+        cartaoAcc:officialValue(performanceAccOfficial,"cartaoAcc"),
+        cartaoGapAcc:officialValue(
+          performanceAccOfficial,
+          "cartaoGapAcc"
+        ),
+        pcjAcc,
+        pcjGapAcc:officialValue(
+          performanceAccOfficial,
+          "pcjGapAcc"
+        ),
+        tudoAvAcc
       };
     }
 
@@ -6930,6 +8963,31 @@
 
 
     let calendarGoalsMetricsCache = [];
+    let calendarGoalsMode = "day";
+
+    const CALENDAR_GOAL_PF_TITLES = new Set([
+      "PF Total",
+      "PF Total do dia",
+      "Bolsa Protegida",
+      "Compra da Sorte",
+      "Proteção da Sorte",
+      "Sabadão",
+      "SMS",
+      "Vida+"
+    ]);
+
+    function calendarGoalIsPfMetric(metric){
+      return CALENDAR_GOAL_PF_TITLES.has(String(metric?.title || ""));
+    }
+
+    function calendarGoalsDateKey(){
+      const input = $("#calendarGoalsDate");
+      const currentDate = today();
+      if(!input) return currentDate;
+      input.max = currentDate;
+      if(!input.value || input.value > currentDate) input.value = currentDate;
+      return input.value;
+    }
 
     function calendarGoalsMonthKey(){
       const input = $("#calendarGoalsMonth");
@@ -6968,6 +9026,7 @@
         ativados:0,
         bolsa:0,
         compra:0,
+        protecao:0,
         sabadao:0,
         sms:0,
         vida:0,
@@ -6978,6 +9037,7 @@
         totals.ativados += Math.max(Number(distribution?.ativados || 0), 0);
         totals.bolsa += Math.max(Number(distribution?.bolsa || 0), 0);
         totals.compra += Math.max(Number(distribution?.compra || 0), 0);
+        totals.protecao += Math.max(Number(distribution?.protecao || 0), 0);
         totals.sabadao += Math.max(Number(distribution?.sabadao || 0), 0);
         totals.sms += Math.max(Number(distribution?.sms || 0), 0);
         totals.vida += Math.max(Number(distribution?.vida || 0), 0);
@@ -6985,7 +9045,7 @@
         if(pcjGoal > 0) totals.pcjValues.push(pcjGoal);
       });
 
-      totals.pf = totals.bolsa + totals.compra + totals.sabadao + totals.sms + totals.vida;
+      totals.pf = totals.bolsa + totals.compra + totals.protecao + totals.sabadao + totals.sms + totals.vida;
       totals.pcj = totals.pcjValues.length
         ? totals.pcjValues.reduce((sum,value) => sum + value, 0) / totals.pcjValues.length
         : 0;
@@ -7003,30 +9063,45 @@
       }, 0);
     }
 
+    function calendarGoalReferenceDate(month){
+      const limit = month === monthPrefix(today())
+        ? today()
+        : `${month}-31`;
+
+      const dates = [
+        ...Object.keys(db.calendarSnapshots || {}),
+        ...(db.records || []).map(record => String(record.date || ""))
+      ]
+        .filter(date =>
+          String(date).startsWith(`${month}-`) &&
+          String(date) <= String(limit)
+        )
+        .sort();
+
+      return dates.length
+        ? dates[dates.length - 1]
+        : month === monthPrefix(today())
+          ? today()
+          : `${month}-01`;
+    }
+
     function calendarGoalPfActual(month, key, entries){
-      if(
-        key === "pf" &&
-        month === monthPrefix(today()) &&
-        Number.isFinite(Number(db.header?.pfRealizado))
-      ){
-        return Math.max(Number(db.header.pfRealizado || 0),0);
-      }
-
+      const referenceDate = calendarGoalReferenceDate(month);
+      const snapshot = calendarSnapshotForDate(referenceDate);
       const accKey = key === "pf" ? "pfAcc" : `${key}Acc`;
-      const paths = [
-        ["pf","total",accKey],
-        ["operators","total",accKey]
-      ];
-      let value = calendarLatestNumeric(entries, paths);
 
-      if(value === null && String(db.snapshotDate || "").startsWith(month)){
-        const snapshotValue = db.pcjSnapshots?.total?.[accKey];
-        if(snapshotValue !== null && snapshotValue !== undefined && Number.isFinite(Number(snapshotValue))){
-          value = Number(snapshotValue);
-        }
+      const snapshotValue =
+        snapshot?.pf?.total?.[accKey] ??
+        snapshot?.operators?.total?.[accKey];
+
+      if(
+        snapshotValue !== null &&
+        snapshotValue !== undefined &&
+        Number.isFinite(Number(snapshotValue))
+      ){
+        return Math.max(Number(snapshotValue),0);
       }
 
-      if(value !== null) return Math.max(value,0);
       return Math.max(calendarGoalRecordTotal(month,key),0);
     }
 
@@ -7048,40 +9123,43 @@
     }
 
     function calendarGoalActivatedActual(month, entries){
-      const accumulated = calendarLatestNumeric(entries, [
-        ["store","ativadosAcc"]
-      ]);
-      if(accumulated !== null) return Math.max(accumulated,0);
+      const referenceDate = calendarGoalReferenceDate(month);
+      const snapshot = calendarSnapshotForDate(referenceDate);
+      const accumulated = Number(snapshot?.store?.ativadosAcc);
 
-      if(month === monthPrefix(today()) && Number.isFinite(Number(db.header?.ativadosTotal))){
-        return Math.max(Number(db.header.ativadosTotal || 0),0);
+      if(Number.isFinite(accumulated)){
+        return Math.max(accumulated,0);
       }
 
-      return entries.reduce((sum,[,snapshot]) => {
-        const value = Number(snapshot?.store?.ativadosHoje);
-        return sum + (Number.isFinite(value) ? value : 0);
-      },0);
+      return Math.max(
+        calendarGoalRecordTotal(month,"ativados"),
+        0
+      );
     }
 
     function calendarGoalPercentageActual(month, entries, storeKey, totalKey, headerKey){
-      let value = calendarLatestNumeric(entries, [
-        ["store",storeKey],
-        ["operators","total",totalKey]
-      ]);
+      const referenceDate = calendarGoalReferenceDate(month);
+      const snapshot = calendarSnapshotForDate(referenceDate);
 
-      if(value === null && String(db.snapshotDate || "").startsWith(month)){
-        const snapshotValue = db.pcjSnapshots?.total?.[totalKey];
-        if(snapshotValue !== null && snapshotValue !== undefined && Number.isFinite(Number(snapshotValue))){
-          value = Number(snapshotValue);
-        }
+      const dynamicValue =
+        snapshot?.store?.[storeKey] ??
+        snapshot?.operators?.total?.[totalKey];
+
+      if(
+        dynamicValue !== null &&
+        dynamicValue !== undefined &&
+        Number.isFinite(Number(dynamicValue))
+      ){
+        return Math.max(Number(dynamicValue),0);
       }
 
-      if(value === null && month === monthPrefix(today())){
-        const headerValue = Number(db.header?.[headerKey]);
-        if(Number.isFinite(headerValue)) value = headerValue;
-      }
+      const headerValue = month === monthPrefix(today())
+        ? Number(db.header?.[headerKey])
+        : null;
 
-      return Math.max(Number(value || 0),0);
+      return Number.isFinite(headerValue)
+        ? Math.max(headerValue,0)
+        : 0;
     }
 
     function calendarGoalMetric(title, subtitle, actual, target, format = "integer"){
@@ -7091,9 +9169,10 @@
       return {title,subtitle,actual:safeActual,target:safeTarget,format,percentage};
     }
 
-    function calendarGoalMetrics(month = calendarGoalsMonthKey()){
+    function calendarGoalAccumulatedMetrics(month = calendarGoalsMonthKey()){
       const entries = calendarMonthSnapshots(month);
       const goals = calendarGoalDistributionTotals(month);
+      const storePfGoals = getStoreMonthlyPfBreakdownGoal(month);
 
       const latestAtivadosTarget = calendarLatestNumeric(entries, [
         ["store","ativadosMetaAcc"]
@@ -7102,7 +9181,14 @@
         ["store","pfMetaAcc"]
       ]);
 
-      const ativadosTarget = goals.ativados > 0 ? goals.ativados : Math.max(Number(latestAtivadosTarget || 0),0);
+      const configuredActivatedTarget = month === monthPrefix(today())
+        ? Math.max(Number(db.header?.ativadosTotal || 0),0)
+        : 0;
+      const ativadosTarget = configuredActivatedTarget > 0
+        ? configuredActivatedTarget
+        : goals.ativados > 0
+          ? goals.ativados
+          : Math.max(Number(latestAtivadosTarget || 0),0);
       const configuredPfTarget = getStoreMonthlyPfGoal(month);
       const pfTarget = configuredPfTarget > 0
         ? configuredPfTarget
@@ -7137,31 +9223,37 @@
           "Bolsa Protegida",
           "Meta distribuída à equipe",
           calendarGoalPfActual(month,"bolsa",entries),
-          goals.bolsa
+          storePfGoals.bolsa > 0 ? storePfGoals.bolsa : goals.bolsa
         ),
         calendarGoalMetric(
           "Compra da Sorte",
           "Meta distribuída à equipe",
           calendarGoalPfActual(month,"compra",entries),
-          goals.compra
+          storePfGoals.compra > 0 ? storePfGoals.compra : goals.compra
+        ),
+        calendarGoalMetric(
+          "Proteção da Sorte",
+          "Meta mensal configurada da loja",
+          calendarGoalPfActual(month,"protecao",entries),
+          storePfGoals.protecao > 0 ? storePfGoals.protecao : goals.protecao
         ),
         calendarGoalMetric(
           "Sabadão",
           "Meta distribuída à equipe",
           calendarGoalPfActual(month,"sabadao",entries),
-          goals.sabadao
+          storePfGoals.sabadao > 0 ? storePfGoals.sabadao : goals.sabadao
         ),
         calendarGoalMetric(
           "SMS",
           "Meta distribuída à equipe",
           calendarGoalPfActual(month,"sms",entries),
-          goals.sms
+          storePfGoals.sms > 0 ? storePfGoals.sms : goals.sms
         ),
         calendarGoalMetric(
           "Vida+",
           "Meta distribuída à equipe",
           calendarGoalPfActual(month,"vida",entries),
-          goals.vida
+          storePfGoals.vida > 0 ? storePfGoals.vida : goals.vida
         ),
         calendarGoalMetric(
           "Cartão AV",
@@ -7187,10 +9279,302 @@
       ];
     }
 
+    function calendarGoalDailySnapshotValue(snapshot, paths, fallback = 0){
+      for(const path of paths){
+        const value = calendarNestedValue(snapshot,path);
+        if(value === null || value === undefined || value === "") continue;
+        const numeric = Number(value);
+        if(Number.isFinite(numeric)) return numeric;
+      }
+      return Number(fallback || 0);
+    }
+
+    function calendarGoalDaysInMonth(date){
+      const [year,month] = String(date || today())
+        .slice(0,7)
+        .split("-")
+        .map(Number);
+
+      if(!year || !month) return 30;
+      return new Date(year,month,0).getDate();
+    }
+
+    function calendarGoalDailyPfTargets(date, snapshot, goals){
+      const month = monthPrefix(date);
+      const daysInMonth = calendarGoalDaysInMonth(date);
+      const configuredMonthly =
+        getStoreMonthlyPfBreakdownGoal(month);
+      const configuredDaily =
+        normalizeStorePfBreakdown(
+          snapshot?.pf?.goalsHoje ||
+          db?.dailyStorePfGoals?.[date] ||
+          {}
+        );
+
+      const configuredDailyTotal =
+        storePfBreakdownTotal(configuredDaily);
+
+      if(configuredDailyTotal > 0){
+        return {
+          total:configuredDailyTotal,
+          products:configuredDaily,
+          source:"daily"
+        };
+      }
+
+      const monthlyByProduct =
+        STORE_PF_DEFINITIONS.reduce((result,item) => {
+          const storeTarget =
+            Number(configuredMonthly?.[item.key] || 0);
+          const distributedTarget =
+            Number(goals?.[item.key] || 0);
+
+          result[item.key] = storeTarget > 0
+            ? storeTarget
+            : Math.max(distributedTarget,0);
+
+          return result;
+        },{});
+
+      const monthlyBreakdownTotal =
+        storePfBreakdownTotal(monthlyByProduct);
+      const configuredMonthlyTotal =
+        getStoreMonthlyPfGoal(month);
+      const monthlyTotal = configuredMonthlyTotal > 0
+        ? configuredMonthlyTotal
+        : Number(goals?.pf || 0) > 0
+          ? Number(goals.pf)
+          : monthlyBreakdownTotal;
+
+      const officialDailyTotal = Math.max(
+        Number(snapshot?.store?.pfMetaHoje || 0),
+        0
+      );
+
+      const total = officialDailyTotal > 0
+        ? officialDailyTotal
+        : monthlyTotal > 0
+          ? monthlyTotal / daysInMonth
+          : 0;
+
+      const products =
+        STORE_PF_DEFINITIONS.reduce((result,item) => {
+          const monthlyTarget =
+            Number(monthlyByProduct[item.key] || 0);
+
+          if(monthlyTarget <= 0){
+            result[item.key] = 0;
+            return result;
+          }
+
+          result[item.key] =
+            officialDailyTotal > 0 &&
+            monthlyBreakdownTotal > 0
+              ? officialDailyTotal *
+                (monthlyTarget / monthlyBreakdownTotal)
+              : monthlyTarget / daysInMonth;
+
+          return result;
+        },{});
+
+      return {
+        total,
+        products,
+        source:officialDailyTotal > 0
+          ? "official"
+          : "proportional"
+      };
+    }
+
+    function calendarGoalDailyMetrics(date = calendarGoalsDateKey()){
+      const snapshot = calendarSnapshotForDate(date) || {
+        store:{},
+        operators:{},
+        pf:{total:{},operators:{}}
+      };
+      const month = monthPrefix(date);
+      const goals = calendarGoalDistributionTotals(month);
+      const store = snapshot.store || {};
+      const pcjTarget = goals.pcj > 0 ? goals.pcj : 35;
+      const dailyActivatedTarget = Number(store.ativadosMeta || 0);
+      const pfTargets = calendarGoalDailyPfTargets(
+        date,
+        snapshot,
+        goals
+      );
+
+      const pfTargetSubtitle = pfTargets.source === "daily"
+        ? "Meta configurada para o dia atual"
+        : pfTargets.source === "official"
+          ? "Meta diária registrada para a loja"
+          : "Meta diária proporcional à meta mensal";
+
+      return [
+        calendarGoalMetric(
+          "Venda do dia",
+          "Meta de venda do dia",
+          Number(store.vendaAtual || 0),
+          Number(store.compromissoDia || 0),
+          "money"
+        ),
+        calendarGoalMetric(
+          "Ativados do dia",
+          dailyActivatedTarget > 0
+            ? "Meta diária registrada"
+            : "Meta diária não informada",
+          calendarDailyCount(date,"ativados"),
+          dailyActivatedTarget
+        ),
+        calendarGoalMetric(
+          "PF Total do dia",
+          pfTargetSubtitle,
+          calendarDailyCount(date,"pf"),
+          pfTargets.total
+        ),
+        calendarGoalMetric(
+          "Bolsa Protegida",
+          pfTargetSubtitle,
+          calendarDailyCount(date,"bolsa"),
+          pfTargets.products.bolsa
+        ),
+        calendarGoalMetric(
+          "Compra da Sorte",
+          pfTargetSubtitle,
+          calendarDailyCount(date,"compra"),
+          pfTargets.products.compra
+        ),
+        calendarGoalMetric(
+          "Proteção da Sorte",
+          pfTargetSubtitle,
+          calendarDailyCount(date,"protecao"),
+          pfTargets.products.protecao
+        ),
+        calendarGoalMetric(
+          "Sabadão",
+          pfTargetSubtitle,
+          calendarDailyCount(date,"sabadao"),
+          pfTargets.products.sabadao
+        ),
+        calendarGoalMetric(
+          "SMS",
+          pfTargetSubtitle,
+          calendarDailyCount(date,"sms"),
+          pfTargets.products.sms
+        ),
+        calendarGoalMetric(
+          "Vida+",
+          pfTargetSubtitle,
+          calendarDailyCount(date,"vida"),
+          pfTargets.products.vida
+        ),
+        calendarGoalMetric(
+          "Cartão AV atual",
+          "Parâmetro operacional da loja",
+          calendarGoalDailySnapshotValue(
+            snapshot,
+            [["store","cartaoAv"],["operators","total","cartaoHoje"]],
+            0
+          ),
+          43,
+          "percent"
+        ),
+        calendarGoalMetric(
+          "PCJ atual",
+          goals.pcj > 0
+            ? "Média das metas individuais"
+            : "Parâmetro operacional da loja",
+          calendarStorePercentage(date,"pcj",false),
+          pcjTarget,
+          "percent"
+        ),
+        calendarGoalMetric(
+          "Tudo AV hoje",
+          "Parâmetro operacional da loja",
+          calendarStorePercentage(date,"tudoAv",false),
+          80,
+          "percent"
+        )
+      ];
+    }
+
+    function calendarGoalPcjIndicators(mode = calendarGoalsMode){
+      if(mode === "day"){
+        const snapshot = calendarSnapshotForDate(calendarGoalsDateKey()) || {store:{},operators:{}};
+        return [
+          {label:"Cartão AV atual",value:calendarGoalDailySnapshotValue(snapshot,[["store","cartaoAv"],["operators","total","cartaoHoje"]],0),format:"percent"},
+          {label:"Cartão AV — GAP atual",value:calendarGoalDailySnapshotValue(snapshot,[["store","cartaoGap"],["operators","total","cartaoGapHoje"]],0),format:"gap"},
+          {label:"PCJ atual",value:calendarGoalDailySnapshotValue(snapshot,[["store","pcj"],["operators","total","pcjHoje"]],0),format:"percent"},
+          {label:"PCJ — GAP atual",value:calendarGoalDailySnapshotValue(snapshot,[["store","pcjGap"],["operators","total","pcjGapHoje"]],0),format:"gap"}
+        ];
+      }
+
+      const month = calendarGoalsMonthKey();
+      const referenceDate = calendarGoalReferenceDate(month);
+      const snapshot = calendarSnapshotForDate(referenceDate) || {
+        store:{},
+        operators:{}
+      };
+
+      const accumulatedValue = (storeKey,totalKey,fallbackKey) => {
+        const direct =
+          snapshot?.store?.[storeKey] ??
+          snapshot?.operators?.total?.[totalKey];
+
+        if(
+          direct !== null &&
+          direct !== undefined &&
+          Number.isFinite(Number(direct))
+        ){
+          return Number(direct);
+        }
+
+        const fallback = month === monthPrefix(today())
+          ? Number(db.header?.[fallbackKey])
+          : 0;
+
+        return Number.isFinite(fallback) ? fallback : 0;
+      };
+
+      return [
+        {label:"Cartão AV acumulado",value:accumulatedValue("cartaoAvAcc","cartaoAcc","cartaoAvAcc"),format:"percent"},
+        {label:"Cartão AV — GAP acumulado",value:accumulatedValue("cartaoGapAcc","cartaoGapAcc","cartaoAvGapAcc"),format:"gap"},
+        {label:"PCJ acumulado",value:accumulatedValue("pcjAcc","pcjAcc","pcjAcc"),format:"percent"},
+        {label:"PCJ — GAP acumulado",value:accumulatedValue("pcjGapAcc","pcjGapAcc","pcjGapAcc"),format:"gap"}
+      ];
+    }
+
+    function renderCalendarGoalPcjIndicators(mode = calendarGoalsMode){
+      const grid = $("#calendarGoalsPcjGrid");
+      if(!grid) return;
+
+      grid.innerHTML = calendarGoalPcjIndicators(mode).map(indicator => {
+        const numeric = Number(indicator.value || 0);
+        const gapClass = indicator.format === "gap"
+          ? numeric > 0 ? "gap-positive" : numeric < 0 ? "gap-negative" : ""
+          : "";
+        const value = indicator.format === "percent" ? pct(numeric) : formatGapInteger(numeric);
+
+        return `
+          <div class="calendar-goals-pcj-item ${gapClass}">
+            <small>${escapeHtml(indicator.label)}</small>
+            <strong>${escapeHtml(value)}</strong>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function calendarGoalMetrics(){
+      return calendarGoalsMode === "day"
+        ? calendarGoalDailyMetrics(calendarGoalsDateKey())
+        : calendarGoalAccumulatedMetrics(calendarGoalsMonthKey());
+    }
+
     function calendarGoalFormat(metric, value){
       if(metric.format === "money") return money(value);
       if(metric.format === "percent") return pct(value);
-      return Number(value || 0).toLocaleString("pt-BR");
+      return Number(value || 0).toLocaleString("pt-BR",{
+        maximumFractionDigits:2
+      });
     }
 
     function calendarGoalStatusClass(metric){
@@ -7200,8 +9584,8 @@
       return "distant";
     }
 
-    function drawCalendarGoalsChart(metrics = calendarGoalsMetricsCache){
-      const canvas = $("#calendarGoalsChart");
+    function drawCalendarGoalsChartCanvas(canvasSelector, metrics){
+      const canvas = $(canvasSelector);
       const subview = $("#calendarGoalsSubview");
       if(!canvas || !subview?.classList.contains("active")) return;
 
@@ -7235,7 +9619,6 @@
 
       const pad = {left:155,right:64,top:42,bottom:24};
       const chartWidth = Math.max(width - pad.left - pad.right, 200);
-      const chartHeight = height - pad.top - pad.bottom;
 
       ctx.font = "10px system-ui";
       ctx.fillStyle = muted;
@@ -7252,12 +9635,31 @@
         ctx.stroke();
       });
 
+      if(!chartMetrics.length){
+        ctx.fillStyle = muted;
+        ctx.font = "700 13px system-ui";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(
+          "Nenhuma meta definida para este grupo.",
+          width / 2,
+          height / 2
+        );
+        return;
+      }
+
       chartMetrics.forEach((metric,index) => {
         const y = pad.top + index * rowHeight + 8;
         const percent = Math.max(metric.percentage,0);
         const visiblePercent = Math.min(percent,100);
         const status = calendarGoalStatusClass(metric);
-        const fillColor = status === "reached" ? ok : status === "halfway" ? warn : status === "undefined" ? muted : bad;
+        const fillColor = status === "reached"
+          ? ok
+          : status === "halfway"
+            ? warn
+            : status === "undefined"
+              ? muted
+              : bad;
 
         ctx.fillStyle = text;
         ctx.font = "600 11px system-ui";
@@ -7284,14 +9686,31 @@
         ctx.fillStyle = percent >= 100 ? ok : brand;
         ctx.font = "800 11px system-ui";
         ctx.textAlign = "left";
-        ctx.fillText(`${percent.toFixed(1).replace(".",",")}%`,pad.left + chartWidth + 10,y + 7);
+        ctx.fillText(
+          `${percent.toFixed(1).replace(".",",")}%`,
+          pad.left + chartWidth + 10,
+          y + 7
+        );
       });
     }
 
+    function drawCalendarGoalsChart(metrics = calendarGoalsMetricsCache){
+      const generalMetrics = metrics.filter(metric => !calendarGoalIsPfMetric(metric));
+      const pfMetrics = metrics.filter(calendarGoalIsPfMetric);
+
+      drawCalendarGoalsChartCanvas("#calendarGoalsGeneralChart",generalMetrics);
+      drawCalendarGoalsChartCanvas("#calendarGoalsPfChart",pfMetrics);
+    }
+
     function renderCalendarGoals(){
-      const month = calendarGoalsMonthKey();
-      const metrics = calendarGoalMetrics(month);
+      const mode = calendarGoalsMode;
+      const metrics = calendarGoalMetrics();
       calendarGoalsMetricsCache = metrics;
+
+      const selectedDate = calendarGoalsDateKey();
+      const selectedMonth = calendarGoalsMonthKey();
+      const isDay = mode === "day";
+      const periodText = isDay ? calendarLongDate(selectedDate) : goalMonthLabel(selectedMonth);
 
       const configured = metrics.filter(metric => metric.target > 0);
       const reached = configured.filter(metric => metric.actual >= metric.target);
@@ -7301,7 +9720,50 @@
       const pending = Math.max(configured.length - reached.length,0);
 
       const periodLabel = $("#calendarGoalsPeriodLabel");
-      if(periodLabel) periodLabel.textContent = goalMonthLabel(month);
+      if(periodLabel) periodLabel.textContent = periodText;
+
+      $("#calendarGoalsScopeLabel").textContent = isDay ? "Acompanhamento diário" : "Acompanhamento acumulado";
+      $("#calendarGoalsPeriodDescription").textContent = isDay
+        ? "Compare o resultado do dia com as metas disponíveis para a data selecionada."
+        : "Compare o acumulado da loja com todas as metas configuradas para o mês.";
+
+      $("#calendarGoalsPcjEyebrow").textContent = isDay ? "Indicadores do dia" : "Indicadores acumulados";
+      $("#calendarGoalsPcjTitle").textContent = isDay ? "Cartão AV e PCJ — Dia" : "Cartão AV e PCJ — Acumulado";
+      $("#calendarGoalsPcjDescription").textContent = isDay
+        ? "Resultado atual e GAP da data selecionada."
+        : "Resultado consolidado e GAP acumulado do mês.";
+      $("#calendarGoalsPcjScopeTag").textContent = isDay ? "DIA" : "ACUMULADO";
+
+      $("#calendarGoalsGeneralChartTitle").textContent = isDay
+        ? "Progresso geral do dia"
+        : "Progresso geral acumulado";
+      $("#calendarGoalsGeneralChartDescription").textContent = isDay
+        ? "Venda, Ativados, Cartão AV, PCJ e Tudo AV da data selecionada."
+        : "Venda, Ativados, Cartão AV, PCJ e Tudo AV acumulados no mês.";
+      $("#calendarGoalsGeneralChartScopeTag").textContent = isDay ? "DIA" : "ACUMULADO";
+
+      $("#calendarGoalsGeneralDetailTitle").textContent = isDay
+        ? "Barras dos resultados gerais do dia"
+        : "Barras dos resultados gerais acumulados";
+      $("#calendarGoalsGeneralDetailDescription").textContent = isDay
+        ? "Resultados comerciais do dia, sem misturar os Produtos Financeiros."
+        : "Resultados comerciais acumulados, sem misturar os Produtos Financeiros.";
+
+      $("#calendarGoalsPfChartTitle").textContent = isDay
+        ? "Progresso dos PFs do dia"
+        : "Progresso acumulado dos PFs";
+      $("#calendarGoalsPfChartDescription").textContent = isDay
+        ? "PF Total e produtos individuais realizados na data selecionada."
+        : "PF Total e produtos individuais acumulados no mês.";
+      $("#calendarGoalsPfChartScopeTag").textContent = isDay ? "DIA" : "ACUMULADO";
+
+      $("#calendarGoalsPfDetailTitle").textContent = isDay
+        ? "Barras dos Produtos Financeiros do dia"
+        : "Barras dos Produtos Financeiros acumulados";
+      $("#calendarGoalsPfDetailDescription").textContent = isDay
+        ? "Acompanhamento exclusivo dos PFs realizados no dia."
+        : "Acompanhamento exclusivo dos PFs realizados no mês.";
+
       $("#calendarGoalsConfigured").textContent = configured.length.toLocaleString("pt-BR");
       $("#calendarGoalsReached").textContent = reached.length.toLocaleString("pt-BR");
       $("#calendarGoalsReachedSub").textContent = reached.length
@@ -7310,8 +9772,13 @@
       $("#calendarGoalsAverage").textContent = pct(average);
       $("#calendarGoalsPending").textContent = pending.toLocaleString("pt-BR");
 
-      const list = $("#calendarGoalsProgressList");
-      list.innerHTML = metrics.map(metric => {
+      renderCalendarGoalPcjIndicators(mode);
+
+      const actualLabel = isDay ? "Hoje" : "Acumulado";
+      const generalMetrics = metrics.filter(metric => !calendarGoalIsPfMetric(metric));
+      const pfMetrics = metrics.filter(calendarGoalIsPfMetric);
+
+      const renderGoalCards = groupMetrics => groupMetrics.map(metric => {
         const status = calendarGoalStatusClass(metric);
         const defined = metric.target > 0;
         const visible = defined ? Math.min(Math.max(metric.percentage,0),100) : 0;
@@ -7331,7 +9798,7 @@
               <i class="calendar-goal-fill ${status}" style="width:${visible}%"></i>
             </div>
             <div class="calendar-goal-values">
-              <span>Realizado: <strong>${calendarGoalFormat(metric,metric.actual)}</strong></span>
+              <span>${actualLabel}: <strong>${calendarGoalFormat(metric,metric.actual)}</strong></span>
               <span>Meta: <strong>${defined ? calendarGoalFormat(metric,metric.target) : "Não definida"}</strong></span>
               <span>Falta: <strong>${defined ? calendarGoalFormat(metric,remaining) : "—"}</strong></span>
             </div>
@@ -7339,11 +9806,33 @@
         `;
       }).join("");
 
+      $("#calendarGoalsGeneralProgressList").innerHTML = renderGoalCards(generalMetrics);
+      $("#calendarGoalsPfProgressList").innerHTML = renderGoalCards(pfMetrics);
+
       $("#calendarGoalsDataNote").textContent = configured.length
-        ? `${configured.length} metas configuradas em ${goalMonthLabel(month)}. Os percentuais acima usam o acumulado mais recente disponível no Calendário de Vendas.`
-        : `Nenhuma meta mensal foi configurada para ${goalMonthLabel(month)}. Cadastre a Meta Total e a Distribuição de Meta para acompanhar o progresso.`;
+        ? isDay
+          ? `${configured.length} metas com objetivo disponível em ${calendarLongDate(selectedDate)}. Indicadores sem meta diária permanecem visíveis como referência.`
+          : `${configured.length} metas configuradas em ${goalMonthLabel(selectedMonth)}. Os percentuais usam o acumulado mais recente disponível no Calendário de Vendas.`
+        : isDay
+          ? `Nenhuma meta diária foi encontrada para ${calendarLongDate(selectedDate)}. Os resultados disponíveis continuam exibidos para consulta.`
+          : `Nenhuma meta mensal foi configurada para ${goalMonthLabel(selectedMonth)}. Cadastre a Meta Total e a Distribuição de Meta para acompanhar o progresso.`;
 
       requestAnimationFrame(() => drawCalendarGoalsChart(metrics));
+    }
+
+    function setCalendarGoalsMode(mode = "day"){
+      calendarGoalsMode = mode === "accumulated" ? "accumulated" : "day";
+
+      $$("[data-calendar-goals-mode]").forEach(button => {
+        const active = button.dataset.calendarGoalsMode === calendarGoalsMode;
+        button.classList.toggle("active",active);
+        button.setAttribute("aria-selected",String(active));
+      });
+
+      $("#calendarGoalsDayControls")?.classList.toggle("hidden",calendarGoalsMode !== "day");
+      $("#calendarGoalsAccumulatedControls")?.classList.toggle("hidden",calendarGoalsMode !== "accumulated");
+
+      renderCalendarGoals();
     }
 
     function setCalendarSubtab(tabName = "daily"){
@@ -7912,6 +10401,7 @@
       renderHistory();
       renderConfig();
       renderGoalDistribution();
+      renderDistributionType();
       renderSystemUsers();
       renderPermissions();
       renderRankings();
@@ -7932,6 +10422,7 @@
         ["lançamentos", renderHistory],
         ["configurações", renderConfig],
         ["distribuição de meta", renderGoalDistribution],
+        ["modo de distribuição", renderDistributionType],
         ["usuários", renderSystemUsers],
         ["permissões", renderPermissions],
         ["rankings", renderRankings],
@@ -7950,77 +10441,206 @@
       requestAnimationFrame(drawChart);
     }
 
-    function updateGoalProgress(realized, goal){
-      const safeRealized = Math.max(Number(realized || 0), 0);
-      const safeGoal = Math.max(Number(goal || 0), 0);
-      const percentage = safeGoal > 0 ? (safeRealized / safeGoal) * 100 : 0;
-      const visibleWidth = Math.min(Math.max(percentage, 0), 100);
-      const remaining = Math.max(safeGoal - safeRealized, 0);
+    function updateGoalProgress(){
+      return;
+    }
 
-      const fill = $("#goalProgressFill");
-      const track = $("#goalProgressTrack");
-      const percentageLabel = $("#goalProgressPercentage");
-      const status = $("#goalProgressStatus");
-      const message = $("#goalProgressMessage");
+    function dashboardMetricValue(value, format = "integer"){
+      const numeric = Number(value || 0);
+      if(format === "money") return money(numeric);
+      if(format === "percent") return pct(numeric);
+      return numeric.toLocaleString("pt-BR",{maximumFractionDigits:2});
+    }
 
-      let state = "neutral";
-      let statusText = "Sem meta definida";
-      let messageText = "Informe a venda acumulada e a meta total nas Configurações.";
+    function dashboardMetricRemaining(value, format = "integer"){
+      const numeric = Math.max(Number(value || 0),0);
 
-      if(safeGoal > 0 && percentage < 50){
-        state = "distant";
-        statusText = "Distante da meta";
-        messageText = "O resultado ainda está abaixo da metade da meta.";
-      }else if(safeGoal > 0 && percentage < 95){
-        state = "halfway";
-        statusText = "Em evolução";
-        messageText = "A meta já chegou à metade, mas ainda precisa avançar.";
-      }else if(safeGoal > 0){
-        state = "reached";
-        statusText = percentage >= 100 ? "Meta atingida" : "Meta praticamente atingida";
-        messageText = percentage >= 100
-          ? "Excelente: a meta total foi atingida."
-          : "Excelente: o resultado já alcançou pelo menos 95% da meta.";
+      if(format === "money") return `Falta: ${money(numeric)}`;
+      if(format === "percent"){
+        return `Falta: ${numeric.toLocaleString("pt-BR",{
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        })} p.p.`;
       }
 
-      fill.className = `goal-progress-fill ${state}`;
-      fill.style.width = `${visibleWidth}%`;
+      return `Falta: ${numeric.toLocaleString("pt-BR",{
+        maximumFractionDigits:2
+      })}`;
+    }
 
-      percentageLabel.textContent = pct(percentage);
-      status.textContent = statusText;
-      message.textContent = messageText;
+    function updateDashboardMetric(prefix, actual, target, format = "integer"){
+      const safeActual = Math.max(Number(actual || 0),0);
+      const safeTarget = Math.max(Number(target || 0),0);
+      const percentage = safeTarget > 0
+        ? (safeActual / safeTarget) * 100
+        : 0;
+      const visibleWidth = Math.min(Math.max(percentage,0),100);
+      const remaining = Math.max(safeTarget - safeActual,0);
 
-      $("#goalProgressRealized").textContent = money(safeRealized);
-      $("#goalProgressGoal").textContent = money(safeGoal);
-      $("#goalProgressRemaining").textContent = money(remaining);
+      let state = "undefined";
+      if(safeTarget > 0 && percentage >= 100){
+        state = "achieved";
+      }else if(safeTarget > 0 && percentage >= 60){
+        state = "progress";
+      }else if(safeTarget > 0){
+        state = "low";
+      }
 
-      track.setAttribute("aria-valuenow", String(Math.min(Math.round(percentage), 100)));
-      track.setAttribute(
-        "aria-valuetext",
-        `${percentage.toFixed(2).replace(".", ",")}% da meta atingida`
+      const card = $(`#${prefix}Card`);
+      const actualField = $(`#${prefix}Actual`);
+      const goalField = $(`#${prefix}Goal`);
+      const fill = $(`#${prefix}Fill`);
+      const remainingField = $(`#${prefix}Remaining`);
+      const percentField = $(`#${prefix}Percent`);
+
+      if(!card || !actualField || !goalField || !fill || !remainingField || !percentField){
+        return;
+      }
+
+      card.classList.remove(
+        "metric-achieved",
+        "metric-progress",
+        "metric-low",
+        "metric-undefined"
       );
+      card.classList.add(`metric-${state}`);
+
+      actualField.textContent = dashboardMetricValue(safeActual,format);
+      goalField.textContent = dashboardMetricValue(safeTarget,format);
+      remainingField.textContent = safeTarget > 0
+        ? dashboardMetricRemaining(remaining,format)
+        : "Meta não definida";
+      percentField.textContent = safeTarget > 0 ? pct(percentage) : "—";
+
+      fill.className = state;
+      fill.style.width = `${visibleWidth}%`;
     }
 
     function renderHeaderCards(){
-      const h = db.header;
-      $("#hVendaAtual").textContent = money(h.vendaAtual);
-      $("#hCompromissoDia").textContent = money(h.compromissoDia);
-      $("#hCartaoAv").textContent = pct(h.cartaoAv);
-      $("#hCartaoAvSub").textContent = `Acumulado: ${pct(h.cartaoAvAcc || 0)} • Meta: 43,00%`;
-      $("#hPcjDia").textContent = pct(h.pcjDia);
-      $("#hPcjSub").textContent = `Acumulado: ${pct(h.pcjAcc || 0)} • Meta: 35,00%`;
-      $("#hTudoAvDia").textContent = pct(h.tudoAvDia || 0);
-      $("#hTudoAvAcc").textContent = pct(h.tudoAvAcc || 0);
-      $("#hAtivadosTotal").textContent = Number(h.ativadosTotal || 0).toLocaleString("pt-BR");
-      $("#hVendaAcumulada").textContent = money(h.vendaAcumulada);
+      const h = db.header || {};
+      const currentDate = today();
+      const currentMonth = monthPrefix(currentDate);
+      const snapshot = calendarSnapshotForDate(currentDate) || {
+        store:{},
+        pf:{total:{},goalsHoje:{}}
+      };
+      const store = snapshot.store || {};
+      const goals = calendarGoalDistributionTotals(currentMonth);
+      const daysInMonth = calendarGoalDaysInMonth(currentDate);
 
-      const monthlyGoal = getStoreMonthlyGoal();
-      $("#hMetaTotal").textContent = money(monthlyGoal);
-      const ating = monthlyGoal
-        ? (h.vendaAcumulada / monthlyGoal) * 100
-        : 0;
-      $("#hAtingimento").textContent = pct(ating);
-      updateGoalProgress(h.vendaAcumulada, monthlyGoal);
+      const todayLabel = new Date(`${currentDate}T12:00:00`)
+        .toLocaleDateString("pt-BR",{
+          day:"2-digit",
+          month:"long",
+          year:"numeric"
+        });
+
+      if($("#dashboardTodayDate")){
+        $("#dashboardTodayDate").textContent = todayLabel;
+      }
+      if($("#dashboardAccumulatedMonth")){
+        $("#dashboardAccumulatedMonth").textContent =
+          goalMonthLabel(currentMonth).toUpperCase();
+      }
+
+      const salesTodayActual = Number(
+        store.vendaAtual ?? h.vendaAtual ?? 0
+      );
+      const salesTodayGoal = Number(
+        store.compromissoDia ?? h.compromissoDia ?? 0
+      );
+
+      const activatedTodayActual =
+        calendarDailyCount(currentDate,"ativados");
+      const activatedMonthlyTarget = Math.max(
+        Number(h.ativadosTotal || 0),
+        Number(goals.ativados || 0),
+        Number(store.ativadosMetaAcc || 0)
+      );
+      const activatedTodayOfficialTarget =
+        Number(store.ativadosMeta || 0);
+      const activatedTodayGoal = activatedTodayOfficialTarget > 0
+        ? activatedTodayOfficialTarget
+        : activatedMonthlyTarget > 0
+          ? activatedMonthlyTarget / daysInMonth
+          : 0;
+
+      const pfTodayActual =
+        calendarDailyCount(currentDate,"pf");
+      const dailyPfTargets =
+        calendarGoalDailyPfTargets(currentDate,snapshot,goals);
+      const pfTodayGoal = Number(dailyPfTargets?.total || 0);
+
+      const pcjTarget = Number(goals.pcj || 0) > 0
+        ? Number(goals.pcj)
+        : 35;
+      const pcjTodayActual =
+        calendarStorePercentage(currentDate,"pcj",false);
+
+      updateDashboardMetric(
+        "dashTodaySales",
+        salesTodayActual,
+        salesTodayGoal,
+        "money"
+      );
+      updateDashboardMetric(
+        "dashTodayActivated",
+        activatedTodayActual,
+        activatedTodayGoal,
+        "integer"
+      );
+      updateDashboardMetric(
+        "dashTodayPf",
+        pfTodayActual,
+        pfTodayGoal,
+        "integer"
+      );
+      updateDashboardMetric(
+        "dashTodayPcj",
+        pcjTodayActual,
+        pcjTarget,
+        "percent"
+      );
+
+      const salesAccumActual = Number(
+        store.vendaAcumulada ?? h.vendaAcumulada ?? 0
+      );
+      const salesAccumGoal = getStoreMonthlyGoal(currentMonth);
+
+      const activatedAccumActual =
+        calendarAccumulatedCount(currentDate,"ativados");
+      const pfAccumActual =
+        calendarAccumulatedCount(currentDate,"pf");
+      const pfAccumGoal =
+        getStoreMonthlyPfGoal(currentMonth) ||
+        Number(goals.pf || 0);
+      const pcjAccumActual =
+        calendarStorePercentage(currentDate,"pcj",true);
+
+      updateDashboardMetric(
+        "dashAccumSales",
+        salesAccumActual,
+        salesAccumGoal,
+        "money"
+      );
+      updateDashboardMetric(
+        "dashAccumActivated",
+        activatedAccumActual,
+        activatedMonthlyTarget,
+        "integer"
+      );
+      updateDashboardMetric(
+        "dashAccumPf",
+        pfAccumActual,
+        pfAccumGoal,
+        "integer"
+      );
+      updateDashboardMetric(
+        "dashAccumPcj",
+        pcjAccumActual,
+        pcjTarget,
+        "percent"
+      );
     }
 
     function badge(value, goal=0){
@@ -8554,12 +11174,17 @@
 
     function renderConfig(){
       const h = db.header;
+      const canManageStoreGoals = isAdmin();
       $("#cfgVendaAtual").value = formatBRLCurrency(h.vendaAtual);
       $("#cfgCompromissoDia").value = formatBRLCurrency(h.compromissoDia);
-      $("#cfgCartaoAv").value = h.cartaoAv;
-      $("#cfgPcjDia").value = h.pcjDia;
-      $("#cfgTudoAvDia").value = h.tudoAvDia || 0;
-      $("#cfgTudoAvAcc").value = h.tudoAvAcc || 0;
+      $("#cfgCartaoAv").value = formatPercentageValue(h.cartaoAv || 0);
+      $("#cfgCartaoAvGap").value = formatGapInteger(h.cartaoAvGap || 0);
+      $("#cfgPcjDia").value = formatPercentageValue(h.pcjDia || 0);
+      $("#cfgPcjGap").value = formatGapInteger(h.pcjGap || 0);
+      $("#cfgCartaoAvAcc").value = formatPercentageValue(h.cartaoAvAcc || 0);
+      $("#cfgCartaoAvGapAcc").value = formatGapInteger(h.cartaoAvGapAcc || 0);
+      $("#cfgPcjAcc").value = formatPercentageValue(h.pcjAcc || 0);
+      $("#cfgPcjGapAcc").value = formatGapInteger(h.pcjGapAcc || 0);
       $("#cfgVendaAcumulada").value = formatBRLCurrency(h.vendaAcumulada);
 
       const monthlyGoal = getStoreMonthlyGoal();
@@ -8568,23 +11193,96 @@
       const goalHint = $("#cfgMetaTotalHint");
 
       goalInput.value = formatBRLCurrency(monthlyGoal);
-      goalInput.disabled = !canEditGoal;
-      goalInput.setAttribute("aria-disabled", String(!canEditGoal));
+      goalInput.disabled = !canManageStoreGoals || !canEditGoal;
+      goalInput.setAttribute("aria-disabled", String(goalInput.disabled));
 
-      goalHint.classList.toggle("unlocked", canEditGoal);
-      goalHint.textContent = canEditGoal
-        ? isDev()
-          ? "Desenvolvedor: edição liberada em qualquer dia do mês."
-          : "Dia 1: edição da Meta Total Mensal liberada."
-        : `Meta de ${goalMonthLabel(storeGoalMonthKey())} congelada até o próximo dia 1.`;
+      goalHint.classList.toggle("unlocked", canManageStoreGoals && canEditGoal);
+      goalHint.textContent = !canManageStoreGoals
+        ? "Somente gerente ou desenvolvedor podem alterar as metas gerais da loja."
+        : canEditGoal
+          ? isDev()
+            ? "Desenvolvedor: edição liberada em qualquer dia do mês."
+            : "Dia 1: edição da Meta Total Mensal liberada."
+          : `Meta de ${goalMonthLabel(storeGoalMonthKey())} congelada até o próximo dia 1.`;
 
-      $("#cfgAtivadosDia").value = h.ativadosDia || 0;
-      $("#cfgAtivadosTotal").value = h.ativadosTotal || 0;
-      $("#cfgPfRealizado").value = Math.max(Number(h.pfRealizado || 0),0);
-      $("#cfgPfMetaMensal").value = getStoreMonthlyPfGoal();
+      $("#cfgAtivadosDia").value = Number(h.ativadosDia || 0);
+      $("#cfgAtivadosAcc").value = Number(h.ativadosAcc || 0);
+      $("#cfgAtivadosTotal").value = Number(h.ativadosTotal || 0);
+
+      const pfRealized = getStorePfRealized();
+      const pfGoals = getStoreMonthlyPfBreakdownGoal();
+      const pfTodayGoals =
+        getStoreDailyPfBreakdownGoal(today());
+
+      STORE_PF_DEFINITIONS.forEach(item => {
+        const fieldKey =
+          item.key.charAt(0).toUpperCase() + item.key.slice(1);
+        const realizedInput =
+          $("#cfgPf" + fieldKey + "Realizado");
+        const goalField =
+          $("#cfgPf" + fieldKey + "Meta");
+        const todayGoalField =
+          $("#cfgPf" + fieldKey + "MetaHoje");
+
+        if(realizedInput){
+          realizedInput.value = pfRealized[item.key];
+        }
+        if(goalField){
+          goalField.value = pfGoals[item.key];
+        }
+        if(todayGoalField){
+          todayGoalField.value = pfTodayGoals[item.key];
+        }
+      });
+
+      updateStorePfTodaySummary();
+      updateStorePfSummary();
+      renderStorePfPeriod();
+
+      const headerForm = $("#headerForm");
+      if(headerForm){
+        headerForm.querySelectorAll("input").forEach(input => {
+          if(input.id === "cfgMetaTotal") return;
+          const computed = input.dataset.computed === "true";
+          input.readOnly = computed || !canManageStoreGoals;
+        });
+      }
+
+      $("#storeGoalSaveActions")?.classList.toggle("hidden", !canManageStoreGoals);
+      $("#storeGoalReadOnlyNote")?.classList.toggle("hidden", canManageStoreGoals);
+
+      const storeModeBadge = $("#distributionStoreModeBadge");
+      if(storeModeBadge){
+        storeModeBadge.textContent = canManageStoreGoals ? "EDIÇÃO LIBERADA" : "SOMENTE VISUALIZAÇÃO";
+        storeModeBadge.className = `tag ${canManageStoreGoals ? "good" : "brand-soft"}`;
+      }
+      renderStoreGoalSection();
     }
 
 
+
+    $("#distributionTypeSelect").addEventListener("change", () => {
+      renderDistributionType();
+    });
+
+    $("#storeGoalSectionSelect").addEventListener("change", () => {
+      renderStoreGoalSection();
+    });
+
+    $("#storePfPeriodSelect").addEventListener("change", () => {
+      renderStorePfPeriod();
+    });
+
+    $$(".store-pf-today-goal-input").forEach(input => {
+      input.addEventListener(
+        "input",
+        updateStorePfTodaySummary
+      );
+    });
+
+    $$(".store-pf-value-input, .store-pf-goal-input").forEach(input => {
+      input.addEventListener("input", updateStorePfSummary);
+    });
 
     $("#distributionOperator").addEventListener("change", event => {
       loadGoalDistributionIntoForm(event.target.value);
@@ -8659,55 +11357,76 @@
 
       const currentMonth = storeGoalMonthKey();
       const requestedGoal = parseBRLCurrency($("#cfgMetaTotal").value);
+      const pfRealized =
+        storePfFormBreakdown("realizado");
+      const pfGoals =
+        storePfFormBreakdown("meta");
+      const pfTodayGoals =
+        storePfTodayFormBreakdown();
+      const pfRealizedTotal =
+        storePfBreakdownTotal(pfRealized);
+      const pfGoalTotal =
+        storePfBreakdownTotal(pfGoals);
 
       if(canEditStoreMonthlyGoal()){
         db.monthlyStoreGoals[currentMonth] = requestedGoal;
       }
 
+      db.monthlyStorePfGoals =
+        db.monthlyStorePfGoals || {};
+      db.monthlyStorePfGoals[currentMonth] =
+        normalizeStorePfBreakdown(pfGoals);
+
+      db.dailyStorePfGoals =
+        db.dailyStorePfGoals || {};
+      db.dailyStorePfGoals[today()] =
+        normalizeStorePfBreakdown(pfTodayGoals);
+
       db.monthlyPfGoals = db.monthlyPfGoals || {};
-      db.monthlyPfGoals[currentMonth] = Math.max(
-        Number($("#cfgPfMetaMensal").value || 0),
-        0
-      );
+      db.monthlyPfGoals[currentMonth] = pfGoalTotal;
 
       const activeMonthlyGoal = getStoreMonthlyGoal(currentMonth);
-      const activeMonthlyPfGoal = getStoreMonthlyPfGoal(currentMonth);
 
       db.header = {
         ...db.header,
         vendaAtual:parseBRLCurrency($("#cfgVendaAtual").value),
         compromissoDia:parseBRLCurrency($("#cfgCompromissoDia").value),
-        cartaoAv:Number($("#cfgCartaoAv").value||0),
-        cartaoAvAcc:Number(db.header.cartaoAvAcc || 0),
-        pcjDia:Number($("#cfgPcjDia").value||0),
-        pcjAcc:Number(db.header.pcjAcc || 0),
-        tudoAvDia:Number($("#cfgTudoAvDia").value||0),
-        tudoAvAcc:Number($("#cfgTudoAvAcc").value||0),
+        cartaoAv:parsePercentageValue($("#cfgCartaoAv").value),
+        cartaoAvAcc:parsePercentageValue($("#cfgCartaoAvAcc").value),
+        cartaoAvGap:parseGapInteger($("#cfgCartaoAvGap").value),
+        cartaoAvGapAcc:parseGapInteger($("#cfgCartaoAvGapAcc").value),
+        pcjDia:parsePercentageValue($("#cfgPcjDia").value),
+        pcjAcc:parsePercentageValue($("#cfgPcjAcc").value),
+        pcjGap:parseGapInteger($("#cfgPcjGap").value),
+        pcjGapAcc:parseGapInteger($("#cfgPcjGapAcc").value),
         vendaAcumulada:parseBRLCurrency($("#cfgVendaAcumulada").value),
         metaTotal:activeMonthlyGoal,
         ativadosDia:Number($("#cfgAtivadosDia").value||0),
+        ativadosAcc:Number($("#cfgAtivadosAcc").value||0),
         ativadosTotal:Number($("#cfgAtivadosTotal").value||0),
-        pfRealizado:Math.max(Number($("#cfgPfRealizado").value||0),0),
-        pfMetaMensal:activeMonthlyPfGoal
+        storePfRealized:normalizeStorePfBreakdown(pfRealized),
+        pfRealizado:pfRealizedTotal,
+        pfMetaMensal:pfGoalTotal
       };
 
       captureHeaderCalendarSnapshot(today());
 
       addAudit(
-        "ATUALIZAÇÃO DE CABEÇALHO",
+        "META DE LOJA ATUALIZADA",
         canEditStoreMonthlyGoal()
-          ? "Indicadores gerais, PF realizado, Meta Mensal de PF e Meta Total Mensal da loja foram atualizados."
-          : "Indicadores gerais, PF realizado e Meta Mensal de PF atualizados; a Meta Total Mensal permaneceu congelada."
+          ? "Metas de Venda, PCJ e Produtos Financeiros da loja foram atualizadas, incluindo as metas de PF de Hoje e do Mês."
+          : "Indicadores de Venda, PCJ e Produtos Financeiros foram atualizados; a Meta Total Mensal de venda permaneceu congelada."
       );
 
       saveDB();
       renderAll();
       alert(
         canEditStoreMonthlyGoal()
-          ? "Indicadores, PF realizado, Meta Mensal de PF e Meta Total Mensal atualizados."
-          : "Indicadores, PF realizado e Meta Mensal de PF atualizados. A Meta Total Mensal permanece congelada até o próximo dia 1."
+          ? "Meta de Loja atualizada: Venda, PCJ e PFs foram salvos."
+          : "Indicadores e PFs atualizados. A Meta Total Mensal de venda permanece congelada até o próximo dia 1."
       );
     });
+
 
     let currentSection = "dashboard";
 
@@ -8816,6 +11535,7 @@
         $("#recAtivados").value = Number(record.ativados || 0);
         $("#recBolsa").value = Number(record.bolsa || 0);
         $("#recCompra").value = Number(record.compra || 0);
+        $("#recProtecao").value = Number(record.protecao || 0);
         $("#recSabadao").value = Number(record.sabadao || 0);
         $("#recSms").value = Number(record.sms || 0);
         $("#recVida").value = Number(record.vida || 0);
@@ -8846,8 +11566,9 @@
       $("#recPcj").value = 0;
       $("#recTudoAv").value = 0;
       $("#recBolsa").value = 0;
-      $("#recSabadao").value = 0;
       $("#recCompra").value = 0;
+      $("#recProtecao").value = 0;
+      $("#recSabadao").value = 0;
       $("#recSms").value = 0;
       $("#recVida").value = 0;
       $("#recPfTotal").value = 0;
@@ -8927,12 +11648,13 @@
       const total =
         Number($("#recBolsa").value||0) +
         Number($("#recCompra").value||0) +
+        Number($("#recProtecao").value||0) +
         Number($("#recSabadao").value||0) +
         Number($("#recSms").value||0) +
         Number($("#recVida").value||0);
       $("#recPfTotal").value = total;
     }
-    ["recBolsa","recCompra","recSabadao","recSms","recVida"].forEach(id => {
+    ["recBolsa","recCompra","recProtecao","recSabadao","recSms","recVida"].forEach(id => {
       $("#"+id).addEventListener("input", updatePfPreview);
     });
 
@@ -8941,6 +11663,9 @@
 
       const existing = editingRecordId ? getRecordById(editingRecordId) : null;
       const operator = existing ? existing.operator : $("#recOperator").value;
+      const recordDate = existing
+        ? existing.date
+        : ($("#recDate").value || today());
 
       if(existing && !canManageRecord(existing)){
         alert("Você não possui permissão para alterar este lançamento.");
@@ -8956,6 +11681,7 @@
         ativados:Number($("#recAtivados").value || 0),
         bolsa:Number($("#recBolsa").value || 0),
         compra:Number($("#recCompra").value || 0),
+        protecao:Number($("#recProtecao").value || 0),
         sabadao:Number($("#recSabadao").value || 0),
         sms:Number($("#recSms").value || 0),
         vida:Number($("#recVida").value || 0),
@@ -8977,21 +11703,26 @@
         db.records.push({
           id:uuid(),
           operator,
-          date:today(),
+          date:recordDate,
           createdAt:new Date().toISOString(),
           createdBy:currentUser.operator,
+          source:"LANÇAMENTO MANUAL",
           ...values
         });
 
         addAudit(
           "NOVO LANÇAMENTO",
-          `Operador ${operator} registrou ${values.ativados} ativados, ${values.bolsa + values.compra + values.sabadao + values.sms + values.vida} PF, PCJ ${pct(values.pcj)} e Tudo AV ${pct(values.tudoAv)}.`
+          `Operador ${operator} registrou ${values.ativados} ativados, ${values.bolsa + values.compra + values.protecao + values.sabadao + values.sms + values.vida} PF, PCJ ${pct(values.pcj)} e Tudo AV ${pct(values.tudoAv)}.`
         );
       }
 
       saveDB();
       selectedLaunchIds.clear();
       closeModal();
+
+      if($("#calendarDate")) $("#calendarDate").value = recordDate;
+      if($("#calendarGoalsDate")) $("#calendarGoalsDate").value = recordDate;
+
       renderAll();
 
       alert(existing
@@ -9192,6 +11923,14 @@
     $$("[data-calendar-tab]").forEach(button => {
       button.addEventListener("click", () => setCalendarSubtab(button.dataset.calendarTab));
     });
+    $$("[data-calendar-goals-mode]").forEach(button => {
+      button.addEventListener("click", () => setCalendarGoalsMode(button.dataset.calendarGoalsMode));
+    });
+    $("#calendarGoalsDate").addEventListener("change", renderCalendarGoals);
+    $("#calendarGoalsTodayBtn").addEventListener("click", () => {
+      $("#calendarGoalsDate").value = today();
+      renderCalendarGoals();
+    });
     $("#calendarGoalsMonth").addEventListener("change", renderCalendarGoals);
     $("#calendarGoalsCurrentMonthBtn").addEventListener("click", () => {
       $("#calendarGoalsMonth").value = monthPrefix(today());
@@ -9242,12 +11981,12 @@
       currentSection = sectionName;
 
       const labels = {
-        dashboard:["Painel principal","Indicadores gerais da loja e desempenho por operador."],
+        dashboard:["Painel principal","Resultados realizados e metas de Hoje e do Acumulado."],
         calendario:["Calendário de Vendas","Consulte os resultados completos da loja e dos operadores por data."],
         operadores:["Operadores","Consulta comparativa dos resultados da equipe, sem inclusão de dados."],
         funcionarios:["Funcionários","Cadastre operador, nome, senha e cargo para aplicar as permissões definidas pelo desenvolvedor."],
         lancamentos:["Lançamentos","Registre os resultados do dia; na virada, eles passam automaticamente ao acumulado."],
-        distribuicao:["Distribuição de Meta","Defina metas individuais de Ativados, Produtos Financeiros e PCJ por operador."],
+        distribuicao:["Distribuição de Metas","Administre as metas individuais dos assessores e os objetivos gerais da loja."],
         game:["GAME","Pódio e classificação completa atualizados em tempo real."],
         premia:["AV Premia","Roleta, cartas e controle individual de tentativas e prêmios."],
         config:["Configurações","Gerencie usuários, permissões e persistência dos dados."]
@@ -9267,6 +12006,11 @@
       }
       if(sectionName === "game") renderGame();
       if(sectionName === "premia") renderAvPremia();
+      if(sectionName === "distribuicao"){
+        renderGoalDistribution();
+        renderConfig();
+        renderDistributionType();
+      }
       if(sectionName === "config"){
         renderConfig();
         renderPermissions();
@@ -9675,6 +12419,8 @@
     });
 
     bindCurrencyFields();
+    bindPercentageFields();
+    bindGapIntegerFields();
 
     initializePersistentDatabase();
 
