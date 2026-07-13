@@ -3349,7 +3349,7 @@
           <form id="headerForm" class="card section-card">
             <div>
               <h3>Metas e indicadores gerais da loja</h3>
-              <small>Venda, Meta Total Mensal e Total de Ativados representam os resultados gerais da loja.</small>
+              <small>Venda, Ativados do Dia, Meta Total Mensal e Total de Ativados representam os resultados gerais da loja.</small>
             </div>
             <div class="form-grid">
               <div class="field"><label>Venda atual</label><input id="cfgVendaAtual" class="control currency-input" type="text" inputmode="decimal" autocomplete="off" placeholder="R$ 0,00" required /></div>
@@ -3364,6 +3364,7 @@
                 <input id="cfgMetaTotal" class="control currency-input" type="text" inputmode="decimal" autocomplete="off" placeholder="R$ 0,00" required />
                 <small id="cfgMetaTotalHint" class="meta-lock-state">A meta mensal é definida no primeiro dia do mês.</small>
               </div>
+              <div class="field"><label>Ativados do dia</label><input id="cfgAtivadosDia" class="control" type="number" min="0" step="1" required /></div>
               <div class="field"><label>Total de Ativados</label><input id="cfgAtivadosTotal" class="control" type="number" min="0" step="1" required /></div>
             </div>
             <div style="margin-top:18px"><button class="btn btn-primary" type="submit">Salvar cabeçalho</button></div>
@@ -3981,6 +3982,7 @@
         pcjAcc: SIGA_SNAPSHOT.total.pcjAcc,
         tudoAvDia: SIGA_SNAPSHOT.total.tudoAvHoje,
         tudoAvAcc: SIGA_SNAPSHOT.total.tudoAvAcc,
+        ativadosDia: 0,
         ativadosTotal: 0,
         vendaAcumulada: 0,
         metaTotal: 0
@@ -4058,9 +4060,13 @@
       normalized.header = normalized.header || {};
       normalized.header.tudoAvDia = Number(normalized.header.tudoAvDia ?? SIGA_SNAPSHOT.total.tudoAvHoje);
       normalized.header.tudoAvAcc = Number(normalized.header.tudoAvAcc ?? SIGA_SNAPSHOT.total.tudoAvAcc);
+      normalized.header.ativadosDia = Number(
+        normalized.header.ativadosDia ??
+        normalized.calendarSnapshots?.[today()]?.store?.ativadosHoje ??
+        0
+      );
       normalized.header.ativadosTotal = Number(
         normalized.header.ativadosTotal ??
-        normalized.header.ativadosDia ??
         0
       );
 
@@ -5839,7 +5845,7 @@
         cartaoAv:Number(db.header.cartaoAv || 0),
         pcj:Number(db.header.pcjDia || 0),
         tudoAv:Number(db.header.tudoAvDia || 0),
-        ativadosHoje:Number(db.header.ativadosTotal || 0),
+        ativadosHoje:Number(db.header.ativadosDia || 0),
         ativadosMeta:null,
         metaTotal:getStoreMonthlyGoal(monthPrefix(date))
       };
@@ -5877,7 +5883,7 @@
             cartaoAv:Number(db.header.cartaoAv || 0),
             pcj:Number(db.header.pcjDia || 0),
             tudoAv:Number(db.header.tudoAvDia || 0),
-            ativadosHoje:Number(db.header.ativadosTotal || 0),
+            ativadosHoje:Number(db.header.ativadosDia || 0),
             ativadosMeta:null
           },
           operators:{},
@@ -7516,6 +7522,7 @@
           : "Dia 1: edição da Meta Total Mensal liberada."
         : `Meta de ${goalMonthLabel(storeGoalMonthKey())} congelada até o próximo dia 1.`;
 
+      $("#cfgAtivadosDia").value = h.ativadosDia || 0;
       $("#cfgAtivadosTotal").value = h.ativadosTotal || 0;
     }
 
@@ -7612,6 +7619,7 @@
         tudoAvAcc:Number($("#cfgTudoAvAcc").value||0),
         vendaAcumulada:parseBRLCurrency($("#cfgVendaAcumulada").value),
         metaTotal:activeMonthlyGoal,
+        ativadosDia:Number($("#cfgAtivadosDia").value||0),
         ativadosTotal:Number($("#cfgAtivadosTotal").value||0)
       };
 
