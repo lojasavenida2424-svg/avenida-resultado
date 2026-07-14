@@ -5449,6 +5449,7 @@
     const INDEXED_DB_STORE = "estado";
     const INDEXED_DB_RECORD_KEY = "database";
     const RESULTS_SHARED_ROW = "av_resultados_compartilhados_v1";
+    const RESULTS_FALLBACK_FIELD = "avResultados";
     const DATA_WRITER_ID = `browser_${Math.random().toString(36).slice(2)}_${Date.now()}`;
     function localISODate(date = new Date()){
       const year = date.getFullYear();
@@ -7087,8 +7088,10 @@
     }
 
     async function readRemoteDatabase(){
+      const client = await ensureDataClient();
+      let primaryError = null;
+
       try{
-        const client = await ensureDataClient();
         const { data, error } = await client
           .from(MANAGEMENT_TABLE)
           .select("dados,updated_at")
@@ -7096,19 +7099,42 @@
           .maybeSingle();
 
         if(error) throw error;
-        if(!data?.dados) return null;
+        if(data?.dados){
+          const remote = normalizeDBShape(data.dados);
+          if(
+            (!remote._meta?.updatedAt || remote._meta.updatedAt === "1970-01-01T00:00:00.000Z") &&
+            data.updated_at
+          ){
+            remote._meta.updatedAt = data.updated_at;
+          }
+          return remote;
+        }
+      }catch(error){
+        primaryError = error;
+        console.warn("Linha exclusiva de resultados indisponível; tentando compatibilidade gerencial:", error);
+      }
 
-        const remote = normalizeDBShape(data.dados);
+      try{
+        const { data, error } = await client
+          .from(MANAGEMENT_TABLE)
+          .select("dados,updated_at")
+          .eq("id", MANAGEMENT_SHARED_ROW)
+          .maybeSingle();
+
+        if(error) throw error;
+        const fallbackData = data?.dados?.[RESULTS_FALLBACK_FIELD];
+        if(!fallbackData) return null;
+
+        const remote = normalizeDBShape(fallbackData);
         if(
           (!remote._meta?.updatedAt || remote._meta.updatedAt === "1970-01-01T00:00:00.000Z") &&
           data.updated_at
         ){
           remote._meta.updatedAt = data.updated_at;
         }
-
         return remote;
       }catch(error){
-        console.warn("Base online indisponível:", error);
+        console.warn("Base online indisponível:", error, primaryError || "");
         return null;
       }
     }
@@ -7125,36 +7151,63 @@
     }
 
     async function writeRemoteDatabase(databaseState = db, options = {}){
+      const payload = JSON.parse(JSON.stringify(databaseState));
+      const revision = Number(payload?._meta?.revision || 0);
+      const updatedAt = new Date().toISOString();
+      let primaryError = null;
+
       try{
         const client = await ensureDataClient();
-        const payload = JSON.parse(JSON.stringify(databaseState));
-        const revision = Number(payload?._meta?.revision || 0);
-
         const { error } = await client
           .from(MANAGEMENT_TABLE)
           .upsert({
             id:RESULTS_SHARED_ROW,
             dados:payload,
-            updated_at:new Date().toISOString()
+            updated_at:updatedAt
           }, {
             onConflict:"id"
           });
 
         if(error) throw error;
-
-        lastRemoteSavedRevision = Math.max(lastRemoteSavedRevision, revision);
-        cloudRetryAttempt = 0;
-        clearTimeout(cloudRetryTimer);
-        setDataSaveStatus("Dados salvos online", "online");
-        return true;
       }catch(error){
-        console.warn("Não foi possível salvar online:", error);
-        setDataSaveStatus("Salvo localmente • tentando sincronizar", "offline");
-        const status = $("#dataSaveStatus");
-        if(status) status.title = String(error?.message || error || "Falha no Supabase");
-        if(options.retry !== false) scheduleCloudRetry();
-        return false;
+        primaryError = error;
+        console.warn("Falha na linha exclusiva; usando armazenamento compatível:", error);
+
+        try{
+          const client = await ensureDataClient();
+          const { data:sharedRow, error:readError } = await client
+            .from(MANAGEMENT_TABLE)
+            .select("dados")
+            .eq("id", MANAGEMENT_SHARED_ROW)
+            .maybeSingle();
+
+          if(readError) throw readError;
+          const mergedData = {
+            ...(sharedRow?.dados && typeof sharedRow.dados === "object" ? sharedRow.dados : {}),
+            [RESULTS_FALLBACK_FIELD]:payload
+          };
+
+          const { error:updateError } = await client
+            .from(MANAGEMENT_TABLE)
+            .update({ dados:mergedData, updated_at:updatedAt })
+            .eq("id", MANAGEMENT_SHARED_ROW);
+
+          if(updateError) throw updateError;
+        }catch(fallbackError){
+          console.warn("Não foi possível salvar online:", fallbackError, primaryError || "");
+          setDataSaveStatus("Salvo localmente • tentando sincronizar", "offline");
+          const status = $("#dataSaveStatus");
+          if(status) status.title = String(fallbackError?.message || fallbackError || primaryError || "Falha no Supabase");
+          if(options.retry !== false) scheduleCloudRetry();
+          return false;
+        }
       }
+
+      lastRemoteSavedRevision = Math.max(lastRemoteSavedRevision, revision);
+      cloudRetryAttempt = 0;
+      clearTimeout(cloudRetryTimer);
+      setDataSaveStatus("Dados salvos online", "online");
+      return true;
     }
 
     function scheduleRemoteSave(){
@@ -7236,6 +7289,31 @@
       }
     }
 
+    function applyIncomingRemoteSnapshot(incoming){
+      if(!incoming || importInProgress || Date.now() < realtimeIgnoreUntil) return;
+      const remote = normalizeDBShape(incoming);
+      if(remote._meta?.lastWriter === DATA_WRITER_ID) return;
+
+      const comparison = compareDatabaseCandidates(db, remote);
+      if(comparison > 0){
+        db = remote;
+        employees = mapManagementEmployees(employees);
+        selectedLaunchIds.clear();
+        persistLocalSnapshot(db);
+        if(currentUser) renderAllSafely();
+        setDataSaveStatus("Atualizado em tempo real", "online");
+      }
+    }
+
+    async function refreshRemoteDatabase(){
+      try{
+        const remote = await readRemoteDatabase();
+        if(remote) applyIncomingRemoteSnapshot(remote);
+      }catch(error){
+        console.warn("Falha ao atualizar dados online:", error);
+      }
+    }
+
     function startDataRealtime(){
       if(!dataClient || dataChannel) return;
 
@@ -7243,31 +7321,20 @@
         .channel(`av_resultados_dados_${Date.now()}`)
         .on(
           "postgres_changes",
-          {
-            event:"*",
-            schema:"public",
-            table:MANAGEMENT_TABLE,
-            filter:`id=eq.${RESULTS_SHARED_ROW}`
-          },
-          payload => {
-            const incoming = payload?.new?.dados;
-            if(!incoming || importInProgress || Date.now() < realtimeIgnoreUntil) return;
-
-            const remote = normalizeDBShape(incoming);
-            if(remote._meta?.lastWriter === DATA_WRITER_ID) return;
-
-            const comparison = compareDatabaseCandidates(db, remote);
-            if(comparison > 0){
-              db = remote;
-              employees = mapManagementEmployees(employees);
-              selectedLaunchIds.clear();
-              persistLocalSnapshot(db);
-              if(currentUser) renderAllSafely();
-              setDataSaveStatus("Atualizado em tempo real", "online");
-            }
-          }
+          { event:"*", schema:"public", table:MANAGEMENT_TABLE, filter:`id=eq.${RESULTS_SHARED_ROW}` },
+          payload => applyIncomingRemoteSnapshot(payload?.new?.dados)
         )
-        .subscribe();
+        .on(
+          "postgres_changes",
+          { event:"*", schema:"public", table:MANAGEMENT_TABLE, filter:`id=eq.${MANAGEMENT_SHARED_ROW}` },
+          payload => applyIncomingRemoteSnapshot(payload?.new?.dados?.[RESULTS_FALLBACK_FIELD])
+        )
+        .subscribe(status => {
+          if(status === "SUBSCRIBED") setDataSaveStatus("Sincronização online ativa", "online");
+          if(status === "CHANNEL_ERROR" || status === "TIMED_OUT"){
+            setDataSaveStatus("Sincronização por consulta ativa", "offline");
+          }
+        });
     }
 
     async function initializePersistentDatabase(){
@@ -14094,6 +14161,8 @@ OPERADOR NOME ATIVADOS BOLSA COMPRA PROTEÇÃO SABADÃO SMS VIDA+ PCJ TUDO AV
       persistLocalSnapshot(db);
       if(Number(db?._meta?.revision || 0) > lastRemoteSavedRevision){
         writeRemoteDatabase(db, { retry:true });
+      }else{
+        refreshRemoteDatabase();
       }
     }, 10000);
 
@@ -14110,6 +14179,7 @@ OPERADOR NOME ATIVADOS BOLSA COMPRA PROTEÇÃO SABADÃO SMS VIDA+ PCJ TUDO AV
       if(!document.hidden){
         handleDayRollover();
         reloadDBFromStorage();
+        if(persistenceReady) refreshRemoteDatabase();
       }
     });
 
