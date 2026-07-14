@@ -5448,8 +5448,8 @@
     const INDEXED_DB_NAME = "AVResultadosPersistente";
     const INDEXED_DB_STORE = "estado";
     const INDEXED_DB_RECORD_KEY = "database";
-    const RESULTS_SHARED_ROW = "av_resultados_compartilhados_v1";
-    const RESULTS_FALLBACK_FIELD = "avResultados";
+    const RESULTS_TABLE = "av_resultados";
+    const RESULTS_SHARED_ROW = "dados_av_resultados_v1";
     const DATA_WRITER_ID = `browser_${Math.random().toString(36).slice(2)}_${Date.now()}`;
     function localISODate(date = new Date()){
       const year = date.getFullYear();
@@ -5493,8 +5493,13 @@
       "DESENVOLVEDOR": { ...FULL_ACCESS_PERMISSIONS }
     };
 
-    const SUPABASE_URL = "https://euyrhkusnasgiueefldg.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSwiaXJlZiI6ImV1eXJoa3VzbmFzZ2l1ZWVmbGRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNzY0MTksImV4cCI6MjA5ODk1MjQxOX0.woI5Il3ObKrj8BJfdYz8DcUW08Jl5c458ykh1SrHYr4";
+    // Supabase do Assistência Gerencial: usado apenas para carregar funcionários.
+    const MANAGEMENT_SUPABASE_URL = "https://euyrhkusnasgiueefldg.supabase.co";
+    const MANAGEMENT_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSwiaXJlZiI6ImV1eXJoa3VzbmFzZ2l1ZWVmbGRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNzY0MTksImV4cCI6MjA5ODk1MjQxOX0.woI5Il3ObKrj8BJfdYz8DcUW08Jl5c458ykh1SrHYr4";
+
+    // Supabase exclusivo do AV Resultados.
+    const RESULTS_SUPABASE_URL = "https://rwomnimpoojzagwymucr.supabase.co";
+    const RESULTS_SUPABASE_ANON_KEY = "sb_publishable_hKsbyZUlgKg0sW5TgZKQwA_MdXPJRAq";
     const MANAGEMENT_TABLE = "assistencia_gerencial";
     const MANAGEMENT_SHARED_ROW = "dados_compartilhados_v1";
     const EMPLOYEE_CACHE_KEY = "av_resultados_funcionarios_gerencial_cache";
@@ -7079,8 +7084,8 @@
       if(!window.supabase) throw new Error("Biblioteca Supabase indisponível");
 
       dataClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY,
+        RESULTS_SUPABASE_URL,
+        RESULTS_SUPABASE_ANON_KEY,
         { auth:{ persistSession:false } }
       );
 
@@ -7089,54 +7094,23 @@
 
     async function readRemoteDatabase(){
       const client = await ensureDataClient();
-      let primaryError = null;
+      const { data, error } = await client
+        .from(RESULTS_TABLE)
+        .select("dados,updated_at")
+        .eq("id", RESULTS_SHARED_ROW)
+        .maybeSingle();
 
-      try{
-        const { data, error } = await client
-          .from(MANAGEMENT_TABLE)
-          .select("dados,updated_at")
-          .eq("id", RESULTS_SHARED_ROW)
-          .maybeSingle();
+      if(error) throw error;
+      if(!data?.dados) return null;
 
-        if(error) throw error;
-        if(data?.dados){
-          const remote = normalizeDBShape(data.dados);
-          if(
-            (!remote._meta?.updatedAt || remote._meta.updatedAt === "1970-01-01T00:00:00.000Z") &&
-            data.updated_at
-          ){
-            remote._meta.updatedAt = data.updated_at;
-          }
-          return remote;
-        }
-      }catch(error){
-        primaryError = error;
-        console.warn("Linha exclusiva de resultados indisponível; tentando compatibilidade gerencial:", error);
+      const remote = normalizeDBShape(data.dados);
+      if(
+        (!remote._meta?.updatedAt || remote._meta.updatedAt === "1970-01-01T00:00:00.000Z") &&
+        data.updated_at
+      ){
+        remote._meta.updatedAt = data.updated_at;
       }
-
-      try{
-        const { data, error } = await client
-          .from(MANAGEMENT_TABLE)
-          .select("dados,updated_at")
-          .eq("id", MANAGEMENT_SHARED_ROW)
-          .maybeSingle();
-
-        if(error) throw error;
-        const fallbackData = data?.dados?.[RESULTS_FALLBACK_FIELD];
-        if(!fallbackData) return null;
-
-        const remote = normalizeDBShape(fallbackData);
-        if(
-          (!remote._meta?.updatedAt || remote._meta.updatedAt === "1970-01-01T00:00:00.000Z") &&
-          data.updated_at
-        ){
-          remote._meta.updatedAt = data.updated_at;
-        }
-        return remote;
-      }catch(error){
-        console.warn("Base online indisponível:", error, primaryError || "");
-        return null;
-      }
+      return remote;
     }
 
     function scheduleCloudRetry(){
@@ -7154,53 +7128,25 @@
       const payload = JSON.parse(JSON.stringify(databaseState));
       const revision = Number(payload?._meta?.revision || 0);
       const updatedAt = new Date().toISOString();
-      let primaryError = null;
 
       try{
         const client = await ensureDataClient();
         const { error } = await client
-          .from(MANAGEMENT_TABLE)
+          .from(RESULTS_TABLE)
           .upsert({
             id:RESULTS_SHARED_ROW,
             dados:payload,
             updated_at:updatedAt
-          }, {
-            onConflict:"id"
-          });
+          }, { onConflict:"id" });
 
         if(error) throw error;
       }catch(error){
-        primaryError = error;
-        console.warn("Falha na linha exclusiva; usando armazenamento compatível:", error);
-
-        try{
-          const client = await ensureDataClient();
-          const { data:sharedRow, error:readError } = await client
-            .from(MANAGEMENT_TABLE)
-            .select("dados")
-            .eq("id", MANAGEMENT_SHARED_ROW)
-            .maybeSingle();
-
-          if(readError) throw readError;
-          const mergedData = {
-            ...(sharedRow?.dados && typeof sharedRow.dados === "object" ? sharedRow.dados : {}),
-            [RESULTS_FALLBACK_FIELD]:payload
-          };
-
-          const { error:updateError } = await client
-            .from(MANAGEMENT_TABLE)
-            .update({ dados:mergedData, updated_at:updatedAt })
-            .eq("id", MANAGEMENT_SHARED_ROW);
-
-          if(updateError) throw updateError;
-        }catch(fallbackError){
-          console.warn("Não foi possível salvar online:", fallbackError, primaryError || "");
-          setDataSaveStatus("Salvo localmente • tentando sincronizar", "offline");
-          const status = $("#dataSaveStatus");
-          if(status) status.title = String(fallbackError?.message || fallbackError || primaryError || "Falha no Supabase");
-          if(options.retry !== false) scheduleCloudRetry();
-          return false;
-        }
+        console.warn("Não foi possível salvar os dados do AV Resultados no Supabase:", error);
+        setDataSaveStatus("Salvo localmente • tentando sincronizar", "offline");
+        const status = $("#dataSaveStatus");
+        if(status) status.title = String(error?.message || error || "Falha no Supabase do AV Resultados");
+        if(options.retry !== false) scheduleCloudRetry();
+        return false;
       }
 
       lastRemoteSavedRevision = Math.max(lastRemoteSavedRevision, revision);
@@ -7321,19 +7267,12 @@
         .channel(`av_resultados_dados_${Date.now()}`)
         .on(
           "postgres_changes",
-          { event:"*", schema:"public", table:MANAGEMENT_TABLE, filter:`id=eq.${RESULTS_SHARED_ROW}` },
+          { event:"*", schema:"public", table:RESULTS_TABLE, filter:`id=eq.${RESULTS_SHARED_ROW}` },
           payload => applyIncomingRemoteSnapshot(payload?.new?.dados)
-        )
-        .on(
-          "postgres_changes",
-          { event:"*", schema:"public", table:MANAGEMENT_TABLE, filter:`id=eq.${MANAGEMENT_SHARED_ROW}` },
-          payload => applyIncomingRemoteSnapshot(payload?.new?.dados?.[RESULTS_FALLBACK_FIELD])
         )
         .subscribe(status => {
           if(status === "SUBSCRIBED") setDataSaveStatus("Sincronização online ativa", "online");
-          if(status === "CHANNEL_ERROR" || status === "TIMED_OUT"){
-            setDataSaveStatus("Sincronização por consulta ativa", "offline");
-          }
+          if(status === "CHANNEL_ERROR" || status === "TIMED_OUT") setDataSaveStatus("Sincronização por consulta ativa", "offline");
         });
     }
 
@@ -7507,7 +7446,7 @@
       setEmployeeSyncStatus("Sincronizando funcionários");
       try{
         if(!window.supabase) throw new Error("Biblioteca do Supabase indisponível");
-        managementClient = managementClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth:{ persistSession:false } });
+        managementClient = managementClient || window.supabase.createClient(MANAGEMENT_SUPABASE_URL, MANAGEMENT_SUPABASE_ANON_KEY, { auth:{ persistSession:false } });
         const { data, error } = await managementClient
           .from(MANAGEMENT_TABLE)
           .select("dados,updated_at")
