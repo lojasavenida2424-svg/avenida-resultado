@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AV Resultados Operadores V58 — Importação Exclusiva do Desenvolvedor</title>
+  <title>AV Resultados Operadores V58 — Importador Multi-linhas Corrigido</title>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <style>
     :root{
@@ -8134,7 +8134,7 @@
       rows:[],
       text:"",
       fileName:"",
-      profile:"auto"
+      profile:"scoreboard"
     };
 
     function developerImportGuard(){
@@ -8175,9 +8175,9 @@
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
             <div>
               <div class="eyebrow">Ferramenta exclusiva</div>
-              <h3 style="margin:4px 0 0">Importar resultados por foto ou PDF</h3>
+              <h3 style="margin:4px 0 0">Importar placar oficial por foto ou PDF</h3>
               <p style="margin:7px 0 0;color:var(--muted);font-size:11px">
-                Leitura automática, conferência editável e lançamento em lote.
+                Leitura do placar oficial, conferência por operador e importação dos campos Hoje/Acc.
               </p>
             </div>
             <button id="developerImportCloseBtn" class="btn btn-secondary" type="button">✕</button>
@@ -8224,24 +8224,19 @@
             <div class="field">
               <label>Modelo do relatório</label>
               <select id="developerImportProfile" class="control">
+                <option value="scoreboard">Placar oficial de operadores</option>
                 <option value="auto">Detectar automaticamente</option>
                 <option value="launch">Tabela completa de lançamentos</option>
                 <option value="pf">Relatório de Produtos Financeiros</option>
-                <option value="performance">Relatório de PCJ e Tudo AV</option>
+                <option value="performance">Relatório antigo de PCJ e Tudo AV</option>
               </select>
-              <small>Use a detecção automática primeiro.</small>
+              <small>Modelo padrão: placar com colunas Hoje e Acc.</small>
             </div>
           </div>
 
           <div class="developer-import-actions">
-            <button id="developerImportReadBtn" class="btn btn-primary" type="button">
-              Ler arquivo
-            </button>
-            <button id="developerImportInterpretBtn" class="btn btn-secondary" type="button">
-              Interpretar texto
-            </button>
-            <button id="developerImportSampleBtn" class="btn btn-secondary" type="button">
-              Carregar exemplo
+            <button id="developerImportProcessBtn" class="btn btn-primary" type="button">
+              CARREGAR EXEMPLO
             </button>
             <button id="developerImportClearBtn" class="btn btn-danger" type="button">
               Limpar
@@ -8266,7 +8261,7 @@
               placeholder="O conteúdo extraído da imagem ou do PDF aparecerá aqui. Também é possível colar um texto manualmente para testar."
             ></textarea>
             <small>
-              Este campo pode ser corrigido antes de clicar em “Interpretar texto”.
+              O texto extraído é usado automaticamente para reconhecer operador, nome e indicadores.
             </small>
           </div>
 
@@ -8274,7 +8269,7 @@
             <div>
               <h4>Conferência antes de salvar</h4>
               <p>
-                Revise operador e indicadores. Nenhum lançamento é salvo sem confirmação.
+                Revise os dez indicadores oficiais. As metas menores de 43% e 35% são ignoradas.
               </p>
             </div>
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -8292,16 +8287,16 @@
                   <th style="width:52px;text-align:center">Usar</th>
                   <th>Operador</th>
                   <th>Funcionário</th>
-                  <th>Ativados</th>
-                  <th>Bolsa</th>
-                  <th>Compra</th>
-                  <th>Proteção</th>
-                  <th>Sabadão</th>
-                  <th>SMS</th>
-                  <th>Vida+</th>
-                  <th>PF Total</th>
-                  <th>PCJ %</th>
-                  <th>Tudo AV %</th>
+                  <th>% Cartão AV Hoje</th>
+                  <th>% Cartão AV Acc</th>
+                  <th>Cartão GAP Hoje</th>
+                  <th>Cartão GAP Acc</th>
+                  <th>% PCJ Hoje</th>
+                  <th>% PCJ Acc</th>
+                  <th>PCJ GAP Hoje</th>
+                  <th>PCJ GAP Acc</th>
+                  <th>% Tudo AV Hoje</th>
+                  <th>% Tudo AV Acc</th>
                   <th>Leitura</th>
                   <th>Ação</th>
                 </tr>
@@ -8367,6 +8362,11 @@
       $("#developerImportFile").addEventListener("change", event => {
         const file = event.target.files?.[0] || null;
         developerImportState.fileName = file?.name || "";
+        const processButton = $("#developerImportProcessBtn");
+        if(processButton){
+          processButton.disabled = false;
+          processButton.textContent = "CARREGAR EXEMPLO";
+        }
         $("#developerImportFileName").textContent = file
           ? `${file.name} • ${(file.size / 1024).toLocaleString("pt-BR",{
               maximumFractionDigits:1
@@ -8374,17 +8374,9 @@
           : "PNG, JPG, WEBP ou PDF.";
       });
 
-      $("#developerImportReadBtn").addEventListener(
+      $("#developerImportProcessBtn").addEventListener(
         "click",
-        readDeveloperImportFile
-      );
-      $("#developerImportInterpretBtn").addEventListener(
-        "click",
-        interpretDeveloperImportText
-      );
-      $("#developerImportSampleBtn").addEventListener(
-        "click",
-        loadDeveloperImportSample
+        runDeveloperImportUnifiedFlow
       );
       $("#developerImportClearBtn").addEventListener(
         "click",
@@ -8406,6 +8398,18 @@
       const previewBody = $("#developerImportPreviewBody");
       previewBody.addEventListener("input", handleDeveloperImportPreviewInput);
       previewBody.addEventListener("change", handleDeveloperImportPreviewInput);
+      previewBody.addEventListener("blur",event => {
+        const field = event.target?.dataset?.importField;
+        const index = Number(event.target?.dataset?.importIndex);
+        if(!field || !Number.isInteger(index)) return;
+        const row = developerImportState.rows[index];
+        if(!row) return;
+        if(event.target.dataset.importFormat === "percent"){
+          event.target.value = developerImportFormatPercent(row[field]);
+        }else if(event.target.dataset.importFormat === "gap"){
+          event.target.value = developerImportFormatGap(row[field]);
+        }
+      },true);
       previewBody.addEventListener("click", event => {
         const removeButton = event.target.closest("[data-import-remove]");
         if(!removeButton) return;
@@ -8457,14 +8461,14 @@
         rows:[],
         text:"",
         fileName:"",
-        profile:"auto"
+        profile:"scoreboard"
       };
 
       const fileInput = $("#developerImportFile");
       if(fileInput) fileInput.value = "";
 
       if($("#developerImportText")) $("#developerImportText").value = "";
-      if($("#developerImportProfile")) $("#developerImportProfile").value = "auto";
+      if($("#developerImportProfile")) $("#developerImportProfile").value = "scoreboard";
       if($("#developerImportReplaceExisting")){
         $("#developerImportReplaceExisting").checked = false;
       }
@@ -8473,6 +8477,11 @@
           "PNG, JPG, WEBP ou PDF. Para testes, também é possível usar o exemplo interno.";
       }
 
+      const processButton = $("#developerImportProcessBtn");
+      if(processButton){
+        processButton.disabled = false;
+        processButton.textContent = "CARREGAR EXEMPLO";
+      }
       setDeveloperImportStatus("Aguardando arquivo",0);
       renderDeveloperImportPreview();
     }
@@ -8539,8 +8548,12 @@
 
     async function developerImportImageToCanvas(file){
       const bitmap = await createImageBitmap(file);
-      const maxWidth = 2600;
-      const scale = Math.min(1,maxWidth / Math.max(bitmap.width,1));
+      const targetWidth = 3200;
+      const maxWidth = 4200;
+      const scale = Math.min(
+        maxWidth / Math.max(bitmap.width,1),
+        Math.max(1,targetWidth / Math.max(bitmap.width,1))
+      );
       const canvas = document.createElement("canvas");
       canvas.width = Math.max(1,Math.round(bitmap.width * scale));
       canvas.height = Math.max(1,Math.round(bitmap.height * scale));
@@ -8579,6 +8592,8 @@
           canvas,
           language,
           {
+            preserve_interword_spaces:"1",
+            tessedit_pageseg_mode:"6",
             logger: message => {
               if(message.status){
                 const progress = Number(message.progress || 0) * 100;
@@ -8599,6 +8614,357 @@
         console.warn("OCR em português falhou; tentando idioma alternativo.",error);
         return recognize("eng");
       }
+    }
+
+
+    function developerImportImageToColorCanvas(file){
+      return createImageBitmap(file).then(bitmap => {
+        const targetWidth = 3200;
+        const maxWidth = 4200;
+        const scale = Math.min(
+          maxWidth / Math.max(bitmap.width,1),
+          Math.max(1,targetWidth / Math.max(bitmap.width,1))
+        );
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1,Math.round(bitmap.width * scale));
+        canvas.height = Math.max(1,Math.round(bitmap.height * scale));
+        const context = canvas.getContext("2d",{willReadFrequently:true});
+        context.fillStyle = "#ffffff";
+        context.fillRect(0,0,canvas.width,canvas.height);
+        context.drawImage(bitmap,0,0,canvas.width,canvas.height);
+        bitmap.close?.();
+        return canvas;
+      });
+    }
+
+    function developerImportCropCanvas(source,left,top,width,height){
+      const x = Math.max(0,Math.round(left));
+      const y = Math.max(0,Math.round(top));
+      const w = Math.max(1,Math.min(Math.round(width),source.width - x));
+      const h = Math.max(1,Math.min(Math.round(height),source.height - y));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const context = canvas.getContext("2d",{willReadFrequently:true});
+      context.fillStyle = "#ffffff";
+      context.fillRect(0,0,w,h);
+      context.drawImage(source,x,y,w,h,0,0,w,h);
+      return canvas;
+    }
+
+    function developerImportParseTsvWords(tsv){
+      const rows = String(tsv || "").split(/\r?\n/);
+      const words = [];
+      rows.slice(1).forEach(row => {
+        if(!row.trim()) return;
+        const parts = row.split("\t");
+        if(parts.length < 12 || Number(parts[0]) !== 5) return;
+        const value = parts.slice(11).join("\t").trim();
+        if(!value) return;
+        const left = Number(parts[6] || 0);
+        const top = Number(parts[7] || 0);
+        const width = Number(parts[8] || 0);
+        const height = Number(parts[9] || 0);
+        words.push({
+          text:value,
+          left,top,width,height,
+          x:left + width / 2,
+          y:top + height / 2,
+          conf:Number(parts[10] || 0),
+          lineKey:[parts[1],parts[2],parts[3],parts[4]].join(":")
+        });
+      });
+      return words;
+    }
+
+    function developerImportTsvLines(tsv){
+      const groups = new Map();
+      developerImportParseTsvWords(tsv).forEach(word => {
+        if(!groups.has(word.lineKey)) groups.set(word.lineKey,[]);
+        groups.get(word.lineKey).push(word);
+      });
+      return [...groups.values()].map(words => {
+        const sorted = words.slice().sort((a,b) => a.left - b.left);
+        const left = Math.min(...sorted.map(word => word.left));
+        const right = Math.max(...sorted.map(word => word.left + word.width));
+        const top = Math.min(...sorted.map(word => word.top));
+        const bottom = Math.max(...sorted.map(word => word.top + word.height));
+        return {
+          text:sorted.map(word => word.text).join(" "),
+          left,right,top,bottom,
+          x:(left + right) / 2,
+          y:(top + bottom) / 2,
+          words:sorted
+        };
+      }).sort((a,b) => a.y - b.y || a.x - b.x);
+    }
+
+    function developerImportNameTokens(value){
+      return developerImportNormalizeSearch(value)
+        .split(/\s+/)
+        .filter(token => token.length >= 3 && !["DOS","DAS","DE","DA","DO"].includes(token));
+    }
+
+    function developerImportFindEmployeeFuzzy(value){
+      const lineTokens = new Set(developerImportNameTokens(value));
+      if(!lineTokens.size) return null;
+      let best = null;
+      employees.forEach(employee => {
+        const employeeTokens = developerImportNameTokens(
+          employee.name || employee.shortName || ""
+        );
+        if(!employeeTokens.length) return;
+        const matches = employeeTokens.filter(token => lineTokens.has(token)).length;
+        const score = matches / Math.max(employeeTokens.length,1);
+        if(matches >= 2 && (!best || score > best.score)){
+          best = {employee,score};
+        }
+      });
+      return best?.score >= .34 ? best.employee : null;
+    }
+
+    function developerImportFormatPercent(value){
+      const number = Math.min(Math.max(Number(value || 0),0),100);
+      return `${number.toLocaleString("pt-BR",{
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      })}%`;
+    }
+
+    function developerImportFormatGap(value){
+      const number = Math.round(Number(value || 0));
+      return number.toLocaleString("pt-BR",{maximumFractionDigits:0});
+    }
+
+    function developerImportNormalizePercentNumber(value,raw = ""){
+      let number = Number(value || 0);
+      const source = String(raw || "");
+      const hasDecimal = /[.,]/.test(source);
+      if(!hasDecimal && Math.abs(number) > 100 && Math.abs(number) <= 10000){
+        number /= 100;
+      }
+      return Math.min(Math.max(number,0),100);
+    }
+
+    async function developerImportCreateStructuredWorker(){
+      await ensureDeveloperImportOcrLibrary();
+      const worker = await window.Tesseract.createWorker("por",1,{
+        logger: message => {
+          if(!message?.status) return;
+          const localProgress = Number(message.progress || 0);
+          const base = Number(developerImportState.ocrBaseProgress || 18);
+          const span = Number(developerImportState.ocrSpanProgress || 68);
+          setDeveloperImportStatus(
+            developerImportOcrStatus(message.status),
+            Math.min(90,base + localProgress * span)
+          );
+        }
+      });
+      await worker.setParameters({
+        preserve_interword_spaces:"1",
+        tessedit_pageseg_mode:"6",
+        user_defined_dpi:"300"
+      });
+      return worker;
+    }
+
+    async function developerImportRecognizeTsv(worker,canvas,label,progress){
+      developerImportState.ocrBaseProgress = progress;
+      developerImportState.ocrSpanProgress = 8;
+      setDeveloperImportStatus(`Lendo ${label}`,progress);
+      const result = await worker.recognize(
+        canvas,
+        {
+          preserve_interword_spaces:"1",
+          tessedit_pageseg_mode:"6"
+        },
+        {text:true,tsv:true}
+      );
+      return {
+        text:String(result?.data?.text || ""),
+        tsv:String(result?.data?.tsv || "")
+      };
+    }
+
+    function developerImportIdentityRowsFromTsv(tsv){
+      const found = [];
+      const used = new Set();
+      developerImportTsvLines(tsv).forEach(line => {
+        if(/\bTOTAL\b/i.test(line.text)) return;
+        const direct = developerImportFindEmployee(line.text)?.employee || null;
+        const employee = direct || developerImportFindEmployeeFuzzy(line.text);
+        if(!employee) return;
+        const operator = normalizeOperator(employee.operator);
+        if(!operator || used.has(operator)) return;
+        used.add(operator);
+        found.push({employee,operator,y:line.y,text:line.text});
+      });
+      return found.sort((a,b) => a.y - b.y);
+    }
+
+    function developerImportRowBounds(identities,index,canvasHeight){
+      const current = identities[index];
+      const previous = identities[index - 1];
+      const next = identities[index + 1];
+      const typicalGap = identities.length > 1
+        ? identities.slice(1).reduce((sum,item,i) => sum + (item.y - identities[i].y),0) / (identities.length - 1)
+        : canvasHeight * .08;
+      const top = previous
+        ? (previous.y + current.y) / 2
+        : current.y - typicalGap / 2;
+      const bottom = next
+        ? (current.y + next.y) / 2
+        : current.y + typicalGap / 2;
+      return {
+        top:Math.max(0,top),
+        bottom:Math.min(canvasHeight,bottom),
+        center:current.y
+      };
+    }
+
+    function developerImportLineNumericValue(line,type){
+      const cleaned = String(line?.text || "")
+        .replace(/[–—−]/g,"-")
+        .replace(/(?<=\d)[Oo](?=\d|\b)/g,"0")
+        .replace(/\b[Oo](?=\d)/g,"0");
+      const tokens = developerImportNumericTokens(cleaned);
+      if(!tokens.length) return null;
+      const token = tokens[0];
+      if(type === "percent"){
+        return {
+          value:developerImportNormalizePercentNumber(token.value,token.raw),
+          raw:token.raw
+        };
+      }
+      return {value:Number(token.value || 0),raw:token.raw};
+    }
+
+    function developerImportPickColumnValue(lines,bounds,columnIndex,type,metaValue = null){
+      const candidates = lines
+        .filter(line => line.y >= bounds.top && line.y <= bounds.bottom)
+        .filter(line => columnIndex === 0 ? line.x < line.cropWidth / 2 : line.x >= line.cropWidth / 2)
+        .map(line => ({line,parsed:developerImportLineNumericValue(line,type)}))
+        .filter(item => item.parsed !== null);
+      if(!candidates.length) return null;
+
+      let usable = candidates;
+      if(metaValue !== null && candidates.length > 1){
+        const withoutMeta = candidates.filter(item =>
+          Math.abs(Number(item.parsed.value) - Number(metaValue)) > .02
+        );
+        if(withoutMeta.length) usable = withoutMeta;
+      }
+
+      const chosen = metaValue !== null
+        ? usable.slice().sort((a,b) => a.line.y - b.line.y)[0]
+        : usable.slice().sort(
+            (a,b) => Math.abs(a.line.y - bounds.center) - Math.abs(b.line.y - bounds.center)
+          )[0];
+      return chosen?.parsed || null;
+    }
+
+    async function extractDeveloperImportScoreboardStructuredFromCanvas(canvas){
+      const worker = await developerImportCreateStructuredWorker();
+      const rawTexts = [];
+      try{
+        const leftCanvas = developerImportCropCanvas(
+          canvas,0,0,canvas.width * .24,canvas.height
+        );
+        const leftResult = await developerImportRecognizeTsv(
+          worker,leftCanvas,"operadores e nomes",20
+        );
+        rawTexts.push(leftResult.text);
+        const identities = developerImportIdentityRowsFromTsv(leftResult.tsv);
+        if(!identities.length){
+          return {rows:[],text:leftResult.text};
+        }
+
+        await worker.setParameters({
+          tessedit_char_whitelist:"0123456789.,-%–—− ",
+          preserve_interword_spaces:"1",
+          tessedit_pageseg_mode:"6",
+          user_defined_dpi:"300"
+        });
+
+        const sections = [
+          {start:.234,end:.390,fields:["cartaoHoje","cartaoAcc"],type:"percent",meta:43,label:"% Cartão AV"},
+          {start:.390,end:.545,fields:["cartaoGapHoje","cartaoGapAcc"],type:"gap",meta:null,label:"Cartão AV GAP"},
+          {start:.545,end:.700,fields:["pcjHoje","pcjAcc"],type:"percent",meta:35,label:"% PCJ"},
+          {start:.700,end:.856,fields:["pcjGapHoje","pcjGapAcc"],type:"gap",meta:null,label:"PCJ GAP"},
+          {start:.856,end:1.000,fields:["tudoAvHoje","tudoAvAcc"],type:"percent",meta:null,label:"% Tudo AV"}
+        ];
+
+        const sectionData = [];
+        for(let index = 0; index < sections.length; index++){
+          const section = sections[index];
+          const crop = developerImportCropCanvas(
+            canvas,
+            canvas.width * section.start,
+            0,
+            canvas.width * (section.end - section.start),
+            canvas.height
+          );
+          const result = await developerImportRecognizeTsv(
+            worker,crop,section.label,30 + index * 11
+          );
+          rawTexts.push(result.text);
+          const lines = developerImportTsvLines(result.tsv).map(line => ({
+            ...line,
+            cropWidth:crop.width
+          }));
+          sectionData.push({section,lines});
+        }
+
+        const rows = identities.map((identity,index) => {
+          const row = developerImportDefaultRow(identity.employee);
+          const bounds = developerImportRowBounds(identities,index,canvas.height);
+          let recognized = 0;
+          sectionData.forEach(({section,lines}) => {
+            section.fields.forEach((field,columnIndex) => {
+              const parsed = developerImportPickColumnValue(
+                lines,bounds,columnIndex,section.type,section.meta
+              );
+              if(parsed){
+                row[field] = parsed.value;
+                recognized += 1;
+              }
+            });
+          });
+          row.pcj = row.pcjHoje;
+          row.tudoAv = row.tudoAvHoje;
+          row.profile = "scoreboard";
+          row.confidence = recognized >= 9 ? "high" : recognized >= 7 ? "medium" : "low";
+          row.warning = `${recognized} de 10 indicadores reconhecidos no placar oficial.`;
+          return row;
+        });
+
+        const syntheticText = rows.map(row => [
+          row.operator,
+          row.name,
+          developerImportFormatPercent(row.cartaoHoje),
+          developerImportFormatPercent(row.cartaoAcc),
+          developerImportFormatGap(row.cartaoGapHoje),
+          developerImportFormatGap(row.cartaoGapAcc),
+          developerImportFormatPercent(row.pcjHoje),
+          developerImportFormatPercent(row.pcjAcc),
+          developerImportFormatGap(row.pcjGapHoje),
+          developerImportFormatGap(row.pcjGapAcc),
+          developerImportFormatPercent(row.tudoAvHoje),
+          developerImportFormatPercent(row.tudoAvAcc)
+        ].join("\t")).join("\n");
+
+        return {
+          rows,
+          text:`${syntheticText}\n\n--- OCR BRUTO ---\n${rawTexts.join("\n\n")}`
+        };
+      }finally{
+        await worker.terminate().catch(() => {});
+      }
+    }
+
+    async function extractDeveloperImportStructuredImage(file){
+      const canvas = await developerImportImageToColorCanvas(file);
+      return extractDeveloperImportScoreboardStructuredFromCanvas(canvas);
     }
 
     function developerImportPdfContentToText(content){
@@ -8789,7 +9155,7 @@
 
         if(firstName.length >= 4){
           const nameIndex = normalizedLine.indexOf(firstName);
-          if(nameIndex >= 0 && nameIndex <= 48){
+          if(nameIndex >= 0 && nameIndex <= 90){
             return {
               employee,
               operatorIndex:nameIndex,
@@ -8797,6 +9163,15 @@
             };
           }
         }
+      }
+
+      const fuzzyEmployee = developerImportFindEmployeeFuzzy(rawLine);
+      if(fuzzyEmployee){
+        return {
+          employee:fuzzyEmployee,
+          operatorIndex:0,
+          dataIndex:0
+        };
       }
 
       return null;
@@ -8822,11 +9197,20 @@
     }
 
     function developerImportDetectProfile(text, requested = "auto"){
-      if(["launch","pf","performance"].includes(requested)){
+      if(["scoreboard","launch","pf","performance"].includes(requested)){
         return requested;
       }
 
       const normalized = developerImportNormalizeSearch(text);
+      const officialScoreboard =
+        /%?\s*CARTAO AV/.test(normalized) &&
+        /CARTAO AV\s*-?\s*GAP/.test(normalized) &&
+        /PCJ\s*-?\s*GAP/.test(normalized) &&
+        /TUDO AV/.test(normalized) &&
+        /\bACC\b/.test(normalized);
+
+      if(officialScoreboard) return "scoreboard";
+
       const hasActivated = /\bATIVAD/.test(normalized);
       const hasPf = /\bBOLSA\b|\bCOMPRA\b|\bSABADAO\b|\bPROTECAO\b/.test(normalized);
       const hasPerformance =
@@ -8837,7 +9221,7 @@
       if(hasPf && !hasPerformance) return "pf";
       if(hasPerformance && !hasPf) return "performance";
       if(hasPf && hasPerformance) return "launch";
-      return "launch";
+      return "scoreboard";
     }
 
     function developerImportDefaultRow(employee = null){
@@ -8853,6 +9237,16 @@
         sabadao:0,
         sms:0,
         vida:0,
+        cartaoHoje:0,
+        cartaoAcc:0,
+        cartaoGapHoje:0,
+        cartaoGapAcc:0,
+        pcjHoje:0,
+        pcjAcc:0,
+        pcjGapHoje:0,
+        pcjGapAcc:0,
+        tudoAvHoje:0,
+        tudoAvAcc:0,
         pcj:0,
         tudoAv:0,
         confidence:"low",
@@ -8890,7 +9284,80 @@
           ];
     }
 
+    function developerImportPercentTokens(value){
+      return developerImportNumericTokens(value).filter(token => token.percent);
+    }
+
+    function developerImportScoreboardValues(tokens){
+      const result = {
+        cartaoHoje:0, cartaoAcc:0,
+        cartaoGapHoje:0, cartaoGapAcc:0,
+        pcjHoje:0, pcjAcc:0,
+        pcjGapHoje:0, pcjGapAcc:0,
+        tudoAvHoje:0, tudoAvAcc:0
+      };
+
+      // O placar oficial normalmente gera 14 tokens após o nome:
+      // Cartão Hoje, meta 43, Cartão Acc, meta 43, GAP Hoje, GAP Acc,
+      // PCJ Hoje, meta 35, PCJ Acc, meta 35, GAP Hoje, GAP Acc,
+      // Tudo AV Hoje e Tudo AV Acc.
+      if(tokens.length >= 14){
+        result.cartaoHoje = developerImportNormalizePercentNumber(tokens[0].value,tokens[0].raw);
+        result.cartaoAcc = developerImportNormalizePercentNumber(tokens[2].value,tokens[2].raw);
+        result.cartaoGapHoje = tokens[4].value;
+        result.cartaoGapAcc = tokens[5].value;
+        result.pcjHoje = developerImportNormalizePercentNumber(tokens[6].value,tokens[6].raw);
+        result.pcjAcc = developerImportNormalizePercentNumber(tokens[8].value,tokens[8].raw);
+        result.pcjGapHoje = tokens[10].value;
+        result.pcjGapAcc = tokens[11].value;
+        result.tudoAvHoje = developerImportNormalizePercentNumber(tokens[12].value,tokens[12].raw);
+        result.tudoAvAcc = developerImportNormalizePercentNumber(tokens[13].value,tokens[13].raw);
+        return result;
+      }
+
+      // Em PDF textual, as metas menores podem não ser extraídas.
+      if(tokens.length >= 10){
+        [
+          "cartaoHoje","cartaoAcc","cartaoGapHoje","cartaoGapAcc",
+          "pcjHoje","pcjAcc","pcjGapHoje","pcjGapAcc",
+          "tudoAvHoje","tudoAvAcc"
+        ].forEach((field,index) => {
+          const token = tokens[index];
+          if(!token) return;
+          result[field] = /Hoje$|Acc$/.test(field) && !/Gap/.test(field)
+            ? developerImportNormalizePercentNumber(token.value,token.raw)
+            : token.value || 0;
+        });
+      }
+      return result;
+    }
+
+    function developerImportParseScoreboardLine(line){
+      const employeeMatch = developerImportFindEmployee(line);
+      if(!employeeMatch) return null;
+
+      const dataText = String(line).slice(employeeMatch.dataIndex);
+      const tokens = developerImportNumericTokens(dataText);
+      if(tokens.length < 10) return null;
+
+      const row = developerImportDefaultRow(employeeMatch.employee);
+      const values = developerImportScoreboardValues(tokens);
+      Object.assign(row,values);
+      row.pcj = values.pcjHoje;
+      row.tudoAv = values.tudoAvHoje;
+      row.profile = "scoreboard";
+      row.confidence = tokens.length >= 14 ? "high" : "medium";
+      row.warning = tokens.length >= 14
+        ? "Placar oficial reconhecido; metas auxiliares foram ignoradas."
+        : "Placar reconhecido parcialmente; confira os valores extraídos.";
+      return row;
+    }
+
     function developerImportParseLine(line, fullText, profile){
+      if(profile === "scoreboard"){
+        return developerImportParseScoreboardLine(line);
+      }
+
       const employeeMatch = developerImportFindEmployee(line);
       if(!employeeMatch) return null;
 
@@ -9025,7 +9492,17 @@
           "sms",
           "vida",
           "pcj",
-          "tudoAv"
+          "tudoAv",
+          "cartaoHoje",
+          "cartaoAcc",
+          "cartaoGapHoje",
+          "cartaoGapAcc",
+          "pcjHoje",
+          "pcjAcc",
+          "pcjGapHoje",
+          "pcjGapAcc",
+          "tudoAvHoje",
+          "tudoAvAcc"
         ].forEach(key => {
           if(Number(row[key] || 0) !== 0 || Number(current[key] || 0) === 0){
             current[key] = Number(row[key] || 0);
@@ -9044,6 +9521,31 @@
       );
     }
 
+    function developerImportBuildOperatorLines(text){
+      const sourceLines = String(text || "")
+        .replace(/\r/g,"\n")
+        .split("\n")
+        .map(line => line.trim())
+        .filter(Boolean);
+      const rows = [];
+      let current = "";
+
+      sourceLines.forEach(line => {
+        const match = developerImportFindEmployee(line);
+        const looksLikeOperatorRow = /^\s*\(?\d{1,4}\)?[\s.|-]+[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/i.test(line);
+        if(match || looksLikeOperatorRow){
+          if(current) rows.push(current);
+          current = line;
+        }else if(current){
+          // OCR frequentemente quebra uma mesma linha da tabela em 2 ou 3 linhas.
+          // Anexamos trechos numéricos e continuações de nomes/valores.
+          if(/-?\d|%/.test(line)) current += ` ${line}`;
+        }
+      });
+      if(current) rows.push(current);
+      return rows;
+    }
+
     function parseDeveloperImportText(text, requestedProfile = "auto"){
       const normalizedText = String(text || "")
         .replace(/\r/g,"\n")
@@ -9053,19 +9555,15 @@
         normalizedText,
         requestedProfile
       );
-      const lines = normalizedText
-        .split("\n")
-        .map(line => line.trim())
-        .filter(Boolean);
+      const lines = profile === "scoreboard"
+        ? developerImportBuildOperatorLines(normalizedText)
+        : normalizedText
+            .split("\n")
+            .map(line => line.trim())
+            .filter(Boolean);
 
       const parsed = lines
-        .map(line =>
-          developerImportParseLine(
-            line,
-            normalizedText,
-            profile
-          )
-        )
+        .map(line => developerImportParseLine(line,normalizedText,profile))
         .filter(Boolean);
 
       return {
@@ -9077,6 +9575,7 @@
     function developerImportProfileLabel(profile){
       const labels = {
         auto:"Detecção automática",
+        scoreboard:"Placar oficial de operadores",
         launch:"Tabela completa",
         pf:"Produtos Financeiros",
         performance:"PCJ e Tudo AV",
@@ -9174,55 +9673,31 @@
               </strong>
             </td>
             ${[
-              "ativados",
-              "bolsa",
-              "compra",
-              "protecao",
-              "sabadao",
-              "sms",
-              "vida"
-            ].map(field => `
+              ["cartaoHoje",true],
+              ["cartaoAcc",true],
+              ["cartaoGapHoje",false],
+              ["cartaoGapAcc",false],
+              ["pcjHoje",true],
+              ["pcjAcc",true],
+              ["pcjGapHoje",false],
+              ["pcjGapAcc",false],
+              ["tudoAvHoje",true],
+              ["tudoAvAcc",true]
+            ].map(([field,isPercent]) => `
               <td>
                 <input
-                  class="control import-number"
-                  type="number"
-                  min="0"
-                  step="1"
-                  value="${Number(row[field] || 0)}"
+                  class="control ${isPercent ? "import-percent" : "import-number"}"
+                  type="text"
+                  inputmode="decimal"
+                  value="${escapeHtml(isPercent
+                    ? developerImportFormatPercent(row[field])
+                    : developerImportFormatGap(row[field]))}"
                   data-import-field="${field}"
                   data-import-index="${index}"
+                  data-import-format="${isPercent ? "percent" : "gap"}"
                 />
               </td>
             `).join("")}
-            <td>
-              <strong data-import-pf-total="${index}">
-                ${developerImportPfTotal(row).toLocaleString("pt-BR")}
-              </strong>
-            </td>
-            <td>
-              <input
-                class="control import-percent"
-                type="number"
-                min="0"
-                max="100"
-                step="0.01"
-                value="${Number(row.pcj || 0)}"
-                data-import-field="pcj"
-                data-import-index="${index}"
-              />
-            </td>
-            <td>
-              <input
-                class="control import-percent"
-                type="number"
-                min="0"
-                max="100"
-                step="0.01"
-                value="${Number(row.tudoAv || 0)}"
-                data-import-field="tudoAv"
-                data-import-index="${index}"
-              />
-            </td>
             <td>
               <span
                 class="developer-import-confidence ${escapeHtml(row.confidence || "low")}"
@@ -9287,33 +9762,26 @@
           nameField.textContent =
             employee?.shortName || "Operador não identificado";
         }
-      }else if(field === "pcj" || field === "tudoAv"){
-        row[field] = Math.min(
-          Math.max(Number(event.target.value || 0),0),
-          100
+      }else if([
+        "pcj","tudoAv","cartaoHoje","cartaoAcc",
+        "pcjHoje","pcjAcc","tudoAvHoje","tudoAvAcc"
+      ].includes(field)){
+        const parsedValue = developerImportParseNumber(event.target.value || 0);
+        row[field] = developerImportNormalizePercentNumber(
+          parsedValue,
+          event.target.value
         );
+        if(field === "pcjHoje") row.pcj = row[field];
+        if(field === "tudoAvHoje") row.tudoAv = row[field];
+      }else if([
+        "cartaoGapHoje","cartaoGapAcc","pcjGapHoje","pcjGapAcc"
+      ].includes(field)){
+        row[field] = developerImportParseNumber(event.target.value || 0);
       }else{
         row[field] = Math.max(
           Math.round(Number(event.target.value || 0)),
           0
         );
-      }
-
-      if([
-        "bolsa",
-        "compra",
-        "protecao",
-        "sabadao",
-        "sms",
-        "vida"
-      ].includes(field)){
-        const totalField = document.querySelector(
-          `[data-import-pf-total="${index}"]`
-        );
-        if(totalField){
-          totalField.textContent =
-            developerImportPfTotal(row).toLocaleString("pt-BR");
-        }
       }
 
       refreshDeveloperImportPreviewCount();
@@ -9373,18 +9841,120 @@
     function loadDeveloperImportSample(){
       if(!developerImportGuard()) return;
 
-      const sample = `RELATÓRIO DE RESULTADOS — HOJE
-OPERADOR NOME ATIVADOS BOLSA COMPRA PROTEÇÃO SABADÃO SMS VIDA+ PCJ TUDO AV
-36 LUIZA 2 1 3 0 4 1 0 55,28% 78,62%
-145 CELIO 1 0 2 1 5 0 1 46,78% 81,40%
-31 DEBORA 3 0 1 0 2 1 0 47,24% 81,25%`;
+      const sample = `PLACAR OFICIAL DE OPERADORES
+ID NOME % CARTÃO AV HOJE META ACC META CARTÃO AV GAP HOJE ACC % PCJ HOJE META ACC META PCJ GAP HOJE ACC % TUDO AV HOJE ACC
+37 DIEGO DONIZETE GENEROSO 55,41% 43,00% 36,17% 43,00% 363 -1.437 71,80% 35,00% 61,26% 35,00% 597 1.999 78,95% 83,11%
+143 JOICE KAMILLY DE OLIVEIRA GONCALVES 31,93% 43,00% 38,51% 43,00% -278 -290 0,00% 35,00% 39,01% 35,00% -281 100 96,30% 90,57%
+29 MARIA EDUARDA DE SOUZA NUNES 60,39% 43,00% 49,11% 43,00% 341 1.379 8,43% 35,00% 56,70% 35,00% -315 2.406 54,55% 75,84%`;
 
       developerImportState.fileName = "EXEMPLO_INTERNO.txt";
       $("#developerImportText").value = sample;
-      $("#developerImportProfile").value = "launch";
+      $("#developerImportProfile").value = "scoreboard";
       $("#developerImportFileName").textContent =
         "Exemplo interno carregado para teste.";
       interpretDeveloperImportText();
+    }
+
+    function developerImportSetProcessStep(label, progress, detail = ""){
+      const button = $("#developerImportProcessBtn");
+      if(button) button.textContent = label;
+      setDeveloperImportStatus(label,progress,detail);
+    }
+
+    async function runDeveloperImportUnifiedFlow(){
+      if(!developerImportGuard()) return;
+
+      const file = $("#developerImportFile")?.files?.[0];
+      if(!file){
+        alert("Selecione uma imagem ou PDF antes de iniciar.");
+        return;
+      }
+
+      const processButton = $("#developerImportProcessBtn");
+      const confirmButton = $("#developerImportConfirmBtn");
+      processButton.disabled = true;
+      if(confirmButton) confirmButton.disabled = true;
+      developerImportState.fileName = file.name;
+
+      try{
+        // ETAPA 1 — carrega o modelo oficial do placar.
+        developerImportSetProcessStep("CARREGAR EXEMPLO",8,"Modelo oficial de operadores");
+        developerImportState.profile = "scoreboard";
+        if($("#developerImportProfile")) $("#developerImportProfile").value = "scoreboard";
+        await new Promise(resolve => setTimeout(resolve,350));
+
+        // ETAPA 2 — extrai os valores reais da imagem/PDF.
+        developerImportSetProcessStep("LER ARQUIVO",18,file.name);
+        const extension = String(file?.name || "").split(".").pop().toLowerCase();
+        const isPdf = file?.type === "application/pdf" || extension === "pdf";
+        let parsed;
+        let text;
+
+        if(!isPdf){
+          const structured = await extractDeveloperImportStructuredImage(file);
+          text = structured.text;
+          parsed = {
+            profile:"scoreboard",
+            rows:developerImportMergeRows(structured.rows || [])
+          };
+
+          // Segurança: se a leitura estruturada não encontrar múltiplas linhas,
+          // usa também o interpretador textual antigo como segunda tentativa.
+          if(parsed.rows.length < 2){
+            const fallbackText = await extractDeveloperImportText(file);
+            const fallbackParsed = parseDeveloperImportText(fallbackText,"scoreboard");
+            text = `${text || ""}
+
+--- LEITURA ALTERNATIVA ---
+${fallbackText}`;
+            parsed.rows = developerImportMergeRows([
+              ...(parsed.rows || []),
+              ...(fallbackParsed.rows || [])
+            ]);
+          }
+        }else{
+          text = await extractDeveloperImportText(file);
+          parsed = parseDeveloperImportText(text,"scoreboard");
+        }
+
+        developerImportState.text = text || "";
+        if($("#developerImportText")) $("#developerImportText").value = text || "";
+        developerImportState.profile = parsed.profile;
+        developerImportState.rows = parsed.rows;
+        renderDeveloperImportPreview();
+
+        if(!parsed.rows.length){
+          throw new Error("Nenhum operador ou valor foi reconhecido no arquivo.");
+        }
+
+        // ETAPA 3 — conclui o mapeamento e deixa os dados prontos para salvar.
+        developerImportSetProcessStep(
+          "FINALIZANDO PROCEDIMENTO",
+          94,
+          `${parsed.rows.length} operador${parsed.rows.length === 1 ? "" : "es"} reconhecido${parsed.rows.length === 1 ? "" : "s"}`
+        );
+        await new Promise(resolve => setTimeout(resolve,500));
+
+        developerImportSetProcessStep(
+          "FINALIZADO",
+          100,
+          `${parsed.rows.length} linha${parsed.rows.length === 1 ? "" : "s"} pronta${parsed.rows.length === 1 ? "" : "s"} para importar`
+        );
+        if(confirmButton) confirmButton.disabled = false;
+      }catch(error){
+        console.error("Falha no fluxo unificado de importação:",error);
+        developerImportSetProcessStep(
+          "CARREGAR EXEMPLO",
+          100,
+          error?.message || "Não foi possível ler o arquivo"
+        );
+        alert(
+          "Não foi possível extrair os operadores e valores. Use uma imagem nítida, sem cortes, ou um PDF original do placar."
+        );
+      }finally{
+        processButton.disabled = false;
+        refreshDeveloperImportPreviewCount();
+      }
     }
 
     async function readDeveloperImportFile(){
@@ -9396,9 +9966,9 @@ OPERADOR NOME ATIVADOS BOLSA COMPRA PROTEÇÃO SABADÃO SMS VIDA+ PCJ TUDO AV
         return;
       }
 
-      const readButton = $("#developerImportReadBtn");
+      const readButton = $("#developerImportProcessBtn");
       const confirmButton = $("#developerImportConfirmBtn");
-      readButton.disabled = true;
+      if(readButton) readButton.disabled = true;
       confirmButton.disabled = true;
       developerImportState.fileName = file.name;
 
@@ -9422,12 +9992,14 @@ OPERADOR NOME ATIVADOS BOLSA COMPRA PROTEÇÃO SABADÃO SMS VIDA+ PCJ TUDO AV
           "A leitura automática não foi concluída. O arquivo pode estar desfocado ou a biblioteca externa pode estar indisponível. Você ainda pode colar o texto no campo e usar “Interpretar texto”."
         );
       }finally{
-        readButton.disabled = false;
+        if(readButton) readButton.disabled = false;
         refreshDeveloperImportPreviewCount();
       }
     }
 
     function developerImportRecordValues(row){
+      const percentage = value => Math.min(Math.max(Number(value || 0),0),100);
+      const gap = value => Number(value || 0);
       return {
         ativados:Math.max(Math.round(Number(row.ativados || 0)),0),
         bolsa:Math.max(Math.round(Number(row.bolsa || 0)),0),
@@ -9436,8 +10008,19 @@ OPERADOR NOME ATIVADOS BOLSA COMPRA PROTEÇÃO SABADÃO SMS VIDA+ PCJ TUDO AV
         sabadao:Math.max(Math.round(Number(row.sabadao || 0)),0),
         sms:Math.max(Math.round(Number(row.sms || 0)),0),
         vida:Math.max(Math.round(Number(row.vida || 0)),0),
-        pcj:Math.min(Math.max(Number(row.pcj || 0),0),100),
-        tudoAv:Math.min(Math.max(Number(row.tudoAv || 0),0),100)
+        cartaoHoje:percentage(row.cartaoHoje),
+        cartaoAcc:percentage(row.cartaoAcc),
+        cartaoGapHoje:gap(row.cartaoGapHoje),
+        cartaoGapAcc:gap(row.cartaoGapAcc),
+        pcjHoje:percentage(row.pcjHoje),
+        pcjAcc:percentage(row.pcjAcc),
+        pcjGapHoje:gap(row.pcjGapHoje),
+        pcjGapAcc:gap(row.pcjGapAcc),
+        tudoAvHoje:percentage(row.tudoAvHoje),
+        tudoAvAcc:percentage(row.tudoAvAcc),
+        // Compatibilidade com calendário, rankings e telas já existentes.
+        pcj:percentage(row.pcjHoje || row.pcj),
+        tudoAv:percentage(row.tudoAvHoje || row.tudoAv)
       };
     }
 
@@ -9451,7 +10034,17 @@ OPERADOR NOME ATIVADOS BOLSA COMPRA PROTEÇÃO SABADÃO SMS VIDA+ PCJ TUDO AV
         "sms",
         "vida",
         "pcj",
-        "tudoAv"
+        "tudoAv",
+        "cartaoHoje",
+        "cartaoAcc",
+        "cartaoGapHoje",
+        "cartaoGapAcc",
+        "pcjHoje",
+        "pcjAcc",
+        "pcjGapHoje",
+        "pcjGapAcc",
+        "tudoAvHoje",
+        "tudoAvAcc"
       ];
 
       return db.records.some(record =>
