@@ -791,6 +791,45 @@
     .dashboard-metric-card.metric-achieved .dashboard-metric-percent{color:var(--ok)}
     .dashboard-metric-card.metric-low .dashboard-metric-percent{color:var(--bad)}
     .dashboard-metric-card.metric-progress .dashboard-metric-percent{color:var(--warn)}
+
+    /* Auditoria de origem dos indicadores — disponível somente ao desenvolvedor */
+    .dashboard-metric-value.dev-source-link{
+      position:relative;
+      cursor:pointer;
+      outline:none;
+      padding-bottom:29px;
+      transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background-color .18s ease;
+    }
+    .dashboard-metric-value.dev-source-link:hover,
+    .dashboard-metric-value.dev-source-link:focus-visible{
+      transform:translateY(-2px);
+      border-color:var(--brand);
+      box-shadow:0 0 0 3px rgba(var(--brand-rgb),.14),0 10px 22px rgba(0,0,0,.09);
+    }
+    .dashboard-metric-value.dev-source-link::after{
+      content:"↗ Ver origem";
+      position:absolute;
+      left:12px;
+      bottom:9px;
+      color:var(--brand-2);
+      font-size:8px;
+      font-weight:1000;
+      letter-spacing:.055em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .dashboard-metric-value.dev-source-link.source-record::after{
+      content:"↗ Ver lançamentos";
+    }
+    .dashboard-source-highlight{
+      animation:dashboardSourcePulse 1.9s ease;
+      border-color:var(--brand)!important;
+      box-shadow:0 0 0 4px rgba(var(--brand-rgb),.20),0 14px 28px rgba(0,0,0,.12)!important;
+    }
+    @keyframes dashboardSourcePulse{
+      0%,100%{transform:scale(1)}
+      30%{transform:scale(1.018)}
+    }
     @media(max-width:1180px){
       .dashboard-metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
@@ -1116,7 +1155,7 @@
     }
     .store-activated-fields{
       display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
+      grid-template-columns:repeat(4,minmax(0,1fr));
       gap:16px;
       grid-column:1 / -1;
     }
@@ -4816,17 +4855,22 @@
                   <div class="field">
                     <label>Ativados do dia</label>
                     <input id="cfgAtivadosDia" class="control" type="number" min="0" step="1" required />
-                    <small>Quantidade realizada somente no dia atual.</small>
+                    <small>Quantidade já realizada no dia.</small>
                   </div>
                   <div class="field">
-                    <label>Ativados acumulado</label>
+                    <label>Ativados meta</label>
+                    <input id="cfgAtivadosMeta" class="control" type="number" min="0" step="1" required />
+                    <small>Quantidade que deve ser realizada no dia.</small>
+                  </div>
+                  <div class="field">
+                    <label>Ativados acumulado meta</label>
                     <input id="cfgAtivadosAcc" class="control" type="number" min="0" step="1" required />
                     <small>Quantidade já realizada no mês.</small>
                   </div>
                   <div class="field">
-                    <label>Total de Ativados</label>
+                    <label>Ativados acumulado total</label>
                     <input id="cfgAtivadosTotal" class="control" type="number" min="0" step="1" required />
-                    <small>Meta total de Ativados para o final do mês.</small>
+                    <small>Meta total que deve ser realizada no mês.</small>
                   </div>
                 </div>
               </div>
@@ -5827,6 +5871,7 @@
         tudoAvAcc: SIGA_SNAPSHOT.total.tudoAvAcc,
         tudoAvGap: 0,
         ativadosDia: 0,
+        ativadosMeta: 0,
         ativadosAcc: 0,
         ativadosTotal: 0,
         pfRealizado: 0,
@@ -5927,6 +5972,12 @@
       normalized.header.ativadosDia = Number(
         normalized.header.ativadosDia ??
         normalized.calendarSnapshots?.[today()]?.store?.ativadosHoje ??
+        0
+      );
+      normalized.header.ativadosMeta = Number(
+        normalized.header.ativadosMeta ??
+        normalized.calendarSnapshots?.[today()]?.store?.ativadosMeta ??
+        DAILY_RESULTS_PATCH?.store?.ativadosMeta ??
         0
       );
 
@@ -7579,10 +7630,10 @@
             pcjGapAcc:Number(db.header.pcjGapAcc || 0),
             tudoAv:Number(db.header.tudoAvDia || 0),
             tudoAvAcc:Number(db.header.tudoAvAcc || 0),
-            ativadosHoje:0,
+            ativadosHoje:Number(db.header.ativadosDia || 0),
             ativadosAcc:Number(db.header.ativadosAcc || 0),
             ativadosMetaAcc:Number(db.header.ativadosTotal || 0),
-            ativadosMeta:null,
+            ativadosMeta:Number(db.header.ativadosMeta || 0),
             pfAcc:Number(db.header.pfRealizado || 0),
             pfMetaAcc:getStoreMonthlyPfGoal(monthPrefix(date))
           },
@@ -10143,7 +10194,7 @@ OPERADOR NOME ATIVADOS BOLSA COMPRA PROTEÇÃO SABADÃO SMS VIDA+ PCJ TUDO AV
         ativadosHoje:Number(db.header.ativadosDia || 0),
         ativadosAcc:Number(db.header.ativadosAcc || 0),
         ativadosMetaAcc:Number(db.header.ativadosTotal || 0),
-        ativadosMeta:null,
+        ativadosMeta:Number(db.header.ativadosMeta || 0),
         pfAcc:pfRealizedTotal,
         pfMetaHoje:pfTodayGoalTotal,
         pfMetaAcc:pfGoalTotal || getStoreMonthlyPfGoal(month),
@@ -12128,7 +12179,8 @@ OPERADOR NOME ATIVADOS BOLSA COMPRA PROTEÇÃO SABADÃO SMS VIDA+ PCJ TUDO AV
         ["rankings", renderRankings],
         ["GAME", renderGame],
         ["AV Premia", renderAvPremia],
-        ["navegação", applyNavigationPermissions]
+        ["navegação", applyNavigationPermissions],
+        ["atalhos de auditoria do desenvolvedor", applyDeveloperDashboardSourceLinks]
       ];
 
       renderers.forEach(([label, renderer]) => {
@@ -12250,20 +12302,12 @@ OPERADOR NOME ATIVADOS BOLSA COMPRA PROTEÇÃO SABADÃO SMS VIDA+ PCJ TUDO AV
         store.compromissoDia ?? h.compromissoDia ?? 0
       );
 
-      const activatedTodayActual =
-        calendarDailyCount(currentDate,"ativados");
-      const activatedMonthlyTarget = Math.max(
-        Number(h.ativadosTotal || 0),
-        Number(goals.ativados || 0),
-        Number(store.ativadosMetaAcc || 0)
-      );
-      const activatedTodayOfficialTarget =
-        Number(store.ativadosMeta || 0);
-      const activatedTodayGoal = activatedTodayOfficialTarget > 0
-        ? activatedTodayOfficialTarget
-        : activatedMonthlyTarget > 0
-          ? activatedMonthlyTarget / daysInMonth
-          : 0;
+      // Ativados do painel principal usam exclusivamente os quatro
+      // valores oficiais preenchidos em Distribuição de Meta > Meta de Venda.
+      // Não somar operadores e não dividir a meta mensal para criar meta diária.
+      const activatedTodayActual = Number(h.ativadosDia || 0);
+      const activatedTodayGoal = Number(h.ativadosMeta || 0);
+      const activatedMonthlyTarget = Number(h.ativadosTotal || 0);
 
       const pfTodayActual =
         calendarDailyCount(currentDate,"pf");
@@ -12307,8 +12351,7 @@ OPERADOR NOME ATIVADOS BOLSA COMPRA PROTEÇÃO SABADÃO SMS VIDA+ PCJ TUDO AV
       );
       const salesAccumGoal = getStoreMonthlyGoal(currentMonth);
 
-      const activatedAccumActual =
-        calendarAccumulatedCount(currentDate,"ativados");
+      const activatedAccumActual = Number(h.ativadosAcc || 0);
       const pfAccumActual =
         calendarAccumulatedCount(currentDate,"pf");
       const pfAccumGoal =
@@ -12907,6 +12950,7 @@ OPERADOR NOME ATIVADOS BOLSA COMPRA PROTEÇÃO SABADÃO SMS VIDA+ PCJ TUDO AV
           : `Meta de ${goalMonthLabel(storeGoalMonthKey())} congelada até o próximo dia 1.`;
 
       $("#cfgAtivadosDia").value = Number(h.ativadosDia || 0);
+      $("#cfgAtivadosMeta").value = Number(h.ativadosMeta || 0);
       $("#cfgAtivadosAcc").value = Number(h.ativadosAcc || 0);
       $("#cfgAtivadosTotal").value = Number(h.ativadosTotal || 0);
 
@@ -13103,6 +13147,7 @@ OPERADOR NOME ATIVADOS BOLSA COMPRA PROTEÇÃO SABADÃO SMS VIDA+ PCJ TUDO AV
         vendaAcumulada:parseBRLCurrency($("#cfgVendaAcumulada").value),
         metaTotal:activeMonthlyGoal,
         ativadosDia:Number($("#cfgAtivadosDia").value||0),
+        ativadosMeta:Number($("#cfgAtivadosMeta").value||0),
         ativadosAcc:Number($("#cfgAtivadosAcc").value||0),
         ativadosTotal:Number($("#cfgAtivadosTotal").value||0),
         storePfRealized:normalizeStorePfBreakdown(pfRealized),
@@ -13660,6 +13705,127 @@ OPERADOR NOME ATIVADOS BOLSA COMPRA PROTEÇÃO SABADÃO SMS VIDA+ PCJ TUDO AV
       button.disabled = false;
       button.textContent = "↻ Atualizar do Gerencial";
     });
+
+
+
+    const DASHBOARD_DEVELOPER_SOURCES = {
+      dashTodaySalesActual:{section:"distribuicao",mode:"loja",category:"venda",target:"cfgVendaAtual",label:"Venda atual"},
+      dashTodaySalesGoal:{section:"distribuicao",mode:"loja",category:"venda",target:"cfgCompromissoDia",label:"Meta de venda do dia"},
+      dashTodayActivatedActual:{section:"distribuicao",mode:"loja",category:"venda",target:"cfgAtivadosDia",label:"Ativados do dia"},
+      dashTodayActivatedGoal:{section:"distribuicao",mode:"loja",category:"venda",target:"cfgAtivadosMeta",label:"Ativados meta"},
+      dashTodayPfActual:{section:"calendario",calendarDate:"today",label:"PF realizado hoje",record:true},
+      dashTodayPfGoal:{section:"distribuicao",mode:"loja",category:"pf",pfPeriod:"hoje",target:"cfgPfBolsaMetaHoje",label:"Metas de PF de hoje"},
+      dashTodayPcjActual:{section:"distribuicao",mode:"loja",category:"pcj",target:"cfgPcjDia",label:"PCJ atual"},
+      dashTodayPcjGoal:{section:"distribuicao",mode:"assessor",target:"goalPcj",label:"Meta de PCJ dos assessores"},
+      dashAccumSalesActual:{section:"distribuicao",mode:"loja",category:"venda",target:"cfgVendaAcumulada",label:"Venda acumulada"},
+      dashAccumSalesGoal:{section:"distribuicao",mode:"loja",category:"venda",target:"cfgMetaTotal",label:"Meta total mensal"},
+      dashAccumActivatedActual:{section:"distribuicao",mode:"loja",category:"venda",target:"cfgAtivadosAcc",label:"Ativados acumulado meta"},
+      dashAccumActivatedGoal:{section:"distribuicao",mode:"loja",category:"venda",target:"cfgAtivadosTotal",label:"Ativados acumulado total"},
+      dashAccumPfActual:{section:"calendario",calendarDate:"today",label:"PF acumulado",record:true},
+      dashAccumPfGoal:{section:"distribuicao",mode:"loja",category:"pf",pfPeriod:"mes",target:"cfgPfBolsaMeta",label:"Metas mensais de PF"},
+      dashAccumPcjActual:{section:"distribuicao",mode:"loja",category:"pcj",target:"cfgPcjAcc",label:"PCJ acumulado"},
+      dashAccumPcjGoal:{section:"distribuicao",mode:"assessor",target:"goalPcj",label:"Meta de PCJ dos assessores"}
+    };
+
+    function dashboardSourceContainer(valueId){
+      return document.getElementById(valueId)?.closest(".dashboard-metric-value") || null;
+    }
+
+    function clearDashboardSourceHighlight(){
+      document.querySelectorAll(".dashboard-source-highlight").forEach(element => {
+        element.classList.remove("dashboard-source-highlight");
+      });
+    }
+
+    function highlightDashboardSource(target){
+      if(!target) return;
+      clearDashboardSourceHighlight();
+      const field = target.closest(".field,.store-pf-today-card,.store-pf-pair") || target;
+      field.classList.add("dashboard-source-highlight");
+      field.scrollIntoView({behavior:"smooth",block:"center"});
+      window.setTimeout(() => field.classList.remove("dashboard-source-highlight"),2200);
+      if(typeof target.focus === "function"){
+        window.setTimeout(() => target.focus({preventScroll:true}),450);
+      }
+    }
+
+    function openDashboardDeveloperSource(source){
+      if(!isDev() || !source) return;
+
+      const navButton = document.querySelector(`[data-section="${source.section}"]`);
+      openSection(source.section,navButton);
+
+      window.setTimeout(() => {
+        if(source.section === "distribuicao"){
+          const typeSelect = document.getElementById("distributionTypeSelect");
+          if(typeSelect && source.mode){
+            typeSelect.value = source.mode;
+            renderDistributionType();
+          }
+
+          if(source.mode === "loja"){
+            const categorySelect = document.getElementById("storeGoalSectionSelect");
+            if(categorySelect && source.category){
+              categorySelect.value = source.category;
+              renderStoreGoalSection();
+            }
+            const periodSelect = document.getElementById("storePfPeriodSelect");
+            if(periodSelect && source.pfPeriod){
+              periodSelect.value = source.pfPeriod;
+              renderStorePfPeriod();
+            }
+          }
+        }
+
+        if(source.section === "calendario"){
+          const dateInput = document.getElementById("calendarDate");
+          if(dateInput && source.calendarDate === "today"){
+            dateInput.value = today();
+            renderSalesCalendar();
+          }
+        }
+
+        const target = source.target ? document.getElementById(source.target) : null;
+        if(target){
+          highlightDashboardSource(target);
+        }else if(source.section === "calendario"){
+          const calendarTarget = document.querySelector("#calendario .calendar-toolbar") || document.getElementById("calendario");
+          highlightDashboardSource(calendarTarget);
+        }
+      },80);
+    }
+
+    function applyDeveloperDashboardSourceLinks(){
+      Object.entries(DASHBOARD_DEVELOPER_SOURCES).forEach(([valueId,source]) => {
+        const container = dashboardSourceContainer(valueId);
+        if(!container) return;
+
+        container.classList.toggle("dev-source-link",Boolean(isDev()));
+        container.classList.toggle("source-record",Boolean(isDev() && source.record));
+
+        if(isDev()){
+          container.setAttribute("role","button");
+          container.setAttribute("tabindex","0");
+          container.setAttribute("aria-label",`Abrir origem: ${source.label}`);
+          container.title = `Desenvolvedor: abrir origem de ${source.label}`;
+        }else{
+          container.removeAttribute("role");
+          container.removeAttribute("tabindex");
+          container.removeAttribute("aria-label");
+          container.removeAttribute("title");
+        }
+
+        if(container.dataset.dashboardSourceBound === "true") return;
+        container.dataset.dashboardSourceBound = "true";
+        container.addEventListener("click",() => openDashboardDeveloperSource(source));
+        container.addEventListener("keydown",event => {
+          if(event.key === "Enter" || event.key === " "){
+            event.preventDefault();
+            openDashboardDeveloperSource(source);
+          }
+        });
+      });
+    }
 
     function openSection(sectionName, sourceButton = null){
       if(sectionName === "config" && !isDev()) return;
