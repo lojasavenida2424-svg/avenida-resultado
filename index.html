@@ -4,6 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AV Resultados Operadores V58 — Importador Multi-linhas Corrigido</title>
+  <!-- PWA / ÍCONE EXTERNO AV RESULTADOS — não altera ícones internos -->
+  <meta name="theme-color" content="#E0B423">
+  <meta name="application-name" content="AV Resultados">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="AV Resultados">
+
+  <link rel="icon" href="./favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+  <link rel="manifest" href="./manifest.webmanifest">
+
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <style>
     :root{
@@ -14914,5 +14929,16 @@ ${fallbackText}`;
       });
     }
   </script>
+
+<script id="av-resultados-pwa-register">
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw-pwa.js').catch(err => {
+        console.warn('PWA Service Worker indisponível:', err);
+      });
+    });
+  }
+</script>
+
 </body>
 </html>

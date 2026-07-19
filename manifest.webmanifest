@@ -1,7 +1,7 @@
 {
   "name": "AV Resultados Operadores",
-  "short_name": "AV Resultado",
-  "description": "Sistema de resultados, metas, operadores, produtos financeiros e desempenho da Loja 24 Avenida.",
+  "short_name": "AV Resultados",
+  "description": "Sistema AV Resultados Operadores da Loja Avenida.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
@@ -11,8 +11,8 @@
     "standalone",
     "minimal-ui"
   ],
-  "background_color": "#291A1E",
-  "theme_color": "#291A1E",
+  "background_color": "#F6F4EB",
+  "theme_color": "#E0B423",
   "orientation": "any",
   "lang": "pt-BR",
   "icons": [

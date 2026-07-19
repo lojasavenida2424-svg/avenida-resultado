@@ -1,5 +1,5 @@
-/* Avenida PWA Service Worker */
-const CACHE_NAME = 'avenida-pwa-shell-v1';
+/* AV Resultados Operadores — PWA Service Worker */
+const CACHE_NAME = 'av-resultados-v58-pwa-v1';
 const ASSETS = [
   './',
   './manifest.webmanifest',
@@ -22,14 +22,14 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))
     )
   );
   self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
-  if(event.request.method !== 'GET') return;
+  if (event.request.method !== 'GET') return;
   event.respondWith(
     fetch(event.request).catch(() => caches.match(event.request))
   );
