@@ -1,0 +1,9 @@
+<script id="avenida-pwa-register">
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw-pwa.js').catch(err => {
+        console.warn('PWA Service Worker indisponível:', err);
+      });
+    });
+  }
+</script>
